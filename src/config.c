@@ -52,7 +52,7 @@ void read_config_files()
     char hostnamebuf[MAX_SITENAME_LENGTH + 1];
     struct hostent * hostentbuf;
 
-    yyin = fopen("conf/boa.conf", "r");
+    yyin = fopen("boa.conf", "r");
 
     if(!yyin) {
 	fprintf(stderr, "Could not open boa.conf for reading.\n");

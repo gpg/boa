@@ -23,7 +23,7 @@
 
 /***** Change this, or use -c on the command line to specify it *****/
 
-#define SERVER_ROOT "/usr/local/boa"
+#define SERVER_ROOT "/etc/boa"
 
 /***** Various stuff that you may want to tweak, but probably shouldn't *****/
 

@@ -257,9 +257,6 @@ void init_cgi(request * req)
     int child_pid;
 
     SQUASH_KA(req);
-    if (req->content_type)
-    	add_cgi_env(req, "CONTENT_TYPE", req->content_type);
-
     complete_env(req);
 
     if(req->is_cgi != NPH)		/* have to precede fork */

@@ -76,7 +76,7 @@ int yywrap()
 
     switch(file) {
       case 1:
-	yyin = fopen("conf/mime.types", "r");
+	yyin = fopen("/etc/mime.types", "r");
 	if(!yyin) {
 	    fprintf(stderr, "Could not open mime.types for reading\n");
 	    exit(1);

@@ -29,33 +29,6 @@
 
 static alias * alias_hashtable[ALIAS_HASHTABLE_SIZE];
 
-int check_gz(request *req, char *file)
-{
-	struct stat statbuf;
-
-	if(stat(file, &statbuf) == -1) {      /* file does not exist */
-		static char buf[MAX_PATH_LENGTH];
-		
-		strcpy(buf, file);
-		strcat(buf, ".gz");
-		if(stat(buf, &statbuf) == -1) {      /* file does not exist */	
-		
-			send_r_not_found(req);
-			return 0;
-		}
-	    	req->is_cgi = CGI;
-	    	req->script_name = strdup(buf);
-	    	if (req->path_translated)
-	    		free(req->path_translated);
-	   	req->path_translated =
-	   	strdup("/usr/lib/cgi-bin/gunzip.cgi");
-	   	req->content_type = get_mime_type(file);
-	}
-	else 
-		req->path_translated = strdup(file);
-	return 1;
-}
-
 /*
  * Name: add_alias
  *
@@ -199,7 +172,15 @@ int translate_uri(request * req)
 
             sprintf(buffer, "%s%s", current->realname, 
               &req->request_uri[current->fake_len]);
-            return check_gz(req, buffer);
+
+            if(stat(buffer, &statbuf) == -1) {      /* file does not exist */
+		send_r_not_found(req);
+		return 0;
+	    }
+            else {
+                req->path_translated = strdup(buffer);
+	        return 1;
+            }
 	}
 
 	current = current->next;
@@ -249,6 +230,11 @@ int translate_uri(request * req)
 
     req->path_translated = strdup(buffer);
 
+    if(stat(buffer, &statbuf) == -1) {    /* file does not exist */
+	send_r_not_found(req);
+	return 0;
+    }
+
     if(strcmp(CGI_MIME_TYPE, get_mime_type(buffer)) == 0) {   /* cgi */
         if(!(S_IXOTH & statbuf.st_mode)) {
 	    send_r_forbidden(req);
@@ -268,7 +254,7 @@ int translate_uri(request * req)
 	return 0;
     } 
     else
-        return check_gz(req, buffer);
+        return 1;
 }
 
 /*

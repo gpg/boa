@@ -48,7 +48,7 @@ int check_gz(request *req, char *file)
 	    	if (req->path_translated)
 	    		free(req->path_translated);
 	   	req->path_translated =
-	   	strdup("/usr/lib/cgi-bin/gunzip.cgi");
+	   	strdup("/usr/lib/httpd/cgi-bin/gunzip.cgi");
 	   	req->content_type = get_mime_type(file);
 	}
 	else 
