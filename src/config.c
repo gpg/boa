@@ -21,21 +21,23 @@
 /* boa: config.c */
 
 #include "boa.h"
+#include <netdb.h>
 
-int yyparse (void);    /* Better match the output of lex */
+int yyparse(void);				/* Better match the output of lex */
 
 int server_port;
-UID_T server_uid;
-GID_T server_gid;
-char * server_admin;
-char * server_root;
-char * server_name;
+uid_t server_uid;
+gid_t server_gid;
+char *server_admin;
+char *server_root;
+char *server_name;
+int virtualhost;
 
-char * document_root;
-char * user_dir;
-char * directory_index;
-char * default_type;
-char * cachedir;
+char *document_root;
+char *user_dir;
+char *directory_index;
+char *default_type;
+char *dirmaker;
 
 int ka_timeout;
 int ka_max;
@@ -49,30 +51,33 @@ int ka_max;
 
 void read_config_files()
 {
-    char hostnamebuf[MAX_SITENAME_LENGTH + 1];
-    struct hostent * hostentbuf;
+	char hostnamebuf[MAX_SITENAME_LENGTH + 1];
+	struct hostent *hostentbuf;
 
-    yyin = fopen("boa.conf", "r");
+	server_port = 0;
+	virtualhost = 0;
+	ka_timeout = 0;
+	ka_max = 0;
+	verbose_cgi_logs = 0;
 
-    if(!yyin) {
-	fprintf(stderr, "Could not open boa.conf for reading.\n");
-	exit(1);
-    }
+	yyin = fopen("boa.conf", "r");
 
-    if(yyparse()) {
-	fprintf(stderr, "Error parsing config files, exiting\n");
-	exit(1);
-    }
-
-    if(!server_name) {
-	gethostname(hostnamebuf, MAX_SITENAME_LENGTH);
-	hostentbuf = gethostbyname(hostnamebuf);
-	if(!hostentbuf) {
-	    fprintf(stderr, "Cannot determine hostname.  ");
-            fprintf(stderr, "Set ServerName in srm.conf.\n");
-	    exit(1);
-        }
-	server_name = strdup(hostentbuf->h_name);
-    }
+	if (!yyin) {
+		fputs("Could not open boa.conf for reading.\n", stderr);
+		exit(1);
+	}
+	if (yyparse()) {
+		fputs("Error parsing config files, exiting\n", stderr);
+		exit(1);
+	}
+	if (!server_name) {
+		gethostname(hostnamebuf, MAX_SITENAME_LENGTH);
+		hostentbuf = gethostbyname(hostnamebuf);
+		if (!hostentbuf) {
+			fputs("Cannot determine hostname. Set ServerName in boa.conf.\n",
+				  stderr);
+			exit(1);
+		}
+		server_name = strdup(hostentbuf->h_name);
+	}
 }
-

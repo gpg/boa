@@ -1,15 +1,20 @@
-# Convert HTML files to text for simple reading
-.SUFFIXES: .html .txt
+SOURCES = boa.sgml
 
-HTML2TXT=lynx -dump
+OBJS = boa.html boa.dvi boa.ps boa.txt
 
-DOCS = readme.txt details.txt 
+all:	${OBJS}
 
-docs: $(DOCS)
+boa.dvi:	${SOURCES}
+	sgml2latex --output=dvi ${SOURCES}
+
+boa.ps:	boa.dvi
+	dvips -t letter boa.dvi -o boa.ps
+
+boa.html:	${SOURCES} 
+	sgml2html ${SOURCES}
+
+boa.txt:	${SOURCES}
+	sgml2txt --filter ${SOURCES}
 
 clean:
-	rm -f $(DOCS)
-
-.html.txt:
-	$(HTML2TXT) $< > $@
-
+	rm -f ${OBJS} boa-*.html

@@ -17,13 +17,24 @@ test -f $DAEMON || exit 0
 
 case "$1" in
   start)
-    $DAEMON &
+    echo "Starting boa..."
+    start-stop-daemon --start --verbose --exec $DAEMON
     ;;
   stop)
     start-stop-daemon --stop --verbose --exec $DAEMON
     ;;
+  force-reload)
+    start-stop-daemon --stop --verbose --exec $DAEMON
+    sleep 1
+    start-stop-daemon --start --verbose --exec $DAEMON
+    ;;
+  restart)
+# 1 should be sighup
+    echo "Restarting $DAEMON..."
+    start-stop-daemon --stop --signal 1 --exec $DAEMON
+    ;;
   *)
-    echo "Usage: /etc/init.d/$0 {start|stop}"
+    echo "Usage: /etc/init.d/$0 {start|stop|restart|force-reload}"
     exit 1
     ;;
 esac

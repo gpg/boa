@@ -1,3 +1,161 @@
+boa (0.93.14.1-1) frozen; urgency=medium
+
+  * Fixed IP-based virtualhost and keepalive incompatability 
+  * Log format for IP-Based virtualhost uses combined log format now.
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Fri, 20 Mar 1998 13:30:52 -0600
+
+boa (0.93.14-2) unstable; urgency=medium
+
+  * Fixed /etc/cron.daily/boa 
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Sun, 8 Mar 1998 01:19:47 -0600
+
+boa (0.93.14-1) unstable; urgency=medium
+
+  * New upstream version
+  * Incorporates below fix (commonlog)
+  * /etc/init.d/boa now supports restart and force-reload
+  * Behaves better upon SIGTERM
+  * /etc/init.d/boa marked as conffile (thanks, Lintian!) 
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Mon, 2 Mar 1998 20:02:34 -0600
+
+boa (0.93.13-2) unstable; urgency=medium
+
+  * Emergency update : commonlog time function broke -- authors notified 
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Mon,  2 Mar 1998 15:13:13 -0600
+
+boa (0.93.13-1) unstable; urgency=low
+
+  * New upstream version 
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Fri, 27 Feb 1998 18:07:02 -0600
+
+boa (0.93.12-1) unstable; urgency=low
+
+  * New upstream version
+  * Buffers header output
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Fri, 13 Feb 1998 22:34:49 -0600
+
+boa (0.93.11-1) unstable; urgency=low
+
+  * New upstream version
+  * Adds pipelining support to existing keepalive
+  * Ran through indent
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Thu, 12 Feb 1998 02:13:11 -0600
+
+boa (0.93.10.8-1) unstable; urgency=low
+
+  * New upstream version
+  * Fixes HTTP/1.1 browser problem
+  * Fixes modified since problem
+  * Fixes commonlog file format problem
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Wed, 11 Feb 1998 14:37:01 -0600
+
+boa (0.93.10.7-1) unstable; urgency=low
+
+  * New upstream version
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Mon, 9 Feb 1998 10:55:35 -0600
+
+boa (0.93.10.6-2) unstable; urgency=low
+
+  * Built for libc6
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Sat,  7 Feb 1998 12:23:03 -0600
+
+boa (0.93.10.6-1) unstable; urgency=low
+
+  * New version
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Wed, 4 Feb 1998 10:39:42 -0600
+
+boa (0.93.10-5) unstable; urgency=low
+
+  * New upstream version
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Sun, 1 Feb 1998 19:58:16 -0600
+
+boa (0.93.10-3) unstable; urgency=low
+
+  * New upstream version
+
+ -- Jon Nelson <nels0988@tc.umn.edu>  Sun, 25 Jan 1998 22:59:44 -0600
+
+boa (0.93.10-1) unstable; urgency=low
+
+  * New upstream version
+
+ -- Jon Nelson <nels0988@tc.umn.edu>  Sun, 25 Jan 1998 22:59:44 -0600
+
+boa (0.93.9-1) unstable; urgency=low
+
+  * New upstream version
+
+ -- Jon Nelson <nels0988@tc.umn.edu>  Fri, 16 Jan 1998 14:00:01 -0600
+
+boa (0.93.8.4-1) unstable; urgency=low
+
+  * New upstream version
+
+ -- Jon Nelson <nels0988@tc.umn.edu>  Thu, 11 Dec 1997 13:43:50 -0600
+
+ boa (0.93.8.3-1) unstable; urgency=low
+
+  * New upstream version
+
+ -- Jon Nelson <nels0988@tc.umn.edu>  Wed, 19 Nov 1997 11:39:10 -0600 
+
+boa (0.93.8.2-1) unstable; urgency=low
+
+  * New upstream version
+
+ -- Jon Nelson <nels0988@tc.umn.edu>  Tue, 18 Nov 1997 22:39:10 -0600
+
+boa (0.93.8.1-2) unstable; urgency=low
+
+  * Fix non cgi-bin cgi
+  * Fix Makefile.in
+  * Fix boa.1
+
+ -- Jon Nelson <nels0988@tc.umn.edu>  Tue, 18 Nov 1997 13:39:10 -0600
+
+boa (0.93.8.1-1) unstable; urgency=low
+
+  * Fix pid printing upon startup
+
+ -- Jon Nelson <nels0988@tc.umn.edu>  Fri, 24 Oct 1997 01:19:22 -0600
+
+boa (0.93.7-2) unstable; urgency=low
+
+  * Fix to POST code and version scheme change
+  * Fix errno problem as per Christopher Lamenter <clameter@debian.org>
+
+ -- Jon Nelson <nels0988@tc.umn.edu>  Sat, 27 Sep 1997 00:36:07 -0600
+
+boa (0.93.7-1) unstable; urgency=low
+
+  * Upstream version change to 0.93.7
+
+ -- Jon Nelson <nels0988@tc.umn.edu>  Sat, 27 Sep 1997 00:36:07 -0600
+
+boa (0.93-1) unstable; urgency=low
+
+  * Upstream version change to 0.93
+
+ -- Jon Nelson <nels0988@tc.umn.edu>  Mon, 30 Jun 1997 09:55:01 -0600
+
+boa (0.92-5) unstable; urgency=low
+ 
+  * Handover from Christopher Lameter to Jon Nelson  
+
+ -- Jon Nelson <nels0988@tc.umn.edu>  Fri, 6 Jun 1997 01:17:23 -0600
+
 boa (0.92-4) unstable; urgency=low
 
   * Improve gunzip.cgi script so that it correctly distinguishes between

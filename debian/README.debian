@@ -4,17 +4,5 @@ boa for DEBIAN
 To read the docs try
 
 file:/usr/doc/boa/index.html
-
 or
-
 http://localhost/doc/boa/index.html
-
-Transparent compressed file support
------------------------------------
-Boa supports transparent access to gzipped files and on the fly decompression
-of the served html pages. No references need to be changes to .gz. If
-a file with the extension .html cannot be found then boa will try to
-find a file with .html.gz. If found this will be decompressed before 
-serving it to the client.
-
-Christoph Lameter <clameter@debian.org>, Mon, 23 Dec 1996 20:27:43 -0800

@@ -1,8 +1,8 @@
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <psp@well.com>
- *  Some changes Copyright (C) 1996 Larry Doolittle <ldoolitt@cebaf.gov>
- *  Some changes Copyright (C) 1996 Jon Nelson <nels0988@tc.umn.edu>
+ *  Some changes Copyright (C) 1996 Larry Doolittle <ldoolitt@jlab.org>
+ *  Some changes Copyright (C) 1996,97 Jon Nelson <nels0988@tc.umn.edu>
  *  Some changes Copyright (C) 1996 Russ Nelson <nelson@crynwr.com>
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,35 +25,28 @@
 
 #include "boa.h"
 
-#define FOUR_LETTER_SUM(x) (x[0] + x[1] + x[2] + x[3])
+static alias *alias_hashtable[ALIAS_HASHTABLE_SIZE];
 
-static alias * alias_hashtable[ALIAS_HASHTABLE_SIZE];
+inline int get_alias_hash_value(char *file);
 
-int check_gz(request *req, char *file)
+/*
+ * Name: get_alias_hash_value
+ * 
+ * Description: adds the ASCII values of the file letters
+ * and mods by the hashtable size to get the hash value
+ */
+
+inline int get_alias_hash_value(char *file)
 {
-	struct stat statbuf;
+	unsigned int hash = 0;
+	unsigned int index = 0;
+	unsigned char c;
 
-	if(stat(file, &statbuf) == -1) {      /* file does not exist */
-		static char buf[MAX_PATH_LENGTH];
-		
-		strcpy(buf, file);
-		strcat(buf, ".gz");
-		if(stat(buf, &statbuf) == -1) {      /* file does not exist */	
-		
-			send_r_not_found(req);
-			return 0;
-		}
-	    	req->is_cgi = CGI;
-	    	req->script_name = strdup(buf);
-	    	if (req->path_translated)
-	    		free(req->path_translated);
-	   	req->path_translated =
-	   	strdup("/usr/lib/cgi-bin/gunzip.cgi");
-	   	req->content_type = get_mime_type(file);
-	}
-	else 
-		req->path_translated = strdup(file);
-	return 1;
+	hash = file[index++];
+	while ((c = file[index++]) && c != '/')
+		hash += (unsigned int) c;
+
+	return hash % ALIAS_HASHTABLE_SIZE;
 }
 
 /*
@@ -63,63 +56,44 @@ int check_gz(request *req, char *file)
  * alias hash table.
  */
 
-void add_alias(char * fakename, char * realname, int type)
+void add_alias(char *fakename, char *realname, int type)
 {
-    int hash;
-    alias * current;
+	int hash;
+	alias *old, *new;
 
-    if(strlen(fakename) >= 4) {
-	hash = fakename[0] + fakename[1] + fakename[2] + fakename[3];
-	hash %= ALIAS_HASHTABLE_SIZE;
-    }
-    else
-	hash = 0;				/* should be very rare */
+	hash = get_alias_hash_value(fakename);
 
-    current = alias_hashtable[hash];
+	old = alias_hashtable[hash];
 
-    if(!current) {
-	alias_hashtable[hash] = 
-	  (alias *)malloc(sizeof(alias));
-	if(!alias_hashtable[hash])
-	    die(OUT_OF_MEMORY);
-	alias_hashtable[hash]->fakename = strdup(fakename);
-	alias_hashtable[hash]->fake_len = strlen(fakename);
-	alias_hashtable[hash]->realname = strdup(realname);
-	alias_hashtable[hash]->real_len = strlen(realname);
+	if (old)
+		while (old->next) {
+			if (!strcmp(fakename, old->fakename))	/* dont' add twice */
+				return;
+			old = old->next;
+		}
+	new = (alias *) malloc(sizeof(alias));
+	if (!new)
+		die(OUT_OF_MEMORY);
 
-	alias_hashtable[hash]->type = type;
-	alias_hashtable[hash]->next = NULL;
-    }
-    else {
-	while(current) {
-	    if(!strcmp(fakename, current->fakename))	/* don't add twice */
-		return;	
-	    if(current->next)
-		current = current->next;
-	    else
-		break;
-	}
+	if (old)
+		old->next = new;
+	else
+		alias_hashtable[hash] = new;
 
-        current->next = (alias *)malloc(sizeof(alias));
-	if(!current->next)
-	    die(OUT_OF_MEMORY);
-	current = current->next;
+	new->fakename = strdup(fakename);
+	new->fake_len = strlen(fakename);
+	new->realname = strdup(realname);
+	new->real_len = strlen(realname);
 
-	current->fakename = strdup(fakename);
-	current->fake_len = strlen(fakename);
-	current->realname = strdup(realname);
-	current->real_len = strlen(realname);
-
-	current->type = type;
-	current->next = NULL;
-    }
+	new->type = type;
+	new->next = NULL;
 }
 
-/* 
+/*
  * Name: translate_uri
  * 
  * Description: Parse a request's virtual path.  Sets path_info,
- * query_string, path_translated, and script_name data if it's a 
+ * query_string, pathname, and script_name data if it's a 
  * ScriptAlias or a CGI.  Note -- this should be broken up.
  * 
  * Return values: 
@@ -129,148 +103,126 @@ void add_alias(char * fakename, char * realname, int type)
 
 int translate_uri(request * req)
 {
-    char buffer[MAX_HEADER_LENGTH + 1];
-    char * req_urip, * user_homedir;
-    struct stat statbuf;
-    alias * current;
-    int hash = 0, index = 0, is_nph = 0;
-    char c;
+	char buffer[MAX_HEADER_LENGTH + 1];
+	char *req_urip;
+	alias *current;
+	int is_nph = 0;
+	char c, *p;
 
-    /* Move anything after ? into req->query_string */
+	/* clean pathname */
+	clean_pathname(req->request_uri);
 
-    req_urip = req->request_uri;
-    if(*req_urip != '/') {
-	send_r_not_found(req);
-	return 0;
-    }
+	/* Move anything after ? into req->query_string */
 
-    while((c = *req_urip) && c != '?') {
-        req_urip++;
-        if(c == '/') {
-            if(strncmp("nph-", req_urip, 4) == 0)
-                is_nph = 1;
-            else
-                is_nph = 0;
-        }
-    }
-
-    if(c == '?') {
-        *req_urip++ = '\0';
-        req->query_string = strdup(req_urip);
-    }
-    
-    /* Percent-decode request */
-
-    if(unescape_uri(req->request_uri) == 0) {
-	send_r_bad_request(req);
-        log_error_doc(req);
-        fputs("Problem unescaping uri\n",stderr);
-	return 0;
-    }
-
-    /* Find ScriptAlias, Alias, or Redirect */
-
-    if(strlen(req->request_uri) >= 4) {
-        hash = FOUR_LETTER_SUM(req->request_uri);
-        hash %= ALIAS_HASHTABLE_SIZE;
-    }
-
-    current = alias_hashtable[hash];
-    while(current) {
-	if(!strncmp(req->request_uri, current->fakename, 
-	  current->fake_len)) {
-
-	    if(current->type == REDIRECT) {			/* Redirect */
-		sprintf(buffer, "%s%s", current->realname,
-		  &req->request_uri[current->fake_len]);
-		req->ret_content_type = strdup("text/html");
-		send_redirect(req, escape_uri(buffer));
+	req_urip = req->request_uri;
+	if (req_urip[0] != '/') {
+		send_r_not_found(req);
 		return 0;
-	    }
-	    else if(current->type == SCRIPTALIAS) {		/* Script */
-                if(is_nph)
-                    req->is_cgi = NPH;
-                else
-                    req->is_cgi = CGI;
-		return init_script_alias(req, current);
-            }
-
-	    /* Alias */
-
-            sprintf(buffer, "%s%s", current->realname, 
-              &req->request_uri[current->fake_len]);
-            return check_gz(req, buffer);
+	}
+	while ((c = *req_urip) && c != '?') {
+		req_urip++;
+		if (c == '/') {
+			if (strncmp("nph-", req_urip, 4) == 0)
+				is_nph = 1;
+			else
+				is_nph = 0;
+		}
 	}
 
-	current = current->next;
-    }
+	if (c == '?') {
+		*req_urip++ = '\0';
+		req->query_string = strdup(req_urip);
+	}
+	/* Percent-decode request */
 
-    /* Find UserDir */
+	if (unescape_uri(req->request_uri) == 0) {
+		log_error_doc(req);
+		fputs("Problem unescaping uri\n", stderr);
+		send_r_bad_request(req);
+		return 0;
+	}
+	/* Find UserDir */
 
-    if(user_dir && req->request_uri[1] == '~') {
-        req_urip = (req->request_uri + 2);
+	if (user_dir && req->request_uri[1] == '~') {
+		char *user_homedir;
 
-        index = 0;
-        while((c = *req_urip)) {
-            if(c == '/')
-                break;
-            buffer[index++] = c;
-            req_urip++;
-        }
+		req_urip = req->request_uri + 2;
 
-	buffer[index] = '\0';
-	user_homedir = get_home_dir(buffer);
+		p = strchr(req_urip, '/');
+		if (p)
+			*p = '\0';
 
-	if(!user_homedir) {				/* no such user */
-	    send_r_not_found(req);
-	    return 0;
+		user_homedir = get_home_dir(req_urip);
+		if (p)
+			*p = '/';			/* have to restore request_uri in case of
+								   error */
+
+		if (!user_homedir) {	/*no such user */
+			send_r_not_found(req);
+			return 0;
+		}
+		sprintf(buffer, "%s/%s", user_homedir, user_dir);
+		if (p)
+			strcat(buffer, p);
+	} else {
+		/* Find ScriptAlias, Alias, or Redirect */
+		int hash;
+
+		hash = get_alias_hash_value(req->request_uri);
+
+		current = alias_hashtable[hash];
+		while (current) {
+
+			if (!memcmp(req->request_uri, current->fakename,
+						current->fake_len)) {
+				if (current->fakename[current->fake_len - 1] != '/' &&
+					req->request_uri[current->fake_len] != '/' &&
+					req->request_uri[current->fake_len] != '\0') {
+					break;
+				}
+				if (current->type == SCRIPTALIAS) {		/* Script */
+					if (is_nph)
+						req->is_cgi = NPH;
+					else
+						req->is_cgi = CGI;
+					return init_script_alias(req, current);
+				}
+				sprintf(buffer, "%s%s", current->realname,
+						&req->request_uri[current->fake_len]);
+
+				if (current->type == REDIRECT) {	/* Redirect */
+					send_redirect_temp(req, buffer);
+					return 0;
+				} else {		/* Alias */
+					req->pathname = strdup(buffer);
+					return 1;
+				}
+			}
+			current = current->next;
+		}
+		if (req->local_ip_addr)
+			sprintf(buffer, "%s/%s%s", document_root,
+					req->local_ip_addr,
+					req->request_uri);
+		else
+			sprintf(buffer, "%s%s", document_root, req->request_uri);
 	}
 
-	sprintf(buffer, "%s/%s", user_homedir, user_dir);
-	strcat(buffer, req_urip);
-    }
-    else {
-#ifdef EXPERIMENTAL_VIRTUAL_HOST
-	struct sockaddr_in salocal;
-	unsigned char iplocal[4];
-	int dummy;
+	req->pathname = strdup(buffer);
 
-	dummy = sizeof(salocal);
-	if (getsockname(req->fd, (struct sockaddr *) &salocal, &dummy) == -1)
-	    die(SERVER_ERROR);
-
-	memcpy(&iplocal, &salocal.sin_addr, 4);
-	sprintf(buffer, "%s/%d.%d.%d.%d%s", document_root,
-	    iplocal[0], iplocal[1], iplocal[2], iplocal[3], req->request_uri);
-#else
-        sprintf(buffer, "%s%s", document_root, req->request_uri);
-#endif
-    }
-
-    req->path_translated = strdup(buffer);
-
-    if(strcmp(CGI_MIME_TYPE, get_mime_type(buffer)) == 0) {   /* cgi */
-        if(!(S_IXOTH & statbuf.st_mode)) {
-	    send_r_forbidden(req);
-	    return 0;
-	}
-
-        if(is_nph)
-            req->is_cgi = NPH;
-        else
-            req->is_cgi = CGI;
-
-        req->script_name = strdup(req->request_uri);
-        return 1;
-    }
-    else if(req->method == M_POST) {		/* POST to non-script */
-	send_r_not_implemented(req);
-	return 0;
-    } 
-    else
-        return check_gz(req, buffer);
+	if (strcmp(CGI_MIME_TYPE, get_mime_type(buffer)) == 0) {	/* cgi */
+		if (is_nph)
+			req->is_cgi = NPH;
+		else
+			req->is_cgi = CGI;
+		req->script_name = strdup(req->request_uri);
+		return 1;
+	} else if (req->method == M_POST) {		/* POST to non-script */
+		send_r_not_implemented(req);
+		return 0;
+	} else
+		return 1;
 }
-
 /*
  * Name: init_script_alias
  * 
@@ -284,59 +236,97 @@ int translate_uri(request * req)
 
 int init_script_alias(request * req, alias * current)
 {
-    char path_translated[MAX_HEADER_LENGTH + 1];
-    char path_info[MAX_HEADER_LENGTH + 1];
-    char script_name[MAX_HEADER_LENGTH + 1];
-    struct stat statbuf;
+	char pathname[MAX_HEADER_LENGTH + 1];
+	char path_info[MAX_HEADER_LENGTH + 1];
+	char script_name[MAX_HEADER_LENGTH + 1];
+	char buffer[MAX_HEADER_LENGTH + 1];
+	struct stat statbuf;
 
-    int index = 0, index_trailer = 0;
-    char c;
+	int index = 0, index_trailer = 0;
+	char c;
 
-    sprintf(path_translated, "%s%s", current->realname, 
-      &req->request_uri[current->fake_len]);
-    strcpy(script_name, req->request_uri);
+	sprintf(pathname, "%s%s", current->realname,
+			&req->request_uri[current->fake_len]);
+	strcpy(script_name, req->request_uri);
 
-    index = current->real_len;
-    index_trailer = current->fake_len;
+	index = current->real_len;
+	index_trailer = current->fake_len;
 
-    while((c = path_translated[index])) {
-	if(c == '/')
-	    break;
-        
-	index_trailer++; index++;
-    }
+	for (c = pathname[index]; c != '\0' && c != '/'; c = pathname[++index])
+		index_trailer++;
 
-    path_translated[index++] = '\0';
 
-    if(stat(path_translated, &statbuf) == -1) {
-	send_r_not_found(req);
-	return 0;
-    }
-    else if(!(S_ISREG(statbuf.st_mode)) || !(S_IXOTH & statbuf.st_mode)) {
-	send_r_forbidden(req);
-	return 0;
-    }
+	pathname[index++] = '\0';
 
-    req->path_translated = strdup(path_translated);
+	if (stat(pathname, &statbuf) == -1) {
+		send_r_not_found(req);
+		return 0;
+	} else if (!S_ISREG(statbuf.st_mode) || access(pathname, R_OK | X_OK) == -1) {
+		send_r_forbidden(req);
+		return 0;
+	}
+	req->pathname = strdup(pathname);
 
-    script_name[index_trailer] = '\0';
-    req->script_name = strdup(script_name);
+	script_name[index_trailer] = '\0';
+	req->script_name = strdup(script_name);
 
-    index_trailer = 0;
-		
-    if(c == '/') {
+	index_trailer = 0;
 
-	path_info[index_trailer++] = c;
-	while((c = path_translated[index])) {
-	    index++;
-	    if(c == '?')
-		break;
-	    path_info[index_trailer++] = c;
-        }
+	if (c == '/') {				/* we have path_info */
+		int hash;
 
-	path_info[index_trailer] = '\0';
-	req->path_info = strdup(path_info);
-    }
-		
-    return 1;
+		while (c != '\0' && c != '?') {
+			path_info[index_trailer++] = c;
+			c = pathname[index++];
+		}
+		path_info[index_trailer] = '\0';
+		req->path_info = strdup(path_info);
+
+		hash = get_alias_hash_value(req->path_info);
+
+		current = alias_hashtable[hash];
+		while (current) {
+			if (!strncmp(req->path_info, current->fakename,
+						 current->fake_len)) {
+
+				sprintf(buffer, "%s%s", current->realname,
+						&req->path_info[current->fake_len]);
+
+				req->path_translated = strdup(buffer);
+				return 1;
+			}
+			current = current->next;
+		}
+	}
+	if (req->local_ip_addr)
+		sprintf(buffer, "%s/%s%s", document_root,
+				req->local_ip_addr, req->path_info);
+	else
+		sprintf(buffer, "%s%s", document_root, req->path_info);
+	req->path_translated = strdup(buffer);
+	return 1;
+}
+
+void dump_alias(void)
+{
+	int i;
+	alias *temp;
+
+	for (i = 0; i < ALIAS_HASHTABLE_SIZE; ++i) {	/* these limits OK? */
+		if (alias_hashtable[i]) {
+			temp = alias_hashtable[i];
+			while (temp) {
+				alias *temp_next;
+
+				if (temp->fakename)
+					free(temp->fakename);
+				if (temp->realname)
+					free(temp->realname);
+				temp_next = temp->next;
+				free(temp);
+				temp = temp_next;
+			}
+			alias_hashtable[i] = NULL;
+		}
+	}
 }

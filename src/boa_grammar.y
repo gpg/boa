@@ -39,6 +39,7 @@ char mime_type[256];		/* global to inherit */
 char fakename[256];		/* ScriptAlias */
 
 /* yydebug = 1; */
+
 %}
 
 %union {
@@ -48,12 +49,16 @@ char fakename[256];		/* ScriptAlias */
 
 /* boa.conf tokens */
 %token B_PORT B_USER B_GROUP
-%token B_SERVERADMIN B_SERVERROOT B_ERRORLOG B_ACCESSLOG B_AUXLOG
+%token B_SERVERADMIN B_SERVERROOT B_ERRORLOG B_ACCESSLOG
+%token B_CGILOG B_VERBOSECGILOGS
 %token B_SERVERNAME
+%token B_VIRTUALHOST
 
 /* srm.conf tokens */
-%token B_DOCUMENTROOT B_USERDIR B_DIRECTORYINDEX B_DIRECTORYCACHE B_DEFAULTTYPE 
-%token B_ADDTYPE B_ALIAS B_SCRIPTALIAS B_REDIRECT 
+%token B_DOCUMENTROOT B_USERDIR B_DIRECTORYINDEX
+%token B_DIRECTORYMAKER
+%token B_MIMETYPES B_DEFAULTTYPE B_ADDTYPE
+%token B_ALIAS B_SCRIPTALIAS B_REDIRECT 
 %token B_KEEPALIVEMAX B_KEEPALIVETIMEOUT
 
 %token <sval> MIMETYPE
@@ -79,15 +84,18 @@ BoaConfigStmt:
 	|		ServerRootStmt
 	|		ErrorLogStmt
 	|		AccessLogStmt
-	|		AuxLogStmt
+	|		CgiLogStmt
+	|		VerboseCGILogsStmt
 	|		ServerNameStmt
+	|		VirtualHostStmt	
 	|		DocumentRootStmt
 	|		UserDirStmt
 	|		DirectoryIndexStmt
-	|		DirectoryCacheStmt
+	|		DirectoryMakerStmt
 	|		KeepAliveMaxStmt
 	|		KeepAliveTimeoutStmt
 	|		DefaultTypeStmt
+	|		MimeTypesStmt
 	|		AddTypeStmt
 	|		AliasStmt
 	|		ScriptAliasStmt
@@ -153,12 +161,18 @@ AccessLogStmt:		B_ACCESSLOG STRING
 		  access_log_name = strdup($2); 
 		}
 	;
-
-AuxLogStmt:		B_AUXLOG STRING
-		{ if(aux_log_name)
-			free(aux_log_name);
-		  aux_log_name = strdup($2); 
+	
+CgiLogStmt:			B_CGILOG STRING
+		{ if(cgi_log_name)
+			free(cgi_log_name);
+		  cgi_log_name = strdup($2);
 		}
+	;
+	
+VerboseCGILogsStmt:	B_VERBOSECGILOGS
+		{ 
+		  verbose_cgi_logs = 1;
+		 }
 	;
 
 ServerNameStmt:		B_SERVERNAME STRING
@@ -166,6 +180,10 @@ ServerNameStmt:		B_SERVERNAME STRING
 			free(server_name);
 		  server_name = strdup($2); 
 		}
+	;
+
+VirtualHostStmt:	B_VIRTUALHOST
+		{ virtualhost = 1; }
 	;
 
 DocumentRootStmt:	B_DOCUMENTROOT STRING
@@ -189,10 +207,10 @@ DirectoryIndexStmt:	B_DIRECTORYINDEX STRING
 		}
 	;
 
-DirectoryCacheStmt:	B_DIRECTORYCACHE STRING
-		{ if(cachedir)
-			free(cachedir);
-		  cachedir = strdup($2); 
+DirectoryMakerStmt: B_DIRECTORYMAKER STRING
+		{ if (dirmaker)
+			free(dirmaker);
+		  dirmaker = strdup($2);
 		}
 	;
 
@@ -202,6 +220,13 @@ KeepAliveMaxStmt:		B_KEEPALIVEMAX INTEGER
 
 KeepAliveTimeoutStmt:		B_KEEPALIVETIMEOUT INTEGER
 		{ ka_timeout = $2; }
+	;
+
+MimeTypesStmt:	B_MIMETYPES STRING
+		{ if (mime_types)
+			free(mime_types);
+		  mime_types = strdup($2);
+		}
 	;
 
 DefaultTypeStmt:	B_DEFAULTTYPE STRING

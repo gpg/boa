@@ -1,4 +1,18 @@
-** Changes from v0.91 to v0.92 **
+** Changes from v0.92o to v0.92p **
+
+ * Documented misbehavior of CGI, SIGHUP, short aliases, stale dircache.
+ * Documented how to patch signals.c for use on SunOS.
+ * Closed file descriptor leak when redirecting a bare directory URL to
+ one with an appended "/".
+ * Closed potential file descriptor leak if errors encountered generating
+ on-the-fly index.
+ * Cleaned up include file handling to be simultaneously compatible with
+ Linux, SunOS, HP-UX, and AIX.
+ * Supress message body for codes 302, 400, 403, 404, 500, and 501 if
+ incoming request is "HEAD".
+
+** Changes from v0.91 to v0.92o **
+ (0.92o released 27 December, 1996)
 
  * Maintenance handover from Paul Phillips to Larry Doolittle
  * Changed (char)NULL to '\0'

@@ -24,9 +24,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+char *mime_types = NULL;
+
 static int file = 0;
 int lineno = 1;
 %}
+
+%a 4000
+%p 4000
 
 %s MIME
 %%
@@ -43,16 +48,19 @@ ServerAdmin	{ BEGIN INITIAL; return B_SERVERADMIN; }
 ServerRoot	{ BEGIN INITIAL; return B_SERVERROOT; }
 ErrorLog	{ BEGIN INITIAL; return B_ERRORLOG; }
 AccessLog	{ BEGIN INITIAL; return B_ACCESSLOG; }
-AuxLog		{ BEGIN INITIAL; return B_AUXLOG; }
+CgiLog		{ BEGIN INITIAL; return B_CGILOG; }
+VerboseCGILogs	{ BEGIN INITIAL; return B_VERBOSECGILOGS; }
 ServerName	{ BEGIN INITIAL; return B_SERVERNAME; }
+VirtualHost { BEGIN INITIAL; return B_VIRTUALHOST; }
 Redirect	{ BEGIN INITIAL; return B_REDIRECT; }
 
 DocumentRoot	{ BEGIN INITIAL; return B_DOCUMENTROOT; }
 UserDir		{ BEGIN INITIAL; return B_USERDIR; }
 DirectoryIndex	{ BEGIN INITIAL; return B_DIRECTORYINDEX; }
-DirectoryCache	{ BEGIN INITIAL; return B_DIRECTORYCACHE; }
+DirectoryMaker	{ BEGIN INITIAL; return B_DIRECTORYMAKER; }
 KeepAliveMax 	{ BEGIN INITIAL; return B_KEEPALIVEMAX; }
 KeepAliveTimeout { BEGIN INITIAL; return B_KEEPALIVETIMEOUT; }
+MimeTypes	{ BEGIN INITIAL; return B_MIMETYPES; }
 DefaultType	{ BEGIN INITIAL; return B_DEFAULTTYPE; }
 AddType		{ BEGIN MIME; return B_ADDTYPE; }
 ScriptAlias	{ BEGIN INITIAL; return B_SCRIPTALIAS; }
@@ -76,9 +84,10 @@ int yywrap()
 
     switch(file) {
       case 1:
-	yyin = fopen("/etc/mime.types", "r");
+	yyin = fopen(mime_types, "r");
 	if(!yyin) {
-	    fprintf(stderr, "Could not open mime.types for reading\n");
+	    fprintf(stderr, "Could not open mime.types file, \"%s\", "
+	    	"for reading\n", mime_types);
 	    exit(1);
 	}
 	BEGIN MIME;

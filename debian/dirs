@@ -3,3 +3,4 @@ etc/boa
 var/www
 var/log/boa
 usr/lib/cgi-bin
+etc/cron.daily

@@ -1,7 +1,7 @@
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <psp@well.com>
- *  Some changes Copyright (C) 1996 Larry Doolittle <ldoolitt@cebaf.gov>
+ *  Some changes Copyright (C) 1996 Larry Doolittle <ldoolitt@jlab.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,11 +23,12 @@
 
 #include "boa.h"
 
-FILE * access_log;
+FILE *access_log;
 
-char * error_log_name;
-char * access_log_name;
-char * aux_log_name;
+char *error_log_name;
+char *access_log_name;
+char *cgi_log_name;
+int cgi_log_fd;
 
 /*
  * Name: open_logs
@@ -36,30 +37,45 @@ char * aux_log_name;
  * buffers it.
  */
 
-void open_logs()
+void open_logs(void)
 {
-    FILE * error_log;
+	FILE *error_log;
 
-    if(!(access_log = fopen(access_log_name, "a"))) {
-        int errno_save = errno;
-        fprintf(stderr, "Cannot open %s for logging: ", access_log_name);
-        errno = errno_save;
-        perror("logfile open");
-        exit(1);
-    }
-    setvbuf(access_log, (char *)NULL, _IOLBF, 0);
+	if (access_log_name) {
+		if (!(access_log = fopen(access_log_name, "a"))) {
+			int errno_save = errno;
+			fprintf(stderr, "Cannot open %s for logging: ", access_log_name);
+			errno = errno_save;
+			perror("logfile open");
+			exit(1);
+		}
+		setvbuf(access_log, (char *) NULL, _IOLBF, 0); 
+	} else
+		access_log = NULL;
 
-    if(!error_log_name) {
-	fputs("No ErrorLog directive specified in boa.conf.\n",stderr);
-	exit(1);
-    }
-
-    if(!(error_log = fopen(error_log_name, "a")))
-	die(NO_OPEN_LOG);
-
-    /* redirect stderr to error_log */
-    dup2(fileno(error_log), STDERR_FILENO);
-    fclose(error_log);
+	if (cgi_log_name) {
+		cgi_log_fd = open(cgi_log_name, 
+				O_WRONLY | O_CREAT | O_APPEND,
+				S_IRUSR | S_IWUSR | S_IROTH | S_IRGRP);
+		if (cgi_log_fd == -1) {
+			log_error_time();
+			perror("open cgi_log");
+			free(cgi_log_name);
+			cgi_log_name = NULL;
+			cgi_log_fd = 0;
+		}
+	}
+	
+	if (!error_log_name) {
+		fputs("No ErrorLog directive specified in boa.conf.\n", stderr);
+		exit(1);
+	}
+	if (!(error_log = fopen(error_log_name, "a")))
+		die(NO_OPEN_LOG);
+	
+	/* redirect stderr to error_log */
+	dup2(fileno(error_log), STDERR_FILENO);
+	fclose(error_log);	
 }
 
 /*
@@ -69,7 +85,8 @@ void open_logs()
  */
 void close_access_log(void)
 {
-    fclose(access_log);
+	if (access_log)
+		fclose(access_log);
 }
 
 /*
@@ -80,13 +97,23 @@ void close_access_log(void)
 
 void log_access(request * req)
 {
-    fprintf(access_log, "%s - - %s\"%s\" %d %ld\n",
-        req->remote_ip_addr,
-        get_commonlog_time(),
-        req->logline,
-        req->response_status,
-        req->filepos
-    );
+	if (access_log) {
+		if (req->local_ip_addr)
+ 			fprintf(access_log, "%s - - %s\"%s\" %d %ld \"http://%s%s\" -\n",
+ 				req->remote_ip_addr,
+ 				get_commonlog_time(),
+ 				req->logline,
+ 				req->response_status,
+ 				req->filepos,
+ 				req->local_ip_addr, req->request_uri);
+		else
+			fprintf(access_log, "%s - - %s\"%s\" %d %ld\n",
+				req->remote_ip_addr,
+				get_commonlog_time(),
+				req->logline,
+				req->response_status,
+				req->filepos);
+	}
 }
 
 /*
@@ -98,9 +125,9 @@ void log_access(request * req)
 
 void log_error_time()
 {
-    int errno_save=errno;
-    fputs(get_commonlog_time(),stderr);
-    errno=errno_save;
+	int errno_save = errno;
+	fputs(get_commonlog_time(), stderr);
+	errno = errno_save;
 }
 
 /*
@@ -109,16 +136,30 @@ void log_error_time()
  * Description: Logs the current time and transaction identification
  * to the stderr (the error log): 
  * should always be followed by an fprintf to stderr
+ *
+ * This function used to be implemented with a big fprintf, but not
+ * all fprintf's are reliable in the face of null string pointers
+ * (SunOS, in particular).  As long as I had to add the checks for
+ * null pointers, I changed from fprintf to fputs.
+ *
+ * Example output:
+[08/Nov/1997:01:05:03] request from 192.228.331.232 "GET /~joeblow/dir/ HTTP/1.0" ("/usr/user1/joeblow/public_html/dir/"): write: Broken pipe
  */
 
 void log_error_doc(request * req)
 {
-    int errno_save=errno;
-    fprintf(stderr, "%srequest from %s \"%s\": ",
-        get_commonlog_time(),
-        req->remote_ip_addr,
-        req->logline);
-    errno=errno_save;
+	int errno_save = errno;
+	
+	fprintf(stderr, "%srequest from %s \"%s\" (\"%s\"): ",
+			get_commonlog_time(), 
+			(req->remote_ip_addr != NULL ? 
+				req->remote_ip_addr : "(unknown)"),
+			(req->logline != NULL ?
+				req->logline : "(null)"),
+			(req->pathname != NULL ?
+				req->pathname : "(null)"));
+	
+	errno = errno_save;
 }
 
 /*
@@ -129,10 +170,7 @@ void log_error_doc(request * req)
  */
 void boa_perror(request * req, char *message)
 {
-    int errno_save=errno;
-    send_r_error(req);
-    log_error_doc(req);
-    errno = errno_save;
-    perror(message);
-    SQUASH_KA(req);   /* force close fd */
+	log_error_doc(req);
+	perror(message);			/* don't need to save errno because log_error_doc does */
+	send_r_error(req);
 }

@@ -21,26 +21,26 @@
 #ifndef _COMPAT_H
 #define _COMPAT_H
 
-/* #define SUNOS */
+#include "config.h"
 
 #ifndef OPEN_MAX
-  #define OPEN_MAX 256
+#define OPEN_MAX 256
 #endif
 
 #ifdef SUNOS
-  #define NOBLOCK O_NDELAY
+#define NOBLOCK O_NDELAY
 #else
-  #define NOBLOCK O_NONBLOCK
+#define NOBLOCK O_NONBLOCK
 #endif
 
-#ifndef MAP_FILE			
-  #define MAP_OPTIONS MAP_PRIVATE		/* Sun */
+#ifndef MAP_FILE
+#define MAP_OPTIONS MAP_PRIVATE	/* Sun */
 #else
-  #define MAP_OPTIONS MAP_FILE|MAP_PRIVATE	/* Linux */
+#define MAP_OPTIONS MAP_FILE|MAP_PRIVATE	/* Linux */
 #endif
 
-/* Hope for the best util we fire up autoconf */
-#define UID_T uid_t
-#define GID_T gid_t
+#ifdef AIX
+#include <sys/select.h>
+#endif
 
 #endif
