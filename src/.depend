@@ -1,15 +1,21 @@
-alias.o: alias.c boa.h defines.h globals.h compat.h config.h
-boa.o: boa.c boa.h defines.h globals.h compat.h config.h
-cgi.o: cgi.c boa.h defines.h globals.h compat.h config.h
-config.o: config.c boa.h defines.h globals.h compat.h config.h
-get.o: get.c boa.h defines.h globals.h compat.h config.h
-hash.o: hash.c boa.h defines.h globals.h compat.h config.h
-log.o: log.c boa.h defines.h globals.h compat.h config.h
-queue.o: queue.c boa.h defines.h globals.h compat.h config.h
-read.o: read.c boa.h defines.h globals.h compat.h config.h
-request.o: request.c boa.h defines.h globals.h compat.h config.h
-response.o: response.c boa.h defines.h globals.h compat.h config.h
-signals.o: signals.c boa.h defines.h globals.h compat.h config.h
-util.o: util.c boa.h defines.h globals.h compat.h config.h escape.h
-cgi_header.o: cgi_header.c boa.h defines.h globals.h compat.h config.h
-pipe.o: pipe.c boa.h defines.h globals.h compat.h config.h
+alias.o: alias.c boa.h config.h compat.h defines.h globals.h
+boa.o: boa.c boa.h config.h compat.h defines.h globals.h
+buffer.o: buffer.c boa.h config.h compat.h defines.h globals.h \
+ escape.h
+cgi.o: cgi.c boa.h config.h compat.h defines.h globals.h
+cgi_header.o: cgi_header.c boa.h config.h compat.h defines.h globals.h
+config.o: config.c y.tab.h parse.h boa.h config.h compat.h defines.h \
+ globals.h
+get.o: get.c boa.h config.h compat.h defines.h globals.h
+hash.o: hash.c boa.h config.h compat.h defines.h globals.h
+ip.o: ip.c boa.h config.h compat.h defines.h globals.h
+log.o: log.c boa.h config.h compat.h defines.h globals.h
+mmap_cache.o: mmap_cache.c boa.h config.h compat.h defines.h globals.h
+pipe.o: pipe.c boa.h config.h compat.h defines.h globals.h
+queue.o: queue.c boa.h config.h compat.h defines.h globals.h
+read.o: read.c boa.h config.h compat.h defines.h globals.h
+request.o: request.c boa.h config.h compat.h defines.h globals.h
+response.o: response.c boa.h config.h compat.h defines.h globals.h
+signals.o: signals.c boa.h config.h compat.h defines.h globals.h
+util.o: util.c boa.h config.h compat.h defines.h globals.h
+sublog.o: sublog.c

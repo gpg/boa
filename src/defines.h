@@ -1,7 +1,7 @@
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <psp@well.com>
- *  Some changes Copyright (C) 1997 Jon Nelson <nels0988@tc.umn.edu>
+ *  Some changes Copyright (C) 1997 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
  *
  */
 
+/* $Id: defines.h,v 1.90 2001/11/02 04:37:46 jnelson Exp $*/
+
 #ifndef _DEFINES_H
 #define _DEFINES_H
 
@@ -30,14 +32,14 @@
 
 /***** Various stuff that you may want to tweak, but probably shouldn't *****/
 
-#define SOCKETBUF_SIZE				4096
+#define SOCKETBUF_SIZE				8192
 #define MAX_HEADER_LENGTH			1024
-#define CLIENT_STREAM_SIZE			8192
-#define BUFFER_SIZE					SOCKETBUF_SIZE
+#define CLIENT_STREAM_SIZE			SOCKETBUF_SIZE
+#define BUFFER_SIZE				CLIENT_STREAM_SIZE
 
 #define MIME_HASHTABLE_SIZE			47
-#define ALIAS_HASHTABLE_SIZE		17
-#define PASSWD_HASHTABLE_SIZE		47
+#define ALIAS_HASHTABLE_SIZE                    17
+#define PASSWD_HASHTABLE_SIZE		        47
 
 #define REQUEST_TIMEOUT				60
 
@@ -48,10 +50,7 @@
 /***** You will probably introduce buffer overruns unless you know
        what you are doing *****/
 
-#include <dirent.h>				/* for MAXNAMLEN */
-
 #define MAX_SITENAME_LENGTH			256
-#define MAX_CGI_VARS				50
 #define MAX_LOG_LENGTH				MAX_HEADER_LENGTH + 1024
 #define MAX_FILE_LENGTH				NAME_MAX
 #define MAX_PATH_LENGTH				PATH_MAX
@@ -62,10 +61,14 @@
 #define MAX_ACCEPT_LENGTH 0
 #endif
 
-#define COMMON_CGI_VARS				8
+#ifndef SERVER_VERSION
+#define SERVER_VERSION 				"Boa/0.94.11"
+#endif
 
-#define SERVER_VERSION				"Boa/0.93.14.1"
 #define CGI_VERSION				"CGI/1.1"
+#define COMMON_CGI_COUNT 8
+#define CGI_ENV_MAX     50
+#define CGI_ARGC_MAX 128
 
 /******************* RESPONSE CLASSES *****************/
 
@@ -80,31 +83,31 @@
 #define R_REQUEST_OK	200
 #define R_CREATED	201
 #define R_ACCEPTED	202
-#define R_PROVISIONAL	203		/* provisional information */
+#define R_PROVISIONAL	203       /* provisional information */
 #define R_NO_CONTENT	204
 
-#define R_MULTIPLE	300			/* multiple choices */
+#define R_MULTIPLE	300          /* multiple choices */
 #define R_MOVED_PERM	301
 #define R_MOVED_TEMP	302
 #define R_NOT_MODIFIED	304
 
 #define R_BAD_REQUEST	400
 #define R_UNAUTHORIZED	401
-#define R_PAYMENT	402			/* payment required */
+#define R_PAYMENT	402           /* payment required */
 #define R_FORBIDDEN	403
 #define R_NOT_FOUND	404
-#define R_METHOD_NA	405			/* method not allowed */
-#define R_NONE_ACC	406			/* none acceptable */
-#define R_PROXY		407			/* proxy authentication required */
-#define R_REQUEST_TO	408		/* request timeout */
+#define R_METHOD_NA	405         /* method not allowed */
+#define R_NONE_ACC	406          /* none acceptable */
+#define R_PROXY		407            /* proxy authentication required */
+#define R_REQUEST_TO	408        /* request timeout */
 #define R_CONFLICT	409
 #define R_GONE		410
 
-#define R_ERROR		500			/* internal server error */
-#define	R_NOT_IMP	501			/* not implemented */
+#define R_ERROR		500            /* internal server error */
+#define	R_NOT_IMP	501           /* not implemented */
 #define	R_BAD_GATEWAY	502
-#define R_SERVICE_UNAV	503		/* service unavailable */
-#define	R_GATEWAY_TO	504		/* gateway timeout */
+#define R_SERVICE_UNAV	503      /* service unavailable */
+#define	R_GATEWAY_TO	504        /* gateway timeout */
 #define R_BAD_VERSION	505
 
 /****************** METHODS *****************/
@@ -133,7 +136,7 @@
 #define GETPWUID		12
 #define INITGROUPS		13
 
-#define SHUTDOWN		15		/* do not change */
+#define SHUTDOWN		15            /* do not change */
 
 /************** REQUEST STATUS (req->status) ***************/
 
@@ -144,31 +147,45 @@
 #define BODY_READ               4
 #define BODY_WRITE              5
 #define WRITE                   6
-#define PIPE_READ               7	/* used to read from pipe */
+#define PIPE_READ               7
 #define PIPE_WRITE              8
-#define CLOSE					9	/* used only for CGI_STATUS */
+#define DONE			9
+#define DEAD                   10
 
 #define CLIENT_WRITABLE(status) (status==WRITE || status==PIPE_WRITE)
 #define CLIENT_READABLE(status) (status < BODY_WRITE)
-#define PIPE_READABLE(status) (status == PIPE_READ)
 
 /************** CGI TYPE (req->is_cgi) ******************/
 
 #define CGI                     1
 #define NPH                     2
 
-/************** ALIAS TYPES (aliasp->type) ***************/
+/************* ALIAS TYPES (aliasp->type) ***************/
 
 #define ALIAS			0
 #define SCRIPTALIAS		1
 #define REDIRECT		2
 
-/************** KEEPALIVE CONSTANTS (req->keepalive) *******/
+/*********** KEEPALIVE CONSTANTS (req->keepalive) *******/
 
 #define KA_INACTIVE		0
 #define KA_STOPPED     	1
 #define KA_ACTIVE      	2
 
 #define SQUASH_KA(req)	(req->keepalive=KA_STOPPED)
+
+/********* CGI STATUS CONSTANTS (req->cgi_status) *******/
+#define CGI_PARSE 1
+#define CGI_BUFFER 2
+#define CGI_DONE 3
+
+/*********** MMAP_LIST CONSTANTS ************************/
+#define MMAP_LIST_SIZE 256
+#define MMAP_LIST_MASK 255
+#define MMAP_LIST_USE_MAX 128
+#define MMAP_LIST_NEXT(i) (((i)+1)&MMAP_LIST_MASK)
+#define MMAP_LIST_HASH(dev,ino,size) ((ino)&MMAP_LIST_MASK)
+
+#define MAX_FILE_MMAP 100 * 1024 /* 100K */
 
 #endif

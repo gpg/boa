@@ -1,3 +1,168 @@
+** Changes from 0.94.10.1 to 0.94.11
+ * use LIBS in Makefile.in (which propagates from autoconf)
+ * properly free memory allocated by scandir in index_dir.c
+ * rearrange some header files and includes
+ * on reads and writes, don't check for -1, check for < 0
+ * include fix by William Meadows <wmeadows@linux-support.net>
+   for escape.c which fixes segfaults due to improper allocation
+ * above fix by William Meadows no longer needed;
+   escape.c and escape.h rewritten by Larry Doolittle -- requires
+   at least 32 bit words, but is correct (mine was not - jdn)
+
+** Changes from 0.94.10 to 0.94.10.1
+ * Actually update the SERVER_VERSION in src/defines.h
+
+** Changes from 0.94.9 to 0.94.10
+ * Fixes escaping rules
+ * Fixes segfault when directory_index is undefined and
+   directory needs to be generated
+ * adds dummy signal handlers for SIGUSR1 and SIGUSR2 (Closes SF #425921)
+ * Update documentation regarding mime.types (Closes Debian #69991)
+ * Make sure documentation builds (Closes Debian #110818)
+
+** Changes from 0.94.8.3 to 0.94.9
+ * src/Makefile.in updated to take CFLAGS, LIBS, and LDFLAGS 
+   from autoconf
+ * Update escaping rules with latest RFC
+ * unescape_uri skips fragments and also stop parsing at '?'
+ * Don't accept fd over FD_SETSIZE in request.c:get_request
+ * use backported documentation from 0.95
+ * make sure POST fd gets closed even on client cancel
+ * use backported index_dir.c from 0.95
+ * support subdirectories in ScriptAlias directories
+ * add SinglePostLimit (int, in Kilobytes) to config system
+ * check for ENOSPC on body write
+ * use environment variable TMP (or "/tmp" if not available),
+   and chdir there when boa exits.
+ * add 1-time-only hack to make a 32kB read at the end of a request
+   on POST or PUT
+ * close unused file descriptors (/dev/null in boa.c, and the 
+   unused part of the pipes call in cgi.c)
+ * made Makefile.in VPATH happy
+
+** Changes from 0.94.8.2 to 0.94.8.3
+ * Move unescape_uri *before* clean_pathname to prevent
+   encoding of / and .. in pathname
+ * wrap execution of GUNZIP in cgi.c with #ifdef GUNZIP
+ * stop parsing when fragment found in URL ('#')
+
+** Changes from 0.94.8.1 to 0.94.8.2
+ * close pipes[1] in child and generate HTTP_REFERER environment 
+   variable in cgi.c
+ * Minor changes to the Debian package
+
+** Changes from 0.94.8 to 0.94.8.1
+ * Change umask call from (umask(0600)) to (umask(~0600))
+
+** Changes from 0.94.7 to 0.94.8 
+ * Fix major thinko in temp file permissions
+ * unlink temporary file immediately following creation
+ * implement maximum # of active connections at 10 less than RLIMIT_NOFILE
+   to avoid or eliminate crashes resulting from running out of 
+   file descriptors
+ * Fix thinko in POST
+ 
+** Changes from 0.94.6 to 0.94.7
+ * STDIN and STDOUT are now tied to /dev/null
+ * sets PATH_MAX to 2048 if not defined (for Hurd)
+ * core dumps (should never happen) would be located in /tmp
+ * alter behavior when select gets a EBADF
+ * add translation for the \" char -> &quot;
+ * remove use of sys_errlist.  Use perror.
+ * better makedist.sh (still a stupid program though)
+
+** Changes from 0.94.5 to 0.94.6
+ * Removed doc++ commenting
+ * Removed erroneous debugging statments
+ * Move some stuff out of config.c (read_config_file) to boa.c
+ * Altered some of fixup_server_root()
+ * Bug fix in get.c re: automatic gunzip
+ * Added some stubs for chroot code (*not* ready yet)
+
+** Changes from 0.94.4 to 0.94.5
+ * Alteration of most of the comments and such for doc++ use
+ * Fixed buffer overflow in alias.c
+ * Fixed buffer underflow in util.c
+
+** Changes from 0.94.3 to 0.94.4
+ * Better escaping of data to user, both for HTTP headers and HTML body
+ * Proper escaping of output in CGI example perl scripts
+
+** Changes from 0.94.0 to 0.94.2
+ * Fixed obnoxious pipeline bug
+ * Fixed (sorta) a compilation/core bug for *BSD systems 
+   Original code by Thomas Neumann <tn@tmr-online.de>
+ * Moved to GPLv2
+ * Changed manpage to section 8
+ * boa.sgml now references a .png file instead of evil .gif
+
+** Changes from 0.93.19.2 to 0.94.0
+ * Added UseGMT to the configuration parser
+ * util.c commonlog now logs in Apache-style commonlog time format
+ * Remove SO_SNDBUF on-start message
+
+** Changes from 0.93.19 to 0.93.19.2
+ * Changed to combined log (from NCSA access_log format) ala Drew Streib
+ * Altered POST cgi code to handle bug in Netscape
+ * SO_SNDBUF changes by Larry
+
+** Changes from 0.93.17.2 to 0.93.19 (all 0.93.18.x changes inclusive)
+ * Update of some copyright statements for 99
+ * Replacement of sprintf with strlen/memcpy or strcpy/strcat 
+   wherever possible
+ * Significant rearrangement in alias.c, minor functional differences
+   (some CGI environment variables handled differently)
+ * Removal of die function. Replace with log_err_mesg and exit.
+ * initial IPv6 stubs and support
+ * Move #include "config.h" to top of boa.h where it will do some good
+ * Stubs and functions for strstr and strdup
+ * Seperation of buffer code into it's own file
+ * Significant changes to cgi.c et al (cgi_header.c, etc...)
+ * Speed patches by removal of "extra" calls to time(): Use global variable!
+ * pipelining changes... it works now.
+ * require content-length from clients (ala rfc1945)
+ * alter body_read and body_write to work more efficiently with known content-length
+ * move read(2) part to *after* parsing...
+ * added support for additional header message in send_redirect_temp
+ * change use of NO_ZERO_FILL_LENGTH to offsetof() use
+ * Remove SO_REUSEADDR setting on each client socket, Paul Saab <paul@mu.org>
+ * Avoid SO_SNDBUF setting if possible
+ * Large quantities of otherwise not-insignificant changes
+
+** Changes from 0.93.17.2 to 0.93.17.3
+ * Put on-the-fly directories back in, stripped down from the 0.92 version
+ * Fixed DocumentRoot, ServerAdmin and ServerName null-value handling in
+   CGI environment generation
+ * Fixed argument order in Script* directives (bug introduced in 0.93.17.2)
+ * Got rid of MAX_CGI_VARS because it was not being used consistently, or
+   for that matter, at all, really.
+ * Added some more FASCIST_LOGGING to cgi.c
+ * Minor mmap patch by LRD for request.c
+
+** Changes from 0.93.17.1 to 0.93.17.2
+ * Added "Listen" directive for server bind address, as most recently
+   suggested by David N. Welton <davidw@linuxcare.com>
+ * Put virtualhost feature in, was experimental in 0.92q
+
+** Changes from 0.93.16.2 to 0.93.17.1
+ * New config file parser (supposed to be more maintainable) (LRD)
+ * Support for "|command" and ":host:port" syntax for logfiles (untested) (LRD)
+
+** Changes for the 0.93 version **
+ * Huge quantities of changes
+ * keepalive Bugfix in 0.93.16.2 by Jon Nelson
+   report by Craig Silverstein of Google fame.
+   (Craig Silverstein <csilvers@google.com>)
+ * patch for config.h by Craig Silverstein <csilvers@google.com>
+ * fixed "Parent Directory" problem in boa_indexer for title "/"
+   (Debian bug #36165)
+ * More Craig Silverstein <csilvers@google.com> modifications, namely:
+   ErrorLog        (if omitted, print to stderr)
+   DocumentRoot    (if omitted, can only server user-dir files)
+   DirectoryIndex  (if omitted, always use DirectoryMaker)
+   MimeTypes       (if omitted, don't load -- users can use AddType instead)
+
+
 ** Changes from v0.92o to v0.92p **
 
  * Documented misbehavior of CGI, SIGHUP, short aliases, stale dircache.

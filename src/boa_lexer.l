@@ -20,20 +20,34 @@
  *
  */
 
+/* $Id: boa_lexer.l,v 1.13 1999/11/04 02:44:46 jon Exp $*/
+
 #include "y.tab.h"
 #include <stdlib.h>
 #include <unistd.h>
+#include "parse.h"
+
+#define MAX_STR_CONST 1024
+#define qspush(c) \
+	if (string_buf_ptr < string_buf+MAX_STR_CONST) \
+		*string_buf_ptr++ = c; \
+	else \
+		yyerror("quoted string overflow");
 
 char *mime_types = NULL;
 
 static int file = 0;
 int lineno = 1;
+struct ccommand *k; 
+char string_buf[MAX_STR_CONST];
+char *string_buf_ptr;
 %}
 
-%a 4000
-%p 4000
-
 %s MIME
+/* Quoted string handling (almost) straight out of
+   the flex 2.5 man page, April 1995 */
+%x str
+
 %%
 
 [ \t]+		;
@@ -41,34 +55,67 @@ int lineno = 1;
 
 <MIME>[^ \t\n]+\/[^ \t\n]+	{ yylval.sval = yytext; return MIMETYPE; }
 
-Port		{ BEGIN INITIAL; return B_PORT; }
-User		{ BEGIN INITIAL; return B_USER; }
-Group		{ BEGIN INITIAL; return B_GROUP; }
-ServerAdmin	{ BEGIN INITIAL; return B_SERVERADMIN; }
-ServerRoot	{ BEGIN INITIAL; return B_SERVERROOT; }
-ErrorLog	{ BEGIN INITIAL; return B_ERRORLOG; }
-AccessLog	{ BEGIN INITIAL; return B_ACCESSLOG; }
-CgiLog		{ BEGIN INITIAL; return B_CGILOG; }
-VerboseCGILogs	{ BEGIN INITIAL; return B_VERBOSECGILOGS; }
-ServerName	{ BEGIN INITIAL; return B_SERVERNAME; }
-VirtualHost { BEGIN INITIAL; return B_VIRTUALHOST; }
-Redirect	{ BEGIN INITIAL; return B_REDIRECT; }
+[^ \"\t\n]+	{ /* XXX could use better checks that we are in a state to
+		   * accept keywords; this version matches original behavior */
+		  if ((YYSTATE==INITIAL) && (k=lookup_keyword(yytext))) {
+		      yylval.cval=k;
+		      return (k->type);
+		  } else { yylval.sval = yytext; return STRING; }
+                }
 
-DocumentRoot	{ BEGIN INITIAL; return B_DOCUMENTROOT; }
-UserDir		{ BEGIN INITIAL; return B_USERDIR; }
-DirectoryIndex	{ BEGIN INITIAL; return B_DIRECTORYINDEX; }
-DirectoryMaker	{ BEGIN INITIAL; return B_DIRECTORYMAKER; }
-KeepAliveMax 	{ BEGIN INITIAL; return B_KEEPALIVEMAX; }
-KeepAliveTimeout { BEGIN INITIAL; return B_KEEPALIVETIMEOUT; }
-MimeTypes	{ BEGIN INITIAL; return B_MIMETYPES; }
-DefaultType	{ BEGIN INITIAL; return B_DEFAULTTYPE; }
-AddType		{ BEGIN MIME; return B_ADDTYPE; }
-ScriptAlias	{ BEGIN INITIAL; return B_SCRIPTALIAS; }
-Alias		{ BEGIN INITIAL; return B_ALIAS; }
+\"	{
+	string_buf_ptr = string_buf;
+	BEGIN(str);
+	}
 
--?[0-9]+	{ yylval.ival = atoi(yytext); return INTEGER; }
-[^ \t\n]+	{ yylval.sval = yytext; return STRING; }
+<str>{
+\"	{ /* saw closing quote - all done */
+	BEGIN(INITIAL);
+	*string_buf_ptr = '\0';
+	/* return string constant token type and value to parser */
+	yylval.sval = string_buf; return STRING;
+	}
 
+\n	{
+	/* error - unterminated string constant */
+	/* generate error message */
+	yyerror("unterminated string constant");
+	}
+
+\\[0-7]{1,3}  {
+	/* octal escape sequence */
+	int result;
+
+	(void) sscanf( yytext + 1, "%o", &result );
+
+	if ( result > 0xff )
+		{ /* error, constant is out-of-bounds */ }
+
+	qspush(result);
+	}
+
+\\[0-9]+  {
+	/* generate error - bad escape sequence; something
+	 * like '\48' or '\0777777'
+	 */
+	yyerror("bad escape sequence");
+	}
+
+\\n	qspush('\n');
+\\t	qspush('\t');
+\\r	qspush('\r');
+\\b	qspush('\b');
+\\f	qspush('\f');
+
+\\(.|\n)  *string_buf_ptr++ = yytext[1];
+
+[^\\\n\"]+  {
+	char *yptr = yytext;
+	while ( *yptr )
+		qspush(*yptr++);
+	}
+}
+	/* End of <str> dependence */
 \n		{ lineno++; }
 %%
 

@@ -3,6 +3,19 @@ boa for DEBIAN
 
 To read the docs try
 
-file:/usr/doc/boa/index.html
+file:/usr/doc/boa/boa.html
 or
-http://localhost/doc/boa/index.html
+http://localhost/doc/boa/boa.html
+
+Specific thanks go out to Joy (Josip Rodin) <jrodin@jagor.srce.hr>
+for help with some various Debianisms.
+
+To use the cronolog logging facilities, the following changes must be made:
+
+1) install cronolog
+2) edit /etc/boa/boa.conf to use the cronolog logging
+3) comment out everything in /etc/logrotate.d/boa pre-pending a 
+   '#' character to each line.  This is very important!
+4) move the old log files out of the way before restarting Boa
+
+NOTE: Cronolog does *not* rotate files in the traditional way.

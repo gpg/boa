@@ -18,14 +18,42 @@
  *
  */
 
+/* $Id: compat.h,v 1.11 2001/10/20 02:52:42 jnelson Exp $*/
+
 #ifndef _COMPAT_H
 #define _COMPAT_H
 
 #include "config.h"
 
+
+#ifndef HAVE_STRSTR
+char *strstr(char *s1, char *s2);
+#endif
+#ifndef HAVE_STRDUP
+char *strdup(char *s);
+#endif
+
+#ifdef TIME_WITH_SYS_TIME
+/* maybe-defined in config.h */
+#include <sys/time.h>
+#endif
+
 #ifndef OPEN_MAX
 #define OPEN_MAX 256
 #endif
+
+#ifndef NI_MAXHOST
+#define NI_MAXHOST 20
+#endif
+
+#ifndef SO_MAXCONN
+#define SO_MAXCONN 250
+#endif
+
+#ifndef PATH_MAX
+#define PATH_MAX 2048
+#endif
+
 
 #ifdef SUNOS
 #define NOBLOCK O_NDELAY
@@ -34,13 +62,36 @@
 #endif
 
 #ifndef MAP_FILE
-#define MAP_OPTIONS MAP_PRIVATE	/* Sun */
+#define MAP_OPTIONS MAP_PRIVATE /* Sun */
 #else
-#define MAP_OPTIONS MAP_FILE|MAP_PRIVATE	/* Linux */
+#define MAP_OPTIONS MAP_FILE|MAP_PRIVATE /* Linux */
 #endif
 
-#ifdef AIX
-#include <sys/select.h>
+#ifdef INET6
+#define SOCKADDR sockaddr_storage
+#define S_FAMILY __s_family
+#define SERVER_AF AF_INET6
+#else
+#define SOCKADDR sockaddr_in
+#define S_FAMILY sin_family
+#define SERVER_AF AF_INET
+#endif
+
+#if HAVE_DIRENT_H
+# include <dirent.h>
+# define NAMLEN(dirent) strlen((dirent)->d_name)
+#else
+# define dirent direct
+# define NAMLEN(dirent) (dirent)->d_namlen
+# if HAVE_SYS_NDIR_H
+#  include <sys/ndir.h>
+# endif
+# if HAVE_SYS_DIR_H
+#  include <sys/dir.h>
+# endif
+# if HAVE_NDIR_H
+#  include <ndir.h>
+# endif
 #endif
 
 #endif

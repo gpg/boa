@@ -4,30 +4,51 @@
 # (with a pair of newlines), after giving the Content-type:
 # and any other relevant or available header information.
 
-# Strictly speaking, this header (and the double-newline) should
-# not be printed if the incoming request was in HTTP/0.9.
-# Also, we should stop after the header if REQUEST_METHOD == "HEAD".
-# But that's too much refinement for this very crude example.
+# I don't know who's job it is to not send a body to the client
+# if REQUEST_METHOD == "HEAD".  Since we can figure that out,
+# and it saves time, this example does so.
 
-print "Content-type: text/html\n\n";
+# Feb 3, 2000 -- updated to support POST, and avoid passing
+# Malicious HTML Tags as described in CERT's CA-2000-02 advisory.
+
+$now=`date`;
+chomp($now);
+
+if ($ENV{"SERVER_PROTOCOL"} ne "HTTP/0.9") {
+ print "Content-type: text/html; charset=ISO-8859-1\r\n\r\n";
+}
+
+exit 0 if ($ENV{"REQUEST_METHOD"} eq "HEAD");
 
 print "<html><head><title>Boa CGI test</title></head><body>\n";
 print "<H2>Boa CGI test</H2>\n\n";
 
-print "Date: ";
-print `date`;
+print "Date: $now\n";
 
 print "<P>\n\n<UL>\n";
 
 foreach (keys %ENV) {
-	print "<LI>$_ == $ENV{$_}\n";
+	$a= $ENV{$_};
+	$a=~s/&/&amp;/g;
+	$a=~s/</&lt;/g;
+	$a=~s/>/&gt;/g;
+	print "<LI>$_ == $a\n";
 }
 
 print "</UL>\n";
 
-print "id: ";
-print `id`;
-print "\n<p>\n";
+if ($ENV{REQUEST_METHOD} eq "POST") {
+    print "Input stream:<br><hr><pre>\n";
+    while (<stdin>) {
+	s/&/&amp;/g;
+	s/</&lt;/g;
+	s/>/&gt;/g;
+        print "$_";
+    }
+    print "</pre><hr>\n";
+}
+
+print "id: ", `id`, "\n<p>\n";
 
 if ($ENV{"QUERY_STRING"}=~/ident/ && $ENV{"REMOTE_PORT"} ne "") {
 
@@ -44,5 +65,4 @@ print "\n<EM>Boa http server</EM>\n";
 print "</body></html>\n";
 
 exit 0;
-
 

@@ -25,6 +25,8 @@
 #   nicer date format in footer
 
 # usable as it stands, 11-Feb-1997 lrd
+# $Id: webindex.pl,v 1.2 1999/10/12 14:49:08 jon Exp $
+
 
 # *****configure me******
 $index="INDEX.html";

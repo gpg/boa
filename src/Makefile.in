@@ -1,3 +1,4 @@
+# $Id: Makefile.in,v 1.49 2001/11/04 17:51:53 jnelson Exp $
 GCC_FLAGS = -Wstrict-prototypes -Wpointer-arith -Wcast-align -Wcast-qual\
   -Wtraditional\
   -Wshadow\
@@ -8,56 +9,77 @@ GCC_FLAGS = -Wstrict-prototypes -Wpointer-arith -Wcast-align -Wcast-qual\
   -Wall
 
 # Add -DNO_DAEMON if you do not want the server to fork upon launch
+# Add -lefence to LDFLAGS to link with ElectricFence
+# Add -pg to CFLAGS and LDFLAGS to get profiling output with gcc/gprof
 
-LDFLAGS = @LIBS@
-CFLAGS = -O
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+CFLAGS = @CFLAGS@ -I.
 
 # Change these if necessary
 
 YACC = @YACC@ 
 LEX = @LEX@ 
 CC = @CC@ 
+CPP = @CPP@
 
-SOURCES = alias.c boa.c cgi.c config.c get.c hash.c log.c \
-	queue.c read.c request.c response.c signals.c util.c \
-	cgi_header.c pipe.c
+SOURCES = alias.c boa.c buffer.c cgi.c cgi_header.c config.c escape.c \
+	get.c hash.c ip.c log.c mmap_cache.c pipe.c queue.c read.c \
+	request.c response.c signals.c util.c sublog.c 
 	
 OBJS = y.tab.o lex.yy.o ${SOURCES:.c=.o} timestamp.o
 
-.PHONY: clean mrclean depend all
- 
+.PHONY: clean mrclean distclean depend all dist
+
 all:	boa boa_indexer
 
 boa:	${OBJS}
-	${CC} -o $@ ${OBJS} ${LDFLAGS}
+	${CC} -o $@ ${OBJS} ${LDFLAGS} ${LIBS}
 	
+boa_indexer:	index_dir.o escape.o
+	${CC} -o $@ index_dir.o escape.o ${LDFLAGS} ${LIBS}
+
 clean:
-	rm -f ${OBJS} boa core lex.yy.c y.tab.c y.tab.h boa_indexer
+	rm -f ${OBJS} boa core lex.yy.c y.tab.c y.tab.h boa_indexer cgi_header *~ index_dir.o
 	
+distclean:	mrclean
+
 mrclean:	clean
 	rm -f config.status config.cache config.h Makefile config.log
 
 # parser dependencies
 
 y.tab.c y.tab.h:	boa_grammar.y
-	${YACC} -d boa_grammar.y
+	${YACC} -d $<
 
 lex.yy.c:	boa_lexer.l
-	${LEX} boa_lexer.l
+	${LEX} $<
 
-escape.h:	escape.pl
-	perl escape.pl >escape.h
+# depend stuff
 	
-depend:	
-	@CPP@ -MM ${SOURCES} > .depend
-	
+.depend:
+	${CPP} -MM ${SOURCES} > .depend
+        
+depend:
+	-rm -f .depend
+	make .depend
+        
 -include .depend
 
-boa_indexer:	index_dir.c
-	${CC} -o $@ index_dir.c ${LDFLAGS}
+# timestamp
 
-timestamp.c:	${SOURCES} boa_grammar.y boa_lexer.l
-	touch timestamp.c
+timestamp.o:	${SOURCES} boa_grammar.y boa_lexer.l
+
+# tags
+TAGS:	${SOURCES}
+	ctags -o TAGS ${SOURCES} *.h
+
+# dist
+dist:
+	make clean
+	./makedist.sh
+
+# tests
 
 SOCKET = socket localhost 80
 ECHO = /bin/echo
