@@ -1,0 +1,120 @@
+# Portuguese translation for boa's debconf messages
+# This file is distributed under the same license as the boa package.
+# Ricardo Silva <ardoric@gmail.com>, 2006.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: boa\n"
+"Report-Msgid-Bugs-To: teo@debian.org\n"
+"POT-Creation-Date: 2006-11-18 12:18+0100\n"
+"PO-Revision-Date: 2006-08-02 23:20+0000\n"
+"Last-Translator: Ricardo Silva <ardoric@gmail.com>\n"
+"Language-Team: Portuguese <traduz@debianpt.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: select
+#. Choices
+#: ../templates:1001
+msgid "Do nothing, Specify an alternative port"
+msgstr "Não fazer nada, Especifique uma porta alternativa"
+
+#. Type: select
+#. Description
+#: ../templates:1002
+msgid "Port conflict resolution method:"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:1002
+#, fuzzy
+msgid ""
+"In order for the installation to proceed properly, you must select an "
+"appropriate method to resolve the port conflict problem. Choosing 'Do "
+"nothing' will prevent boa from being started upon boot up, and you will be "
+"required to resolve the problem manually."
+msgstr ""
+"Para a instalação prosseguir devidamente, tem de seleccionar um método "
+"apropriado para resolver o problema mencionado anteriormente. Escolher 'Não "
+"fazer nada' vai impedir o boa de ser iniciado no arranque, e necessitará que "
+"resolva o problema manualmente."
+
+#. Type: error
+#. Description
+#: ../templates:2001
+#, fuzzy
+msgid "Port already in use"
+msgstr "A porta 80 já está a ser usada."
+
+#. Type: error
+#. Description
+#: ../templates:2001
+msgid ""
+"The installation script has detected that that port you specified is already "
+"bound to a service other than boa and is therefore not valid."
+msgstr ""
+"O script de instalação detectou que a porta que especificou já está alocada "
+"a outro serviço e portanto não é válida."
+
+#. Type: error
+#. Description
+#: ../templates:3001
+#, fuzzy
+msgid "Port 80 already in use"
+msgstr "A porta 80 já está a ser usada."
+
+#. Type: error
+#. Description
+#: ../templates:3001
+msgid ""
+"The installation script has detected that port 80 is already bound to a "
+"service other than boa. By default, boa uses this port to serve requests for "
+"clients. This problem prevents boa from being started properly."
+msgstr ""
+"O script de instalação detectou que a porta 80 já está alocada a outro "
+"serviço. Por omissão, o boa usa esta porta para servir pedidos de clientes. "
+"Este problema impede o boa de ser iniciado devidamente."
+
+#. Type: error
+#. Description
+#: ../templates:4001
+#, fuzzy
+msgid "Port 80 previously in use, now available"
+msgstr "Anteriormente a porta 80 estava em uso, mas agora já está disponível."
+
+#. Type: error
+#. Description
+#: ../templates:4001
+msgid ""
+"The installation script has detected that port 80 was at one time in use by "
+"another process. Because of this, boa was configured to either ignore the "
+"problem, or use a different port. Currently, port 80 is available again."
+msgstr ""
+"O script de instalação detectou que a porta 80 esteve em uso por outro "
+"processo. Devido a isto, o boa foi configurado para ou ignorar o problema, "
+"ou usar uma porta diferente. Agora a porta 80 já está disponível."
+
+#. Type: string
+#. Description
+#: ../templates:5001
+#, fuzzy
+msgid "Alternative port for boa:"
+msgstr "Escolha uma porta alternativa para o boa"
+
+#. Type: string
+#. Description
+#: ../templates:5001
+msgid ""
+"The port number you enter will be used by boa in order to serve client "
+"requests."
+msgstr ""
+"O número da porta que introduzir será usada pelo boa para servir pedidos de "
+"clientes."
+
+#~ msgid "Select a method to resolve the problem."
+#~ msgstr "Seleccione um método para resolver o problema."
+
+#~ msgid "The port you specified is already in use."
+#~ msgstr "A porta que especificou já está a ser usada."

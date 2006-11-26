@@ -1,4 +1,13 @@
 #! /bin/sh
+PATH=/bin:/sbin:/usr/bin:/usr/sbin
+NETSTAT=/bin/netstat
+SERVICES=/etc/services
+CONFFILE=/etc/boa/boa.conf
+
+. /usr/share/debconf/confmodule
+
+set -e
+
 if [ -e /etc/cron.daily/boa ]; then
   echo 'conffile /etc/cron.daily/boa exists.  New functionality is in /etc/logrotate.d/boa.'
   if test `md5sum /etc/cron.daily/boa | awk '{print $1}'` = '5e05937798a45a32ed7bf03e596d1427'; then
@@ -8,6 +17,28 @@ if [ -e /etc/cron.daily/boa ]; then
     echo '/etc/cron.daily/boa modified -- Moving to /etc/cron.daily/boa.obsolete'
     mv -f /etc/cron.daily/boa /etc/cron.daily/boa.obsolete
   fi
+fi
+
+db_get boa/port_prob
+if [ "$RET" = "Specify an alternative port" ]; then
+    db_get boa/select_port
+    cat $CONFFILE | sed "s/Port [0-9]*/Port $RET/g" > $CONFFILE.temp
+    cp $CONFFILE.temp $CONFFILE
+    rm -f $CONFFILE.temp
+fi
+
+if [ "$RET" != "Do nothing" ]; then
+    update-rc.d boa defaults > /dev/null
+    echo "Updating rc.d symbolic links to start boa upon booting."
+    echo "Starting boa ..."
+    if [ -x "/etc/init.d/boa" ]; then
+	if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+        	invoke-rc.d boa start || exit $?
+        else
+              	/etc/init.d/boa start || exit $?
+        fi
+    fi
+    db_stop
 fi
 
 #DEBHELPER#

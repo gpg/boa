@@ -1,3 +1,192 @@
+boa (0.94.14rc21-0.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * New upstream clean-up release. This release fix:
+    - set valid SERVER_NAME & SERVER_PORT (closes: #365763)
+  * Make package non-native (closes: #365760).
+  * Manage debian/patches with dpatch:
+   - 1_config: move /usr/doc to /usr/share/doc 
+   - 2_sendfile_ENOSYS by Anthony Towns: (closes:#330871)
+     revert to standard I/O if sendfile returns ENOSYS. This allows
+     boa to work on kernels that do not support sendfile64.
+   - 4_Makefile.in: fix missing space typo in Makefile.in.
+   - 5_allow_8bit by Sakari Ailus: (closes: #315445)
+     allow %xx in URIs to encode 8bit chars.
+  * debian/rules: 
+    - adjust for dpatch in _preapplied_ mode.
+    - switch to dh_installman
+    - remove duplicate call to dh_installdebconf.
+  * debian/config:
+    - Hide dpkg message when installing (closes: #357470, #328997).
+      NMUer opinion: the real fix is to not use dpkg in the first place.
+
+ -- Bill Allombert <ballombe@debian.org>  Sun, 26 Nov 2006 23:15:32 +0100
+
+boa (0.94.14rc20-1.4) unstable; urgency=low
+
+  * Non-maintainer upload to fix longstanding l10n issues
+  * Debconf translation update:
+    - Portuguese added. Closes: #381352
+    - Italian added. Sent durign the call for updates of the NMU campaign.
+    - Basque added. Sent durign the call for updates of the NMU campaign.
+    - Russian added. Sent durign the call for updates of the NMU campaign.
+    - Vietnamese updated. Sent durign the call for updates of the NMU campaign.
+    - German updated. Sent durign the call for updates of the NMU campaign.
+    - Brazilian Portuguese added. Sent durign the call for updates of
+      the NMU campaign.
+  * Lintian fixes:
+    - use invoke-rc.d to call the init script in debian/config
+      debian/preinst and debian/postinst. Closes: #351192, #357470
+    - Make debconf templates follow the Developer's Reference
+      recommendations
+    - Turn note templates into error type which they are
+    - Add basic LSB headers to the init script
+  * Correct the abuse of capitals in the package description
+  * Correct one typography error in the package description
+  * Replace the debconf dependency by ${misc:Depends}
+  * Use default values for the init script start order. Closes: #312719
+
+ -- Christian Perrier <bubulle@debian.org>  Sat, 18 Nov 2006 12:13:55 +0100
+
+boa (0.94.14rc20-1.3) unstable; urgency=low
+
+  * Non Maintainer Upload
+  * Add alternative depends for debconf-2.0 (closes: #331764).
+  * Provide httpd-cgi (closes: #304306).
+  * Update debhelper compatibility to level 5.
+  * Fix minor maintainer script errors.
+  * Add new translations:
+    - French by Yves Rutschle (closes: #297021)
+    - Czech by Miroslav Kure (closes: #300365)
+    - Dutch by Frans Pop (closes: #309107)
+    - Vietnamese by Clytie Siddall (closes: #313168)
+    - Swedish by Daniel Nylander (closes: #336677)
+    - Spanish by César Gómez Martín (closes: #333892)
+
+ -- Frans Pop <fjp@debian.org>  Sat, 24 Dec 2005 23:23:52 +0100
+
+boa (0.94.14rc20-1.2) unstable; urgency=low
+
+  * Applied patch from Frans Pop <aragorn@tiscali.nl> that fix large
+    file issue, closes: #296370.
+
+ -- Ola Lundqvist <opal@debian.org>  Sat, 16 Apr 2005 20:57:57 +0200
+
+boa (0.94.14rc20-1.1) unstable; urgency=low
+
+  * NMU: Apply patch from Frans Pop <aragorn@tiscali.nl> to fix doc
+    target, closes: #296440.
+
+ -- Ola Lundqvist <opal@debian.org>  Fri, 15 Apr 2005 18:29:51 +0200
+
+boa (0.94.14rc20-1) unstable; urgency=high
+
+  * 0.94.14 version into unstable for reaching sarge before release.
+  * This upload also fix a lot of bugs.
+
+ -- Teófilo Ruiz Suárez <teo@debian.org>  Sun, 13 Feb 2005 11:12:36 +0100
+
+boa (0.94.13+0.94.14rc20-2) experimental; urgency=low
+
+  * Fix rules so Makefiles are not used unless they exist (Closes: #271927)
+    + Thanks to Javier Fernández-Sanguino Peña (jfs@computer.org) for the patch
+
+ -- Teófilo Ruiz Suárez <teo@debian.org>  Sat,  6 Nov 2004 17:07:39 +0100
+
+boa (0.94.13+0.94.14rc20-1) experimental; urgency=low
+
+  * Development version upload
+  * Added po-debconf support (closes: #208445)
+
+ -- Teófilo Ruiz Suárez <teo@debian.org>  Mon,  9 Aug 2004 15:55:05 +0100
+
+boa (0.94.13-8) unstable; urgency=low
+
+  * Added debconf as a Dependency and not as a build-dep (closes: #263355)
+
+ -- Teófilo Ruiz Suárez <teo@debian.org>  Wed,  4 Aug 2004 10:53:05 +0200
+
+boa (0.94.13-7) unstable; urgency=low
+
+  * The 'Sorry for the buggy upload' upload
+  * Just fixed IPv4 support unapplying fabbione's patch (closes: #261956)
+  * Added debconf templates taken from thttpd. They ask for an alternate port
+    if port 80 is in use (closes: #208445)
+
+ -- Teófilo Ruiz Suárez <teo@debian.org>  Fri, 30 Jul 2004 18:00:25 +0200
+
+boa (0.94.13-6) unstable; urgency=low
+
+  * The 'Sorry for the delay' upload
+  * IPv6 enabled, thanks to Fabio M. Di Nitto (closes: #175165)
+  * Large file support enabled, thanks to Eduard Bloch (closes: #154939)
+  * init script is now policy compliant (closes: #220285)
+  * Postinst didn't check if boa was running before, now it stop itself in preinst (closes: #213918)
+
+ -- Teófilo Ruiz Suárez <teo@debian.org>  Mon, 26 Jul 2004 16:25:00 +0200
+
+boa (0.94.13-5) unstable; urgency=low
+
+  * src/compat.h:120 fixed some bugs with GCC 3.2 (closes: #195800)
+
+ -- Teófilo Ruiz Suárez <teo@debian.org>  Sun,  8 Jun 2003 15:29:44 +0200
+
+boa (0.94.13-4) unstable; urgency=low
+
+  * New maintainer.
+  * src/boa.c: Don't die if getpwuid fails (closes: #175151).
+  * debian/rules: Don't dh_testroot in clean (closes: #175152).
+
+ -- Teófilo Ruiz Suárez <teo@debian.org>  Thu, 17 Apr 2003 01:07:33 +0200
+
+boa (0.94.13-3) unstable; urgency=low
+
+  * New maintainer (closes: #151847)
+
+ -- Steve Kemp <skx@debian.org>  Mon,  3 Feb 2003 09:57:30 +0000
+
+boa (0.94.13-2) unstable; urgency=low
+
+  * Debian QA upload, during Sarge's BSP #2.
+  * debian/boa.init: install a new init file based on one by Bill Allombert
+    which makes "restart" not fail if boa wasn't previously running
+    (closes: #160517).
+  * debian/rules:
+    + use dh_installlogrotate to install the logrotate stuff.
+    + remove arguments to dh_installexamples.
+    + disable DH_VERBOSE.
+    + remove docs/boa.info and docs/boa.html on clean (bashisms in Makefile).
+  * debian/dirs: add usr/lib/cgi-lib.
+  * debian/boa.examples: added.
+  * debian/boa.conf: add "ScriptAlias /cgi-lib/ /usr/lib/cgi-bin/" for the
+    upcoming "cgi-bin" policy (closes: #167511).
+  * src/boa_grammar.y: patch from H. S. Teoh; adds a space after "$Id: $" so
+    m4 doesn't try to expand "$*".
+
+ -- Jordi Mallach <jordi@debian.org>  Sun, 24 Nov 2002 19:23:35 +0100
+
+boa (0.94.13-1) unstable; urgency=low
+
+  * Debian QA upload.
+  * New upstream version.
+
+ -- Peter Palfrader <weasel@debian.org>  Sun, 11 Aug 2002 06:02:04 +0200
+
+boa (0.94.12-1) unstable; urgency=low
+
+  * Debian QA upload.
+  * Boa has been orphaned (Debian Bug #151847).
+    Thanks to Jonathon D Nelson for all the hard work he put into
+    Boa and its Debian package.
+  * Maintainer changed to Debian QA Group <packages@qa.debian.org>.
+  * New upstream release:
+    All changes from the privious Debian diff to code seems to have
+    propagated into the upstream tarball.
+  * Removed emacs stuff from debian/changelog.
+  * Upstream changelog was moved from src/ to . -> Adapted in debian/rules.
+
+ -- Peter Palfrader <weasel@debian.org>  Thu,  4 Jul 2002 00:42:27 +0200
+
 boa (0.94.11-3) unstable; urgency=medium
 
   * Fix bug in hash routines (Closes: #134012) 
@@ -421,7 +610,7 @@ boa (0.93.8.4-1) unstable; urgency=low
 
  -- Jon Nelson <nels0988@tc.umn.edu>  Thu, 11 Dec 1997 13:43:50 -0600
 
- boa (0.93.8.3-1) unstable; urgency=low
+boa (0.93.8.3-1) unstable; urgency=low
 
   * New upstream version
 
@@ -502,7 +691,3 @@ boa (0.92-1) unstable; urgency=low
   * Initial Release.
 
  -- Christoph Lameter <clameter@debian.org>  Mon, 23 Dec 1996 20:27:43 -0800
-
-Local variables:
-mode: debian-changelog
-End:

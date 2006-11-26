@@ -1,19 +1,19 @@
 Source: boa
 Section: web
 Priority: optional
-Maintainer: Jonathon D Nelson <jnelson@boa.org>
-Standards-Version: 3.1.1.1
-Build-Depends: debhelper, texinfo, bison, flex, texi2html, tetex-bin
+Maintainer: Teófilo Ruiz Suárez <teo@debian.org>
+Standards-Version: 3.6.1
+Build-Depends: debhelper (>= 5.0), texinfo, bison, flex, texi2html, tetex-bin, po-debconf, dpatch
 
 Package: boa
 Architecture: any
-Provides: httpd
-Depends: ${shlibs:Depends},mime-support,logrotate
-Description: Lightweight and High Performance WebServer
+Provides: httpd, httpd-cgi
+Depends: ${shlibs:Depends}, mime-support, logrotate, ${misc:Depends}
+Description: Lightweight and high performance web server
  Boa is a single-tasking HTTP server. That means that unlike
  traditional web servers, it does not fork for each incoming
  connection, nor does it fork many copies of itself to handle multiple
  connections. It internally multiplexes all of the ongoing HTTP
  connections, and forks only for CGI programs (which must be separate
- processes.) Preliminary tests show boa is capable of handling several
+ processes). Preliminary tests show boa is capable of handling several
  hundred hits per second on a 100 MHz Pentium.

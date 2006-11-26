@@ -1,0 +1,116 @@
+# Vietnamese translation for Boa.
+# Copyright © 2006 Free Software Foundation, Inc.
+# Clytie Siddall <clytie@riverland.net.au>, 2005-2006.
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: boa 0.94.14rc20-1.2\n"
+"Report-Msgid-Bugs-To: teo@debian.org\n"
+"POT-Creation-Date: 2006-11-18 12:18+0100\n"
+"PO-Revision-Date: 2006-11-19 15:33+1030\n"
+"Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
+"Language-Team: Vietnamese <vi-VN@googlegroups.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: LocFactoryEditor 1.6fc1\n"
+
+#. Type: select
+#. Choices
+#: ../templates:1001
+msgid "Do nothing, Specify an alternative port"
+msgstr "Không làm gì, Ghi rõ một cổng khác"
+
+#. Type: select
+#. Description
+#: ../templates:1002
+msgid "Port conflict resolution method:"
+msgstr "Phương pháp giải quyết cổng bị xung đột:"
+
+#. Type: select
+#. Description
+#: ../templates:1002
+msgid ""
+"In order for the installation to proceed properly, you must select an "
+"appropriate method to resolve the port conflict problem. Choosing 'Do "
+"nothing' will prevent boa from being started upon boot up, and you will be "
+"required to resolve the problem manually."
+msgstr ""
+"Để tiếp tục được tiến trình cài đặt, bạn cần phải chọn phương pháp thích hợp "
+"để giải quyết trường hợp cổng bị xung đột. Việc chọn « Không làm gì » sẽ "
+"ngăn cản trình boa khởi chạy khi máy khởi động, và bạn sẽ cần phải tự giải "
+"quyết vấn đề này."
+
+#. Type: error
+#. Description
+#: ../templates:2001
+msgid "Port already in use"
+msgstr "Cổng đang được dùng"
+
+#. Type: error
+#. Description
+#: ../templates:2001
+msgid ""
+"The installation script has detected that that port you specified is already "
+"bound to a service other than boa and is therefore not valid."
+msgstr ""
+"Văn lệnh cài đặt đã phát hiện rằng cổng được bạn ghi rõ đã được tổ hợp với "
+"một dịch vụ khác với boa thì không phải là hợp lệ."
+
+#. Type: error
+#. Description
+#: ../templates:3001
+msgid "Port 80 already in use"
+msgstr "Cổng 80 đang được dùng"
+
+#. Type: error
+#. Description
+#: ../templates:3001
+msgid ""
+"The installation script has detected that port 80 is already bound to a "
+"service other than boa. By default, boa uses this port to serve requests for "
+"clients. This problem prevents boa from being started properly."
+msgstr ""
+"Văn lệnh cài đặt đã phát hiện rằng cổng số thứ tự 80 đã được tổ hợp với một "
+"dịch vụ khác với boa. Mặc định là trình boa sử dụng cổng này để phục vụ các "
+"yêu cầu cho ứng dụng khách. Trường hợp xung đột này sẽ ngăn cản trình boa "
+"khởi chạy."
+
+#. Type: error
+#. Description
+#: ../templates:4001
+msgid "Port 80 previously in use, now available"
+msgstr "Cổng 80 được dùng trước, mới sẵn sàng"
+
+#. Type: error
+#. Description
+#: ../templates:4001
+msgid ""
+"The installation script has detected that port 80 was at one time in use by "
+"another process. Because of this, boa was configured to either ignore the "
+"problem, or use a different port. Currently, port 80 is available again."
+msgstr ""
+"Văn lệnh cài đặt đã phát hiện rằng cổng 80 lúc nào đã được sử dụng bởi tiến "
+"trình khác. Vì vậy trình bao được cấu hình hoặc để bỏ qua vấn đề này, hoặc "
+"để sử dụng cổng khác. HIện thời, cổng 80 sẵn sàng lại."
+
+#. Type: string
+#. Description
+#: ../templates:5001
+msgid "Alternative port for boa:"
+msgstr "Cổng xen kẽ cho boa:"
+
+#. Type: string
+#. Description
+#: ../templates:5001
+msgid ""
+"The port number you enter will be used by boa in order to serve client "
+"requests."
+msgstr "Trình boa sẽ dùng cổng này để phục vụ các yêu cầu của ứng dụng khách."
+
+#~ msgid "Select a method to resolve the problem."
+#~ msgstr "Hãy chọn một cách tháo gỡ vấn đề này."
+
+#~ msgid "The port you specified is already in use."
+#~ msgstr "Bạn đã chọn một cổng được dùng rồi."

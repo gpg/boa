@@ -1,0 +1,22 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 2_sendfile_ENOSYS.dpatch by  <ballombe@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: revert to standard I/O if sendfile returns ENOSYS
+
+@DPATCH@
+diff -urNad boa-0.94.14rc21~/src/pipe.c boa-0.94.14rc21/src/pipe.c
+--- boa-0.94.14rc21~/src/pipe.c	2005-02-22 15:13:03.000000000 +0100
++++ boa-0.94.14rc21/src/pipe.c	2006-11-27 19:54:24.000000000 +0100
+@@ -215,7 +215,9 @@
+ 	}
+ 	req->ranges->start = sendfile_offset;
+         if (bytes_written < 0) {
+-            if (errno == EWOULDBLOCK || errno == EAGAIN) {
++	    if (errno == ENOSYS) {
++		return io_shuffle(req);
++	    } else if (errno == EWOULDBLOCK || errno == EAGAIN) {
+                 return -1;          /* request blocked at the pipe level, but keep going */
+             } else if (errno == EINTR) {
+                 goto retrysendfile;
+

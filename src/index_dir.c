@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 1997 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1997-2005 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  *
  */
 
-/* $Id: index_dir.c,v 1.28 2001/10/13 20:25:49 jnelson Exp $*/
+/* $Id: index_dir.c,v 1.32.2.7 2005/02/22 03:00:24 jnelson Exp $*/
 
 #include <stdio.h>
 #include <sys/stat.h>
@@ -26,6 +26,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include "compat.h"
 
 #define MAX_FILE_LENGTH                         MAXNAMLEN
@@ -36,29 +37,26 @@
 
 #include "escape.h"
 
-char *html_escape_string(char *inp, char *buf, const int len);
-char *http_escape_string(char *inp, char *buf, const int len);
+char *html_escape_string(const char *inp, char *dest,
+                         const unsigned int len);
+char *http_escape_string(const char *inp, char *buf,
+                         const unsigned int len);
 
-#if defined __GNUC__ && \
-    (__GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ > 0))
-#define CONST const
-#else
-#define CONST
-#endif
-
-int select_files(CONST struct dirent *d);
+int select_files(const struct dirent *d);
 int index_directory(char *dir, char *title);
+void send_error(int error);
 
 /*
  * Name: html_escape_string
  */
-char *html_escape_string(char *inp, char *dest, const int len)
+char *html_escape_string(const char *inp, char *dest,
+                         const unsigned int len)
 {
     int max;
     char *buf;
     unsigned char c;
 
-    max = len * 5;
+    max = len * 6;
 
     if (dest == NULL && max)
         dest = malloc(sizeof (unsigned char) * (max + 1));
@@ -88,6 +86,14 @@ char *html_escape_string(char *inp, char *dest, const int len)
             *dest++ = 'p';
             *dest++ = ';';
             break;
+        case '\"':
+            *dest++ = '&';
+            *dest++ = 'q';
+            *dest++ = 'u';
+            *dest++ = 'o';
+            *dest++ = 't';
+            *dest++ = ';';
+            break;
         default:
             *dest++ = c;
         }
@@ -109,11 +115,13 @@ char *html_escape_string(char *inp, char *dest, const int len)
  * Returns: NULL on error, pointer to string otherwise.
  */
 
-char *http_escape_string(char *inp, char *buf, const int len)
+char *http_escape_string(const char *inp, char *buf,
+                         const unsigned int len)
 {
     int max;
-    char *index;
+    char *index_c;
     unsigned char c;
+    int found_a_colon = 0;
 
     max = len * 3;
 
@@ -123,23 +131,30 @@ char *http_escape_string(char *inp, char *buf, const int len)
     if (buf == NULL)
         return NULL;
 
-    index = buf;
+    index_c = buf;
     while ((c = *inp++)) {
-        if (needs_escape((unsigned int) c)) {
-            *index++ = '%';
-            *index++ = INT_TO_HEX(c >> 4);
-            *index++ = INT_TO_HEX(c & 15);
+        if (c == ':' && !found_a_colon && index_c > buf) {
+            found_a_colon = 1;
+            memmove(buf + 2, buf, (index_c - buf));
+            *buf = '.';
+            *(buf + 1) = '/';
+            index_c += 2;
+            *index_c++ = ':';
+        } else if (needs_escape((unsigned int) c) || c == '?') {
+            *index_c++ = '%';
+            *index_c++ = INT_TO_HEX((c >> 4) & 0xf);
+            *index_c++ = INT_TO_HEX(c & 0xf);
         } else
-            *index++ = c;
+            *index_c++ = c;
     }
-    *index = '\0';
+    *index_c = '\0';
 
     return buf;
 }
 
 void send_error(int error)
 {
-    char *the_error;
+    const char *the_error;
 
     switch (error) {
 
@@ -169,7 +184,7 @@ void send_error(int error)
            "<body>\n%s\n</body>\n</html>\n", the_error, the_error);
 }
 
-int select_files(CONST struct dirent *dirbuf)
+int select_files(const struct dirent *dirbuf)
 {
     if (dirbuf->d_name[0] == '.')
         return 0;
@@ -192,7 +207,8 @@ int index_directory(char *dir, char *title)
     struct dirent **array;
     struct stat statbuf;
     char http_filename[MAX_FILE_LENGTH * 3];
-    char html_filename[MAX_FILE_LENGTH * 4];
+    char html_filename[MAX_FILE_LENGTH * 6];
+    char escaped_filename[MAX_FILE_LENGTH * 18]; /* *both* http and html escape */
     int i;
 
     if (chdir(dir) == -1) {
@@ -207,12 +223,18 @@ int index_directory(char *dir, char *title)
         send_error(6);
         return -1;
     }
+
+    if (html_escape_string(title, html_filename, strlen(title)) == NULL) {
+        send_error(4);
+        return -1;
+    }
+
     printf("<html>\n"
            "<head>\n<title>Index of %s</title>\n</head>\n\n"
            "<body bgcolor=\"#ffffff\">\n"
            "<H2>Index of %s</H2>\n"
            "<table>\n%s",
-           title, title,
+           html_filename, html_filename,
            (strcmp(title, "/") == 0 ? "" :
             "<tr><td colspan=3><h3>Directories</h3></td></tr>"
             "<tr><td colspan=3><a href=\"../\">Parent Directory</a></td></tr>\n"));
@@ -236,12 +258,17 @@ int index_directory(char *dir, char *title)
             send_error(4);
             return -1;
         }
+        if (html_escape_string(http_filename, escaped_filename,
+                               strlen(http_filename)) == NULL) {
+            send_error(4);
+            return -1;
+        }
         printf("<tr>"
                "<td width=\"40%%\"><a href=\"%s/\">%s/</a></td>"
                "<td align=right>%s</td>"
                "<td align=right>%ld bytes</td>"
                "</tr>\n",
-               http_filename, html_filename,
+               escaped_filename, html_filename,
                ctime(&statbuf.st_mtime), (long) statbuf.st_size);
     }
 
@@ -260,12 +287,12 @@ int index_directory(char *dir, char *title)
             continue;
 
         if (html_escape_string(dirbuf->d_name, html_filename,
-                              NAMLEN(dirbuf)) == NULL) {
+                               NAMLEN(dirbuf)) == NULL) {
             send_error(4);
             return -1;
         }
         if (http_escape_string(dirbuf->d_name, http_filename,
-                              NAMLEN(dirbuf)) == NULL) {
+                               NAMLEN(dirbuf)) == NULL) {
             send_error(4);
             return -1;
         }
@@ -275,6 +302,11 @@ int index_directory(char *dir, char *title)
         if (len > 3 && !memcmp(http_filename + len - 3, ".gz", 3)) {
             http_filename[len - 3] = '\0';
             html_filename[strlen(html_filename) - 3] = '\0';
+            if (html_escape_string(http_filename, escaped_filename,
+                                   strlen(http_filename)) == NULL) {
+                send_error(4);
+                return -1;
+            }
 
             printf("<tr>"
                    "<td width=\"40%%\"><a href=\"%s\">%s</a> "
@@ -282,16 +314,21 @@ int index_directory(char *dir, char *title)
                    "<td align=right>%s</td>"
                    "<td align=right>%ld bytes</td>"
                    "</tr>\n",
-                   http_filename, html_filename, http_filename,
+                   escaped_filename, html_filename, http_filename,
                    ctime(&statbuf.st_mtime), (long) statbuf.st_size);
         } else {
 #endif
+            if (html_escape_string(http_filename, escaped_filename,
+                                   strlen(http_filename)) == NULL) {
+                send_error(4);
+                return -1;
+            }
             printf("<tr>"
                    "<td width=\"40%%\"><a href=\"%s\">%s</a></td>"
                    "<td align=right>%s</td>"
                    "<td align=right>%ld bytes</td>"
                    "</tr>\n",
-                   http_filename, html_filename,
+                   escaped_filename, html_filename,
                    ctime(&statbuf.st_mtime), (long) statbuf.st_size);
 #ifdef GUNZIP
         }
@@ -333,12 +370,22 @@ int main(int argc, char *argv[])
         index_directory(argv[1], argv[2]);
 
     time(&timep);
+#ifdef USE_LOCALTIME
+    timeptr = localtime(&timep);
+#else
     timeptr = gmtime(&timep);
+#endif
     now = strdup(asctime(timeptr));
     now[strlen(now) - 1] = '\0';
+#ifdef USE_LOCALTIME
+    printf("</table>\n<hr noshade>\nIndex generated %s %s\n"
+           "<!-- This program is part of the Boa Webserver Copyright (C) 1991-2002 http://www.boa.org -->\n"
+           "</body>\n</html>\n", now, TIMEZONE(timeptr));
+#else
     printf("</table>\n<hr noshade>\nIndex generated %s UTC\n"
-           "<!-- This program is part of the Boa Webserver Copyright (C) 1991-1999 http://www.boa.org -->\n"
+           "<!-- This program is part of the Boa Webserver Copyright (C) 1991-2002 http://www.boa.org -->\n"
            "</body>\n</html>\n", now);
+#endif
 
     return 0;
 }

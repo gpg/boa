@@ -1,7 +1,8 @@
 /*
  *  Boa, an http server
- *  Copyright (C) 1995 Paul Phillips <psp@well.com>
- *  Some changes Copyright (C) 1997 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
+ *  Copyright (C) 1996-1999 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 1997-2004 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,7 +20,7 @@
  *
  */
 
-/* $Id: defines.h,v 1.90 2001/11/02 04:37:46 jnelson Exp $*/
+/* $Id: defines.h,v 1.107.2.42 2005/02/22 14:11:29 jnelson Exp $*/
 
 #ifndef _DEFINES_H
 #define _DEFINES_H
@@ -30,12 +31,28 @@
 #define SERVER_ROOT "/etc/boa"
 #endif
 
+/* Uncomment the following #define if you don't want your logs
+ * filled with messages about client disconnects, etc...
+ */
+
+/* #define QUIET_DISCONNECT 1 */
+
+/***** Change this via the CGIPath configuration value in boa.conf *****/
+#define DEFAULT_PATH     "/bin:/usr/bin:/usr/local/bin"
+
+/***** Change this via the DefaultVHost configuration directive in boa.conf *****/
+#define DEFAULT_VHOST "default"
+#define DEFAULT_CONFIG_FILE "boa.conf" /* locate me in the server root */
+
+/***** Change this via the SinglePostLimit configuration value in boa.conf *****/
+#define SINGLE_POST_LIMIT_DEFAULT               1024 * 1024 /* 1 MB */
+
 /***** Various stuff that you may want to tweak, but probably shouldn't *****/
 
-#define SOCKETBUF_SIZE				8192
+#define SOCKETBUF_SIZE                          32768
+#define CLIENT_STREAM_SIZE                      8192
+#define BUFFER_SIZE                             4096
 #define MAX_HEADER_LENGTH			1024
-#define CLIENT_STREAM_SIZE			SOCKETBUF_SIZE
-#define BUFFER_SIZE				CLIENT_STREAM_SIZE
 
 #define MIME_HASHTABLE_SIZE			47
 #define ALIAS_HASHTABLE_SIZE                    17
@@ -43,15 +60,13 @@
 
 #define REQUEST_TIMEOUT				60
 
-#define CGI_MIME_TYPE    "application/x-httpd-cgi"
-#define DEFAULT_PATH     "/bin:/usr/bin:/usr/local/bin"
+#define MIME_TYPES_DEFAULT                      "/etc/mime.types"
+#define CGI_MIME_TYPE                           "application/x-httpd-cgi"
 
 /***** CHANGE ANYTHING BELOW THIS LINE AT YOUR OWN PERIL *****/
 /***** You will probably introduce buffer overruns unless you know
        what you are doing *****/
 
-#define MAX_SITENAME_LENGTH			256
-#define MAX_LOG_LENGTH				MAX_HEADER_LENGTH + 1024
 #define MAX_FILE_LENGTH				NAME_MAX
 #define MAX_PATH_LENGTH				PATH_MAX
 
@@ -62,130 +77,106 @@
 #endif
 
 #ifndef SERVER_VERSION
-#define SERVER_VERSION 				"Boa/0.94.11"
+#define SERVER_VERSION 				"Boa/0.94.14rc21"
 #endif
 
 #define CGI_VERSION				"CGI/1.1"
+
+#ifdef USE_NCSA_CGI_ENV
 #define COMMON_CGI_COUNT 8
-#define CGI_ENV_MAX     50
+#else
+#define COMMON_CGI_COUNT 6
+#endif
+
+#define CGI_ENV_MAX     100
 #define CGI_ARGC_MAX 128
 
-/******************* RESPONSE CLASSES *****************/
-
-#define R_INFORMATIONAL	1
-#define R_SUCCESS	2
-#define R_REDIRECTION	3
-#define R_CLIENT_ERROR	4
-#define R_SERVER_ERROR	5
-
-/******************* RESPONSE CODES ******************/
-
-#define R_REQUEST_OK	200
-#define R_CREATED	201
-#define R_ACCEPTED	202
-#define R_PROVISIONAL	203       /* provisional information */
-#define R_NO_CONTENT	204
-
-#define R_MULTIPLE	300          /* multiple choices */
-#define R_MOVED_PERM	301
-#define R_MOVED_TEMP	302
-#define R_NOT_MODIFIED	304
-
-#define R_BAD_REQUEST	400
-#define R_UNAUTHORIZED	401
-#define R_PAYMENT	402           /* payment required */
-#define R_FORBIDDEN	403
-#define R_NOT_FOUND	404
-#define R_METHOD_NA	405         /* method not allowed */
-#define R_NONE_ACC	406          /* none acceptable */
-#define R_PROXY		407            /* proxy authentication required */
-#define R_REQUEST_TO	408        /* request timeout */
-#define R_CONFLICT	409
-#define R_GONE		410
-
-#define R_ERROR		500            /* internal server error */
-#define	R_NOT_IMP	501           /* not implemented */
-#define	R_BAD_GATEWAY	502
-#define R_SERVICE_UNAV	503      /* service unavailable */
-#define	R_GATEWAY_TO	504        /* gateway timeout */
-#define R_BAD_VERSION	505
-
-/****************** METHODS *****************/
-
-#define M_GET		1
-#define M_HEAD		2
-#define M_PUT		3
-#define M_POST		4
-#define M_DELETE	5
-#define M_LINK		6
-#define M_UNLINK	7
-
-/******************* ERRORS *****************/
-
-#define SERVER_ERROR		1
-#define OUT_OF_MEMORY		2
-#define NO_CREATE_SOCKET	3
-#define NO_FCNTL		4
-#define NO_SETSOCKOPT		5
-#define NO_BIND			6
-#define NO_LISTEN		7
-#define NO_SETGID		8
-#define NO_SETUID		9
-#define NO_OPEN_LOG		10
-#define SELECT			11
-#define GETPWUID		12
-#define INITGROUPS		13
-
-#define SHUTDOWN		15            /* do not change */
-
-/************** REQUEST STATUS (req->status) ***************/
-
-#define READ_HEADER             0
-#define ONE_CR                  1
-#define ONE_LF                  2
-#define TWO_CR                  3
-#define BODY_READ               4
-#define BODY_WRITE              5
-#define WRITE                   6
-#define PIPE_READ               7
-#define PIPE_WRITE              8
-#define DONE			9
-#define DEAD                   10
-
-#define CLIENT_WRITABLE(status) (status==WRITE || status==PIPE_WRITE)
-#define CLIENT_READABLE(status) (status < BODY_WRITE)
-
-/************** CGI TYPE (req->is_cgi) ******************/
-
-#define CGI                     1
-#define NPH                     2
-
-/************* ALIAS TYPES (aliasp->type) ***************/
-
-#define ALIAS			0
-#define SCRIPTALIAS		1
-#define REDIRECT		2
-
-/*********** KEEPALIVE CONSTANTS (req->keepalive) *******/
-
-#define KA_INACTIVE		0
-#define KA_STOPPED     	1
-#define KA_ACTIVE      	2
-
-#define SQUASH_KA(req)	(req->keepalive=KA_STOPPED)
-
-/********* CGI STATUS CONSTANTS (req->cgi_status) *******/
-#define CGI_PARSE 1
-#define CGI_BUFFER 2
-#define CGI_DONE 3
+#define SERVER_METHOD "http"
 
 /*********** MMAP_LIST CONSTANTS ************************/
 #define MMAP_LIST_SIZE 256
 #define MMAP_LIST_MASK 255
 #define MMAP_LIST_USE_MAX 128
-#define MMAP_LIST_NEXT(i) (((i)+1)&MMAP_LIST_MASK)
-#define MMAP_LIST_HASH(dev,ino,size) ((ino)&MMAP_LIST_MASK)
 
 #define MAX_FILE_MMAP 100 * 1024 /* 100K */
+
+/*************** POLL / SELECT MACROS *******************/
+#ifdef HAVE_POLL
+#define BOA_READ (POLLIN|POLLPRI|POLLHUP)
+#define BOA_WRITE (POLLOUT|POLLHUP)
+#define BOA_FD_SET(req, thefd,where) { struct pollfd *my_pfd = &pfds[pfd_len]; req->pollfd_id = pfd_len++; my_pfd->fd = thefd; my_pfd->events = where; }
+#define BOA_FD_CLR(req, fd, where) /* this doesn't do anything? */
+#else                           /* SELECT */
+#define BOA_READ (&block_read_fdset)
+#define BOA_WRITE (&block_write_fdset)
+#define BOA_FD_SET(req, fd, where) { FD_SET(fd, where); if (fd > max_fd) max_fd = fd; }
+#define BOA_FD_CLR(req, fd, where) { FD_CLR(fd, where); }
+#endif
+
+/******** MACROS TO CHANGE BLOCK/NON-BLOCK **************/
+/* If and when everyone has a modern gcc or other near-C99 compiler,
+ * change these to static inline functions. Also note that since
+ * we never fuss with O_APPEND append or O_ASYNC, we shouldn't have
+ * to perform an extra system call to F_GETFL first.
+ */
+#ifdef BOA_USE_GETFL
+#define set_block_fd(fd)    real_set_block_fd(fd)
+#define set_nonblock_fd(fd) real_set_nonblock_fd(fd)
+#else
+#define set_block_fd(fd)    fcntl(fd, F_SETFL, 0)
+#define set_nonblock_fd(fd) fcntl(fd, F_SETFL, NOBLOCK)
+#endif
+
+/********************* DEBUG STUFF ***********************/
+extern int debug_level;
+
+#ifdef DISABLE_DEBUG
+#define real_debug_level 0
+#else
+#define real_debug_level debug_level
+#endif
+
+#define DEBUG(foo)          if (real_debug_level & foo)
+
+#define DEBUG_ALIAS         (1<<0)
+#define DEBUG_CGI_OUTPUT    (1<<1)
+#define DEBUG_CGI_INPUT     (1<<2)
+#define DEBUG_CGI_ENV       (1<<3)
+#define DEBUG_HEADER_READ   (1<<4)
+#define DEBUG_PIPELINE      (1<<5)
+#define DEBUG_PLUGIN_ERRORS (1<<6)
+#define DEBUG_RANGE         (1<<7)
+#define DEBUG_CONFIG        (1<<8)
+#define DEBUG_BUFFER_IO     (1<<9)
+#define DEBUG_BODY_READ     (1<<10)
+#define DEBUG_MMAP_CACHE    (1<<11)
+#define DEBUG_REQUEST       (1<<12)
+#define DEBUG_HASH          (1<<13)
+
+/***************** USEFUL MACROS ************************/
+
+#define CRLF "\r\n"
+#define SQUASH_KA(req)	(req->keepalive=KA_STOPPED)
+
+#ifdef HAVE_FUNC
+#define WARN(mesg) log_error_mesg(__FILE__, __LINE__, __func__, mesg)
+#define DIE(mesg) log_error_mesg_fatal(__FILE__, __LINE__, __func__, mesg)
+#else
+#define WARN(mesg) log_error_mesg(__FILE__, __LINE__, mesg)
+#define DIE(mesg) log_error_mesg_fatal(__FILE__, __LINE__, mesg)
+#endif
+
+#define INT_TO_HEX(x) (((x)>9)?(('a'-10)+(x)):('0'+(x)))
+#define HEX_TO_DECIMAL(char1, char2)    \
+    (((char1 >= 'A') ? (((char1 & 0xdf) - 'A') + 10) : (char1 - '0')) * 16) + \
+    (((char2 >= 'A') ? (((char2 & 0xdf) - 'A') + 10) : (char2 - '0')))
+
+#ifndef EXIT_SUCCESS
+#define EXIT_SUCCESS 0
+#endif
+
+#ifndef EXIT_FAILURE
+#define EXIT_FAILURE 1
+#endif
 
 #endif

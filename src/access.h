@@ -1,6 +1,7 @@
 /*
  *  Boa, an http server
- *  Copyright (C) 1999 Larry Doolittle <ldoolitt@boa.org>
+ *  This file Copyright (C) 2002 Peter Korsgaard <jacmet@sunsite.dk>
+ *  Some changes (C) 2004 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,18 +17,17 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- *  parse.h
- *  minimum interaction point between Boa's parser (boa_lexer.l and
- *  boa_grammar.y) and the rest of Boa.
  */
 
-/* $Id: parse.h,v 1.5 2000/02/12 21:52:45 jon Exp $*/
+/* $Id: access.h,v 1.1.2.4 2005/02/22 14:11:29 jnelson Exp $ */
 
-struct ccommand {
-    char *name;
-    int type;
-    void (*action) (char *, char *, void *);
-    void *object;
-};
-struct ccommand *lookup_keyword(char *c);
-void add_mime_type(char *extension, char *type);
+#ifndef _ACCESS_H
+#define _ACCESS_H
+
+enum access_type { ACCESS_DENY, ACCESS_ALLOW };
+
+void access_init(void);
+void access_add(const char *pattern, enum access_type);
+enum access_type access_allow(const char *file);
+
+#endif                          /* _ACCESS_H */

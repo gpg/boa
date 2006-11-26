@@ -1,0 +1,123 @@
+# translation of boa_debconf_ru.po to Russian
+#
+#    Translators, if you are not familiar with the PO format, gettext
+#    documentation is worth reading, especially sections dedicated to
+#    this format, e.g. by running:
+#         info -n '(gettext)PO Files'
+#         info -n '(gettext)Header Entry'
+#    Some information specific to po-debconf are available at
+#            /usr/share/doc/po-debconf/README-trans
+#         or http://www.debian.org/intl/l10n/po-debconf/README-trans#
+#    Developers do not need to manually edit POT or PO files.
+#
+# Yuri Kozlov <kozlov.y@gmail.com>, 2006.
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.94.14rc20-1.3\n"
+"Report-Msgid-Bugs-To: teo@debian.org\n"
+"POT-Creation-Date: 2006-11-18 12:18+0100\n"
+"PO-Revision-Date: 2006-11-19 21:16+0300\n"
+"Last-Translator: Yuri Kozlov <kozlov.y@gmail.com>\n"
+"Language-Team: Russian <debian-l10n-russian@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.2\n"
+"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#. Type: select
+#. Choices
+#: ../templates:1001
+msgid "Do nothing, Specify an alternative port"
+msgstr "Ничего не делать, Выбрать другой порт"
+
+#. Type: select
+#. Description
+#: ../templates:1002
+msgid "Port conflict resolution method:"
+msgstr "Что делать с конфликтом порта:"
+
+#. Type: select
+#. Description
+#: ../templates:1002
+msgid ""
+"In order for the installation to proceed properly, you must select an "
+"appropriate method to resolve the port conflict problem. Choosing 'Do "
+"nothing' will prevent boa from being started upon boot up, and you will be "
+"required to resolve the problem manually."
+msgstr ""
+"Чтобы продолжить установку вы должны выбрать приемлемое "
+"решение проблемы уже занятого порта. Если выбрать 'Ничего не делать', "
+"то boa не будет запускаться, и вам придётся решать проблему "
+"вручную."
+
+#. Type: error
+#. Description
+#: ../templates:2001
+msgid "Port already in use"
+msgstr "Порт уже используется"
+
+#. Type: error
+#. Description
+#: ../templates:2001
+msgid ""
+"The installation script has detected that that port you specified is already "
+"bound to a service other than boa and is therefore not valid."
+msgstr ""
+"Сценарием установки обнаружено, что указанный вами порт уже "
+"используется другой службой, не boa, и поэтому не подходит."
+
+#. Type: error
+#. Description
+#: ../templates:3001
+msgid "Port 80 already in use"
+msgstr "Порт 80 уже используется"
+
+#. Type: error
+#. Description
+#: ../templates:3001
+msgid ""
+"The installation script has detected that port 80 is already bound to a "
+"service other than boa. By default, boa uses this port to serve requests for "
+"clients. This problem prevents boa from being started properly."
+msgstr ""
+"Сценарием установки обнаружено, что порт 80 уже "
+"используется другой службой, не boa. Boa использует этот порт "
+"по умолчанию для обработки клиентских запросов. Из-за этого, "
+"boa не будет запущена."
+
+#. Type: error
+#. Description
+#: ../templates:4001
+msgid "Port 80 previously in use, now available"
+msgstr "Ранее использовавшийся порт 80 теперь свободен"
+
+#. Type: error
+#. Description
+#: ../templates:4001
+msgid ""
+"The installation script has detected that port 80 was at one time in use by "
+"another process. Because of this, boa was configured to either ignore the "
+"problem, or use a different port. Currently, port 80 is available again."
+msgstr ""
+"Сценарием установки ранее было обнаружено, что порт 80 уже "
+"использовался другим процессом. Из-за этого boa была настроена "
+"или игнорировать эту проблему, или использовать другой порт. "
+"В данный момент порт 80 свободен."
+
+#. Type: string
+#. Description
+#: ../templates:5001
+msgid "Alternative port for boa:"
+msgstr "Альтернативный порт для boa:"
+
+#. Type: string
+#. Description
+#: ../templates:5001
+msgid ""
+"The port number you enter will be used by boa in order to serve client "
+"requests."
+msgstr ""
+"Введённый вами номер порта будет использован boa для обработки "
+"клиентских запросов."
+

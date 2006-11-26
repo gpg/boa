@@ -1,6 +1,7 @@
 /*
  *  Boa, an http server
- *  Copyright (C) 1999 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 1999-2005 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 2000-2004 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,58 +19,96 @@
  *
  */
 
-/* $Id: mmap_cache.c,v 1.6 2000/02/12 21:52:45 jon Exp $*/
+/* $Id: mmap_cache.c,v 1.9.2.9 2005/02/22 14:11:29 jnelson Exp $*/
 
 #include "boa.h"
 
-int mmap_list_entries_used = 0;
-int mmap_list_total_requests = 0;
-int mmap_list_hash_bounces = 0;
+static int mmap_list_entries_used = 0;
+static int mmap_list_total_requests = 0;
+static int mmap_list_hash_bounces = 0;
+
+#define MMAP_LIST_NEXT(i) (((i)+1)&MMAP_LIST_MASK)
+#define MMAP_LIST_HASH(dev,ino,size) ((ino)&MMAP_LIST_MASK)
+
+/* define local table variable */
+static struct mmap_entry mmap_list[MMAP_LIST_SIZE];
+
 struct mmap_entry *find_mmap(int data_fd, struct stat *s)
 {
-    char *m;
-    int i, h, start = 0;
+    void *m;
+    int i, start;
     mmap_list_total_requests++;
-    i = h = MMAP_LIST_HASH(s->st_dev, s->st_ino, s->st_size);
+    i = start = MMAP_LIST_HASH(s->st_dev, s->st_ino, s->st_size);
     for (; mmap_list[i].use_count;) {
         if (mmap_list[i].dev == s->st_dev &&
             mmap_list[i].ino == s->st_ino &&
             mmap_list[i].len == s->st_size) {
             mmap_list[i].use_count++;
-#ifdef DEBUG
-            fprintf(stderr,
-                    "Old mmap_list entry %d use_count now %d (hash was %d)\n",
-                    i, mmap_list[i].use_count, h);
-#endif
+            DEBUG(DEBUG_MMAP_CACHE) {
+                fprintf(stderr,
+                        "Old mmap_list entry %d use_count now %d (hash was %d)\n",
+                        i, mmap_list[i].use_count, start);
+            }
             return mmap_list + i;
         }
         mmap_list_hash_bounces++;
         i = MMAP_LIST_NEXT(i);
-        /* Shouldn't happen, because of size limit enforcement below */
-        if (i == start)
+        if (i == start) {
+            /* didn't find an entry that matches our dev/inode/size.
+             There might be an entry that matches later in the table,
+             but that _should_ be rare.  The worst case is that we
+             needlessly mmap() a file that is already mmap'd, but we
+             did that all the time before this code was written,
+             so it shouldn't be _too_ bad.
+             */
+            /* we've looped, and found neither a free one nor a
+             * match. Thus, there is no room for a new entry.
+             */
+/*        WARN("mmap hash table is full. Consider enlarging."); */
             return NULL;
+        }
     }
-    /* didn't find an entry that matches our dev/inode/size.
-       There might be an entry that matches later in the table,
-       but that _should_ be rare.  The worst case is that we
-       needlessly mmap() a file that is already mmap'd, but we
-       did that all the time before this code was written,
-       so it shouldn't be _too_ bad.
-     */
 
     /* Enforce a size limit here */
-    if (mmap_list_entries_used > MMAP_LIST_USE_MAX)
+    /* Disallow more entries than MMAP_LIST_USE_MAX, despite
+     * having found an available slot.
+     */
+    if (mmap_list_entries_used > MMAP_LIST_USE_MAX) {
+/*        WARN("Too many entries in mmap hash table."); */
         return NULL;
+    }
 
     m = mmap(0, s->st_size, PROT_READ, MAP_OPTIONS, data_fd, 0);
 
-    if ((int) m == -1) {
-        /* boa_perror(req,"mmap"); */
+    if ((long) m == -1) {
+        int saved_errno = errno;
+        log_error_time();
+        fprintf(stderr, "Unable to mmap file: ");
+        errno = saved_errno;
+        perror("mmap");
         return NULL;
     }
-#ifdef DEBUG
-    fprintf(stderr, "New mmap_list entry %d (hash was %d)\n", i, h);
+
+#ifdef HAVE_MADVISE
+    {
+        int mret;
+
+        mret = madvise(m, s->st_size, MADV_SEQUENTIAL);
+        if (mret == -1) {
+            int saved_errno = errno;
+            log_error_time();
+            fprintf(stderr, "Unable to madvise file: ");
+            errno = saved_errno;
+            perror("madvise");
+            munmap(m, s->st_size);
+            return NULL;
+        }
+    }
 #endif
+
+    DEBUG(DEBUG_MMAP_CACHE) {
+        fprintf(stderr, "New mmap_list entry %d (hash was %d)\n", i, start);
+    }
     mmap_list_entries_used++;
     mmap_list[i].dev = s->st_dev;
     mmap_list[i].ino = s->st_ino;
@@ -84,9 +123,9 @@ void release_mmap(struct mmap_entry *e)
     if (!e)
         return;
     if (!e->use_count) {
-#ifdef DEBUG
-        fprintf(stderr, "mmap_list(%p)->use_count already zero!\n", e);
-#endif
+        DEBUG(DEBUG_MMAP_CACHE) {
+            fprintf(stderr, "mmap_list(%p)->use_count already zero!\n", (void *) e);
+        }
         return;
     }
     if (!--(e->use_count)) {
@@ -95,7 +134,8 @@ void release_mmap(struct mmap_entry *e)
     }
 }
 
-struct mmap_entry *find_named_mmap(char *fname)
+#if 0
+static struct mmap_entry *find_named_mmap(char *fname)
 {
     int data_fd;
     struct stat statbuf;
@@ -117,6 +157,7 @@ struct mmap_entry *find_named_mmap(char *fname)
     close(data_fd);
     return e;
 }
+#endif
 
 /*
  int main(int argc, char *argv[])

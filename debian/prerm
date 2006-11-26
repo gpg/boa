@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -e
+
+if [ -x "/etc/init.d/boa" ]; then
+	if [ -x /usr/sbin/invoke-rc.d ] ; then
+		invoke-rc.d boa stop
+	else
+		/etc/init.d/boa stop
+	fi
+fi
+
+#DEBHELPER#

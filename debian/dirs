@@ -5,3 +5,4 @@ var/log/boa
 usr/lib/boa
 etc/logrotate.d
 usr/lib/cgi-bin
+usr/lib/cgi-lib

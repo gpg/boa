@@ -9,27 +9,30 @@
 #
 # Modified to be a prototype for debmake by Christoph Lameter <clameter@debian.org>
 
-export DH_VERBOSE=1
-export DH_COMPAT=3
+#export DH_VERBOSE=1
+
+include /usr/share/dpatch/dpatch.make
 
 package=boa
 
-build:	build-stamp
+build: build-stamp patch
 
-build-stamp:
+build-stamp: 
 	dh_testdir
-	cd src;./configure;make
+	./configure
+	make
 	cd docs;make boa.html boa.info
 	touch build-stamp
 
-clean:
+clean: patch
 	dh_testdir
-	dh_testroot
 
 	rm -f build-stamp
 
-	-cd src;make mrclean
-	-cd docs;make clean;rm -f index.html
+	-[ -f Makefile ] && make mrclean
+	-[ -f docs/Makefile ] && make -C docs clean
+	-rm -f docs/boa.info docs/boa.html docs/index.html
+	debconf-updatepo
 	
 	dh_clean
 
@@ -43,18 +46,20 @@ binary-arch:	build
 	dh_installdirs
 
 	dh_installdocs README docs/boa.html docs/boa_banner.png docs/boa.texi
-	dh_installinfo docs/boa.info
-	dh_installexamples examples/{cgi-test.cgi,nph-test.cgi,resolver.pl}
+	dh_installinfo -n docs/boa.info
+	dh_installexamples
 	dh_installmenu
-	dh_installinit
+	dh_installinit -n
+	dh_installdebconf
 	dh_installcron
-	dh_installmanpages
-	dh_installchangelogs src/Changelog
+	dh_installlogrotate
+	dh_installman docs/boa.8
+	dh_installchangelogs CHANGES
 
 	install src/boa debian/boa/usr/sbin
 	install src/boa_indexer debian/boa/usr/lib/boa
 	install --mode=0640 debian/boa.conf debian/boa/etc/boa/boa.conf
-	install --mode=0640 debian/logrotate.d debian/boa/etc/logrotate.d/boa
+#	install --mode=0640 debian/logrotate.d debian/boa/etc/logrotate.d/boa
 
 	dh_strip
 	dh_compress
