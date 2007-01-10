@@ -1,4 +1,4 @@
-# translation of boa_nl.po to Dutch
+# translation of boa_0.94.14rc21-0.1_nl.po to Dutch
 #
 #    Translators, if you are not familiar with the PO format, gettext
 #    documentation is worth reading, especially sections dedicated to
@@ -9,20 +9,21 @@
 #            /usr/share/doc/po-debconf/README-trans
 #         or http://www.debian.org/intl/l10n/po-debconf/README-trans#
 #    Developers do not need to manually edit POT or PO files.
-# Frans Pop <aragorn@tiscali.nl>, 2005.
 #
+# Frans Pop <aragorn@tiscali.nl>, 2005.
+# Frans Pop <elendil@planet.nl>, 2006.
 msgid ""
 msgstr ""
-"Project-Id-Version: boa_nl\n"
+"Project-Id-Version: boa_0.94.14rc21-0.1_nl\n"
 "Report-Msgid-Bugs-To: teo@debian.org\n"
 "POT-Creation-Date: 2006-11-18 12:18+0100\n"
-"PO-Revision-Date: 2005-05-10 15:05+0200\n"
-"Last-Translator: Frans Pop <aragorn@tiscali.nl>\n"
+"PO-Revision-Date: 2006-12-28 01:48+0100\n"
+"Last-Translator: Frans Pop <elendil@planet.nl>\n"
 "Language-Team: Dutch <debian-l10n-dutch@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.9.1\n"
+"X-Generator: KBabel 1.11.4\n"
 
 #. Type: select
 #. Choices
@@ -34,12 +35,11 @@ msgstr "Geen actie, Alternatieve poort opgeven"
 #. Description
 #: ../templates:1002
 msgid "Port conflict resolution method:"
-msgstr ""
+msgstr "Methode voor het verhelpen van poort-conflicten:"
 
 #. Type: select
 #. Description
 #: ../templates:1002
-#, fuzzy
 msgid ""
 "In order for the installation to proceed properly, you must select an "
 "appropriate method to resolve the port conflict problem. Choosing 'Do "
@@ -54,9 +54,8 @@ msgstr ""
 #. Type: error
 #. Description
 #: ../templates:2001
-#, fuzzy
 msgid "Port already in use"
-msgstr "Poort 80 is reeds in gebruik."
+msgstr "Poort is reeds in gebruik"
 
 #. Type: error
 #. Description
@@ -66,14 +65,13 @@ msgid ""
 "bound to a service other than boa and is therefore not valid."
 msgstr ""
 "Het installatiescript heeft gedetecteerd dat de door u opgegeven poort reeds "
-"is gekoppeld aan een andere dienst dan boa en is daarom ongeldig."
+"gekoppeld is aan een andere dienst dan boa en daarom ongeldig is."
 
 #. Type: error
 #. Description
 #: ../templates:3001
-#, fuzzy
 msgid "Port 80 already in use"
-msgstr "Poort 80 is reeds in gebruik."
+msgstr "Poort 80 is reeds in gebruik"
 
 #. Type: error
 #. Description
@@ -91,9 +89,8 @@ msgstr ""
 #. Type: error
 #. Description
 #: ../templates:4001
-#, fuzzy
 msgid "Port 80 previously in use, now available"
-msgstr "Poort 80 was voorheen in gebruik, maar is nu beschikbaar."
+msgstr "Poort 80 was voorheen in gebruik, maar is nu beschikbaar"
 
 #. Type: error
 #. Description
@@ -111,9 +108,8 @@ msgstr ""
 #. Type: string
 #. Description
 #: ../templates:5001
-#, fuzzy
 msgid "Alternative port for boa:"
-msgstr "Selecteer een alternatieve poort voor boa."
+msgstr "Alternatieve poort voor boa:"
 
 #. Type: string
 #. Description
@@ -122,11 +118,6 @@ msgid ""
 "The port number you enter will be used by boa in order to serve client "
 "requests."
 msgstr ""
-"Boa zal het poortnummer dat u opgeeft uitluisteren voor het afhandelen van "
+"Boa zal het poortnummer dat u opgeeft, uitluisteren voor het afhandelen van "
 "verzoeken van clients."
 
-#~ msgid "Select a method to resolve the problem."
-#~ msgstr "Selecteer een methode om het probleem op te lossen."
-
-#~ msgid "The port you specified is already in use."
-#~ msgstr "De opgegeven poort is reeds in gebruik."

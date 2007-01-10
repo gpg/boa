@@ -24,12 +24,11 @@ msgstr "Não fazer nada, Especifique uma porta alternativa"
 #. Description
 #: ../templates:1002
 msgid "Port conflict resolution method:"
-msgstr ""
+msgstr "Método para resolução de conflitos na porta:"
 
 #. Type: select
 #. Description
 #: ../templates:1002
-#, fuzzy
 msgid ""
 "In order for the installation to proceed properly, you must select an "
 "appropriate method to resolve the port conflict problem. Choosing 'Do "
@@ -37,16 +36,15 @@ msgid ""
 "required to resolve the problem manually."
 msgstr ""
 "Para a instalação prosseguir devidamente, tem de seleccionar um método "
-"apropriado para resolver o problema mencionado anteriormente. Escolher 'Não "
+"apropriado para resolver o problema de conflitos na porta. Escolher 'Não "
 "fazer nada' vai impedir o boa de ser iniciado no arranque, e necessitará que "
 "resolva o problema manualmente."
 
 #. Type: error
 #. Description
 #: ../templates:2001
-#, fuzzy
 msgid "Port already in use"
-msgstr "A porta 80 já está a ser usada."
+msgstr "A porta já está a ser usada."
 
 #. Type: error
 #. Description
@@ -61,9 +59,8 @@ msgstr ""
 #. Type: error
 #. Description
 #: ../templates:3001
-#, fuzzy
 msgid "Port 80 already in use"
-msgstr "A porta 80 já está a ser usada."
+msgstr "A porta 80 já está a ser usada"
 
 #. Type: error
 #. Description
@@ -80,9 +77,8 @@ msgstr ""
 #. Type: error
 #. Description
 #: ../templates:4001
-#, fuzzy
 msgid "Port 80 previously in use, now available"
-msgstr "Anteriormente a porta 80 estava em uso, mas agora já está disponível."
+msgstr "Anteriormente a porta 80 estava em uso, mas agora já está disponível"
 
 #. Type: error
 #. Description
@@ -99,9 +95,8 @@ msgstr ""
 #. Type: string
 #. Description
 #: ../templates:5001
-#, fuzzy
 msgid "Alternative port for boa:"
-msgstr "Escolha uma porta alternativa para o boa"
+msgstr "Escolha uma porta alternativa para o boa:"
 
 #. Type: string
 #. Description

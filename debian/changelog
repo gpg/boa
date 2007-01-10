@@ -1,3 +1,18 @@
+boa (0.94.14rc21-0.2) unstable; urgency=low
+
+  * Non-maintainer upload
+  * Debconf translation updates:
+    - Italian updated; thanks to Luca Monducci. Closes: #400818.
+    - German updated; thanks to Holger Wansing. Closes: #401181.
+    - Dutch updated; thanks to Frans Pop. Closes: #405654.
+    - Swedish updated; thanks to Daniel Nylander. Closes: #405687.
+    - Czech updated; thanks to Miroslav Kure. Closes: #405817.
+    - Spanish updated; thanks to Javier Fernández-Sanguino Peña.
+      Closes: #403422.
+    - Portuguese updated; thanks to Rui Branco. Closes: #406014.
+
+ -- Frans Pop <fjp@debian.org>  Wed, 10 Jan 2007 14:09:44 +0100
+
 boa (0.94.14rc21-0.1) unstable; urgency=low
 
   * Non-maintainer upload.

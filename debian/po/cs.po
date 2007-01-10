@@ -16,46 +16,44 @@ msgstr ""
 "Project-Id-Version: boa\n"
 "Report-Msgid-Bugs-To: teo@debian.org\n"
 "POT-Creation-Date: 2006-11-18 12:18+0100\n"
-"PO-Revision-Date: 2005-03-19 10:34+0100\n"
+"PO-Revision-Date: 2007-01-06 16:49+0100\n"
 "Last-Translator: Miroslav Kure <kurem@debian.cz>\n"
-"Language-Team: Czech <debian-l10n-czech@debian.org>\n"
+"Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-2\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #. Type: select
 #. Choices
 #: ../templates:1001
 msgid "Do nothing, Specify an alternative port"
-msgstr "Nedìlat nic, Zadat alternativní port"
+msgstr "NedÄ›lat nic, Zadat alternativnÃ­ port"
 
 #. Type: select
 #. Description
 #: ../templates:1002
 msgid "Port conflict resolution method:"
-msgstr ""
+msgstr "ZpÅ¯sob Å™eÅ¡enÃ­ konfliktu portÅ¯:"
 
 #. Type: select
 #. Description
 #: ../templates:1002
-#, fuzzy
 msgid ""
 "In order for the installation to proceed properly, you must select an "
 "appropriate method to resolve the port conflict problem. Choosing 'Do "
 "nothing' will prevent boa from being started upon boot up, and you will be "
 "required to resolve the problem manually."
 msgstr ""
-"Aby mohla instalace pokraèovat dále, musíte nejprve vybrat zpùsob, jakım "
-"vyøe¹íte vı¹e popsanı problém. Vıbìrem 'Nedìlat nic' doèasnì zabráníte boa "
-"serveru ve spou¹tìní pøi zavádìní systému a budete muset problém vyøe¹it "
-"ruènì."
+"Aby mohla instalace pokraÄovat dÃ¡le, musÃ­te nejprve vybrat zpÅ¯sob, jakÃ½m "
+"vyÅ™eÅ¡Ã­te problÃ©m s kolidujÃ­cÃ­mi porty. VÃ½bÄ›rem 'NedÄ›lat nic' doÄasnÄ› "
+"zabrÃ¡nÃ­te boa serveru, aby se spouÅ¡tÄ›l pÅ™i zavÃ¡dÄ›nÃ­ systÃ©mu a budete muset "
+"problÃ©m vyÅ™eÅ¡it ruÄnÄ›."
 
 #. Type: error
 #. Description
 #: ../templates:2001
-#, fuzzy
 msgid "Port already in use"
-msgstr "Port 80 je ji¾ pou¾íván."
+msgstr "Port je jiÅ¾ pouÅ¾Ã­vÃ¡n"
 
 #. Type: error
 #. Description
@@ -64,15 +62,14 @@ msgid ""
 "The installation script has detected that that port you specified is already "
 "bound to a service other than boa and is therefore not valid."
 msgstr ""
-"Instalaèní skript rozpoznal, ¾e zadanı port je ji¾ svázán s jinou slu¾bou "
-"ne¾ boa a tudí¾ není platnı."
+"InstalaÄnÃ­ skript rozpoznal, Å¾e zadanÃ½ port je jiÅ¾ svÃ¡zÃ¡n s jinou sluÅ¾bou "
+"neÅ¾ boa a tudÃ­Å¾ nenÃ­ platnÃ½."
 
 #. Type: error
 #. Description
 #: ../templates:3001
-#, fuzzy
 msgid "Port 80 already in use"
-msgstr "Port 80 je ji¾ pou¾íván."
+msgstr "Port 80 je jiÅ¾ pouÅ¾Ã­vÃ¡n"
 
 #. Type: error
 #. Description
@@ -82,16 +79,15 @@ msgid ""
 "service other than boa. By default, boa uses this port to serve requests for "
 "clients. This problem prevents boa from being started properly."
 msgstr ""
-"Instalaèní skript rozpoznal, ¾e port 80 je ji¾ svázán s jinou slu¾bou ne¾ "
-"boa. Boa tento port pou¾ívá implicitnì pro obsluhu po¾adavkù od klientù. "
-"Tento problém zabrání, aby boa nastartoval správnì."
+"InstalaÄnÃ­ skript rozpoznal, Å¾e port 80 je jiÅ¾ svÃ¡zÃ¡n s jinou sluÅ¾bou neÅ¾ "
+"boa. Boa tento port pouÅ¾Ã­vÃ¡ implicitnÄ› pro obsluhu poÅ¾adavkÅ¯ od klientÅ¯. "
+"Tento problÃ©m zabrÃ¡nÃ­, aby boa nastartoval sprÃ¡vnÄ›."
 
 #. Type: error
 #. Description
 #: ../templates:4001
-#, fuzzy
 msgid "Port 80 previously in use, now available"
-msgstr "Port 80 byl døíve pou¾íván, ale nyní je ji¾ zase volnı."
+msgstr "Port 80 byl dÅ™Ã­ve pouÅ¾Ã­vÃ¡n, ale nynÃ­ je jiÅ¾ zase volnÃ½"
 
 #. Type: error
 #. Description
@@ -101,16 +97,15 @@ msgid ""
 "another process. Because of this, boa was configured to either ignore the "
 "problem, or use a different port. Currently, port 80 is available again."
 msgstr ""
-"Instalaèní skript rozpoznal, ¾e port 80 byl kdysi pou¾íván jinım procesem. "
-"Kvùli tomu byl boa nakonfigurován, aby poslouchal na jiném portu nebo aby "
-"problém ignoroval. Momentálnì je port 80 zase volnı."
+"InstalaÄnÃ­ skript rozpoznal, Å¾e port 80 byl kdysi pouÅ¾Ã­vÃ¡n jinÃ½m procesem. "
+"KvÅ¯li tomu byl boa nakonfigurovÃ¡n, aby poslouchal na jinÃ©m portu nebo aby "
+"problÃ©m ignoroval. MomentÃ¡lnÄ› je port 80 zase volnÃ½."
 
 #. Type: string
 #. Description
 #: ../templates:5001
-#, fuzzy
 msgid "Alternative port for boa:"
-msgstr "Vyberte pro server boa alternativní port."
+msgstr "AlternativnÃ­ port pro server boa:"
 
 #. Type: string
 #. Description
@@ -119,11 +114,5 @@ msgid ""
 "The port number you enter will be used by boa in order to serve client "
 "requests."
 msgstr ""
-"Èíslo portu, které zde zadáte, bude boa pou¾ívat pro obsluhu klientskıch "
-"po¾adavkù."
-
-#~ msgid "Select a method to resolve the problem."
-#~ msgstr "Vyberte zpùsob øe¹ení problému."
-
-#~ msgid "The port you specified is already in use."
-#~ msgstr "Zadanı port je ji¾ pou¾íván."
+"ÄŒÃ­slo portu, kterÃ© zde zadÃ¡te, bude boa pouÅ¾Ã­vat pro obsluhu klientskÃ½ch "
+"poÅ¾adavkÅ¯."

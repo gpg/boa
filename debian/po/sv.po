@@ -12,120 +12,84 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: boa 0.94.14rc20-1.2\n"
+"Project-Id-Version: boa 0.94.14rc21-0.1\n"
 "Report-Msgid-Bugs-To: teo@debian.org\n"
 "POT-Creation-Date: 2006-11-18 12:18+0100\n"
-"PO-Revision-Date: 2005-10-31 21:57+0100\n"
+"PO-Revision-Date: 2007-01-05 16:40+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
-"Language-Team: Swedish <sv@li.org>\n"
+"Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=iso-8859-1\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Language: swe\n"
-"X-Poedit-Country: swe\n"
 
 #. Type: select
 #. Choices
 #: ../templates:1001
 msgid "Do nothing, Specify an alternative port"
-msgstr "Gör inget, ange en alternativ port"
+msgstr "Gör ingenting, Ange en alternativ port"
 
 #. Type: select
 #. Description
 #: ../templates:1002
 msgid "Port conflict resolution method:"
-msgstr ""
+msgstr "Metod för att lösa portkonflikten:"
 
 #. Type: select
 #. Description
 #: ../templates:1002
-#, fuzzy
-msgid ""
-"In order for the installation to proceed properly, you must select an "
-"appropriate method to resolve the port conflict problem. Choosing 'Do "
-"nothing' will prevent boa from being started upon boot up, and you will be "
-"required to resolve the problem manually."
-msgstr ""
-"För att installationen ska fortgå korrekt måste du välja en lämplig metod "
-"att lösa problemet som nämdes tidigare. Att välja \"Gör inget\" kommer att "
-"hindra boa från att startas vid systemets uppstart och du kommer att behöva "
-"lösa problemet manuellt."
+msgid "In order for the installation to proceed properly, you must select an appropriate method to resolve the port conflict problem. Choosing 'Do nothing' will prevent boa from being started upon boot up, and you will be required to resolve the problem manually."
+msgstr "För att installationen ska fortgå utan problem, måste du välja en lämplig metod att lösa portkonflikten. Välja \"Gör ingenting\" kommer att förhindra boa från att starta vid systemets uppstart och du kommer att behöva lösa problemet manuellt."
 
 #. Type: error
 #. Description
 #: ../templates:2001
-#, fuzzy
 msgid "Port already in use"
-msgstr "Port 80 används redan."
+msgstr "Porten används redan"
 
 #. Type: error
 #. Description
 #: ../templates:2001
-msgid ""
-"The installation script has detected that that port you specified is already "
-"bound to a service other than boa and is therefore not valid."
-msgstr ""
-"Installationsskriptet har upptäckt att den port du angav redan används för "
-"en annan tjänst och är därför inte giltig."
+msgid "The installation script has detected that that port you specified is already bound to a service other than boa and is therefore not valid."
+msgstr "Installationsskriptet har upptäckt att den port du angav redan används för en annan tjänst och är därför inte giltig."
 
 #. Type: error
 #. Description
 #: ../templates:3001
-#, fuzzy
 msgid "Port 80 already in use"
-msgstr "Port 80 används redan."
+msgstr "Port 80 används redan"
 
 #. Type: error
 #. Description
 #: ../templates:3001
-msgid ""
-"The installation script has detected that port 80 is already bound to a "
-"service other than boa. By default, boa uses this port to serve requests for "
-"clients. This problem prevents boa from being started properly."
-msgstr ""
-"Installationsskriptet har upptäckt att port 80 redan används av en annan "
-"tjänst. Som standard använder boa denna port för att hantera förfrågningar "
-"från klienter. Detta problem hindrar boa från att startas upp korrekt."
+msgid "The installation script has detected that port 80 is already bound to a service other than boa. By default, boa uses this port to serve requests for clients. This problem prevents boa from being started properly."
+msgstr "Installationsskriptet har upptäckt att port 80 redan används av en annan tjänst. Som standard använder boa denna port för att hantera förfrågningar från klienter. Detta problem förhindrar boa från att starta upp korrekt."
 
 #. Type: error
 #. Description
 #: ../templates:4001
-#, fuzzy
 msgid "Port 80 previously in use, now available"
-msgstr "Port 80 användes tidigare men är nu tillgänglig."
+msgstr "Port 80 användes tidigare men är nu tillgänglig"
 
 #. Type: error
 #. Description
 #: ../templates:4001
-msgid ""
-"The installation script has detected that port 80 was at one time in use by "
-"another process. Because of this, boa was configured to either ignore the "
-"problem, or use a different port. Currently, port 80 is available again."
-msgstr ""
-"Installationsskriptet har upptäckte att port 80 användes tidigare av en "
-"annan process. På grund av detta konfigurerades boa för att antingen "
-"ignorera problemet eller att använda en annan port. För närvarande är port "
-"80 tillgänglig igen."
+msgid "The installation script has detected that port 80 was at one time in use by another process. Because of this, boa was configured to either ignore the problem, or use a different port. Currently, port 80 is available again."
+msgstr "Installationsskriptet har upptäckt att port 80 användes tidigare av en annan process. På grund av detta konfigurerades boa för att antingen ignorera problemet eller till att använda en annan port. För närvarande är port 80 tillgänglig igen."
 
 #. Type: string
 #. Description
 #: ../templates:5001
-#, fuzzy
 msgid "Alternative port for boa:"
-msgstr "Välj en alternativ port för boa."
+msgstr "Alternativ port för boa:"
 
 #. Type: string
 #. Description
 #: ../templates:5001
-msgid ""
-"The port number you enter will be used by boa in order to serve client "
-"requests."
-msgstr ""
-"Portnumret du angav kommer att användas av boa för att ta hand om "
-"klientförfrågningar."
+msgid "The port number you enter will be used by boa in order to serve client requests."
+msgstr "Portnumret du anger kommer att användas av boa för att ta hand om klientförfrågningar."
 
 #~ msgid "Select a method to resolve the problem."
 #~ msgstr "Välj en metod för att lösa problemet."
-
 #~ msgid "The port you specified is already in use."
 #~ msgstr "Porten du angav används redan."
+

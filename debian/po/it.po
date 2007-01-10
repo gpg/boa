@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: boa\n"
 "Report-Msgid-Bugs-To: teo@debian.org\n"
 "POT-Creation-Date: 2006-11-18 12:18+0100\n"
-"PO-Revision-Date: 2006-11-18 20:31+0100\n"
+"PO-Revision-Date: 2006-11-28 10:43+0100\n"
 "Last-Translator: Luca Monducci <luca.mo@tiscali.it>\n"
 "Language-Team: Italian <tp@listslinux.it>\n"
 "MIME-Version: 1.0\n"
@@ -25,12 +25,11 @@ msgstr "Non fare nulla, Specificare una porta alternativa"
 #. Description
 #: ../templates:1002
 msgid "Port conflict resolution method:"
-msgstr ""
+msgstr "Metodo per risolvere il conflitto di porta:"
 
 #. Type: select
 #. Description
 #: ../templates:1002
-#, fuzzy
 msgid ""
 "In order for the installation to proceed properly, you must select an "
 "appropriate method to resolve the port conflict problem. Choosing 'Do "
@@ -38,16 +37,15 @@ msgid ""
 "required to resolve the problem manually."
 msgstr ""
 "Per concludere l'installazione in modo corretto è necessario decidere come "
-"risolvere il problema menzionato in precedenza. Se si sceglie di \"Non fare "
+"risolvere il problema del conflitto di porta. Se si sceglie di \"Non fare "
 "nulla\" si impedisce l'avvio boa all'avvio del sistema ed è necessario "
 "risolvere il problema manualmente."
 
 #. Type: error
 #. Description
 #: ../templates:2001
-#, fuzzy
 msgid "Port already in use"
-msgstr "La porta 80 è già in uso."
+msgstr "La porta è già in uso"
 
 #. Type: error
 #. Description
@@ -56,15 +54,14 @@ msgid ""
 "The installation script has detected that that port you specified is already "
 "bound to a service other than boa and is therefore not valid."
 msgstr ""
-"Lo script d'installazione ha rilevato che la porta preselta è già assegnata "
+"Lo script d'installazione ha rilevato che la porta prescelta è già assegnata "
 "a un servizio diverso da boa e quindi non è valida."
 
 #. Type: error
 #. Description
 #: ../templates:3001
-#, fuzzy
 msgid "Port 80 already in use"
-msgstr "La porta 80 è già in uso."
+msgstr "La porta 80 è già in uso"
 
 #. Type: error
 #. Description
@@ -81,9 +78,8 @@ msgstr ""
 #. Type: error
 #. Description
 #: ../templates:4001
-#, fuzzy
 msgid "Port 80 previously in use, now available"
-msgstr "In precedenza la porta 80 era in uso ma adesso è disponibile."
+msgstr "In precedenza la porta 80 era in uso ma adesso è disponibile"
 
 #. Type: error
 #. Description
@@ -100,9 +96,8 @@ msgstr ""
 #. Type: string
 #. Description
 #: ../templates:5001
-#, fuzzy
 msgid "Alternative port for boa:"
-msgstr "Scegliere una porta alternativa per boa."
+msgstr "Porta alternativa per boa:"
 
 #. Type: string
 #. Description
@@ -111,11 +106,5 @@ msgid ""
 "The port number you enter will be used by boa in order to serve client "
 "requests."
 msgstr ""
-"Il numero appena inserito viene usato da boa come numero della porta per "
-"servire le richieste dei client."
-
-#~ msgid "Select a method to resolve the problem."
-#~ msgstr "Scegliere un modo per risolvere questo problema."
-
-#~ msgid "The port you specified is already in use."
-#~ msgstr "La porta prescelta è già in uso."
+"Il numero che si inserisce viene interpretato da boa come numero della porta "
+"per servire le richieste dei client."
