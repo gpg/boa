@@ -1,3 +1,11 @@
+boa (0.94.14rc21-1) unstable; urgency=low
+
+  * QA upload. 
+  * Set maintainer to QA Group; Orphaned: #406354
+  * Conforms with latest Standards Version 3.7.2
+
+ -- Michael Ablassmeier <abi@debian.org>  Tue, 03 Apr 2007 09:41:41 +0200
+
 boa (0.94.14rc21-0.2) unstable; urgency=low
 
   * Non-maintainer upload

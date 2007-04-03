@@ -1,8 +1,8 @@
 Source: boa
 Section: web
 Priority: optional
-Maintainer: Teófilo Ruiz Suárez <teo@debian.org>
-Standards-Version: 3.6.1
+Maintainer: Debian QA Group <packages@qa.debian.org>
+Standards-Version: 3.7.2
 Build-Depends: debhelper (>= 5.0), texinfo, bison, flex, texi2html, tetex-bin, po-debconf, dpatch
 
 Package: boa
