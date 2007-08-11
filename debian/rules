@@ -11,11 +11,19 @@
 
 #export DH_VERBOSE=1
 
-include /usr/share/dpatch/dpatch.make
-
 package=boa
 
-build: build-stamp patch
+patch: patch-stamp
+patch-stamp:
+	dh_testdir
+	$(MAKE) -f /usr/share/quilt/quilt.make patch
+	touch patch-stamp
+
+unpatch:
+	dh_testdir
+	$(MAKE) -f /usr/share/quilt/quilt.make unpatch
+
+build: patch-stamp build-stamp 
 
 build-stamp: 
 	dh_testdir
@@ -24,10 +32,10 @@ build-stamp:
 	cd docs;make boa.html boa.info
 	touch build-stamp
 
-clean: patch
+clean: unpatch
 	dh_testdir
 
-	rm -f build-stamp
+	rm -f *-stamp
 
 	-[ -f Makefile ] && make mrclean
 	-[ -f docs/Makefile ] && make -C docs clean

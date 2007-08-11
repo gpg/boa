@@ -215,9 +215,7 @@ retrysendfile:
 	}
 	req->ranges->start = sendfile_offset;
         if (bytes_written < 0) {
-	    if (errno == ENOSYS) {
-		return io_shuffle(req);
-	    } else if (errno == EWOULDBLOCK || errno == EAGAIN) {
+            if (errno == EWOULDBLOCK || errno == EAGAIN) {
                 return -1;          /* request blocked at the pipe level, but keep going */
             } else if (errno == EINTR) {
                 goto retrysendfile;

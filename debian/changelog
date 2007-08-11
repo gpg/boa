@@ -1,3 +1,12 @@
+boa (0.94.14rc21-2) unstable; urgency=low
+
+  * New maintainer (Closes: #406354)
+  * The patch for correct LFS support by Eduard Bloch has been
+    applied. (Closes: #313020)
+  * Switched to quilt for patch management.
+
+ -- Francois-Denis Gonthier <neumann@lostwebsite.net>  Fri, 10 Aug 2007 21:43:54 -0400
+
 boa (0.94.14rc21-1) unstable; urgency=low
 
   * QA upload. 

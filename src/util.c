@@ -410,6 +410,11 @@ int unescape_uri(char *uri, char **query_string)
             uri_old++;
             if ((c = *uri_old++) && (d = *uri_old++)) {
                 *uri = HEX_TO_DECIMAL(c, d);
+                if (*uri < 32 || *uri > 126) {
+                    /* control chars in URI */
+                    *uri = '\0';
+                    return 0;
+                }
             } else {
                 *uri = '\0';
                 return 0;

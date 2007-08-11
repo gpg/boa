@@ -1,13 +1,7 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
-## 10_lfs_support.dpatch by Eduard Bloch <blade@debian.org>
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: Add LFS support. Not fully tested.
-
-@DPATCH@
-diff -urNad boa-0.94.14rc21~/src/boa.h boa-0.94.14rc21/src/boa.h
---- boa-0.94.14rc21~/src/boa.h	2006-11-28 17:39:37.000000000 +0100
-+++ boa-0.94.14rc21/src/boa.h	2006-11-28 17:39:40.000000000 +0100
+Index: boa-0.94.14rc21/src/boa.h
+===================================================================
+--- boa-0.94.14rc21.orig/src/boa.h	2007-08-08 20:09:18.000000000 -0400
++++ boa-0.94.14rc21/src/boa.h	2007-08-08 20:09:23.000000000 -0400
 @@ -25,7 +25,9 @@
  #ifndef _BOA_H
  #define _BOA_H
@@ -27,9 +21,10 @@ diff -urNad boa-0.94.14rc21~/src/boa.h boa-0.94.14rc21/src/boa.h
  int boa_atoi(const char *s);
  int month2int(const char *month);
  int modified_since(time_t * mtime, const char *if_modified_since);
-diff -urNad boa-0.94.14rc21~/src/buffer.c boa-0.94.14rc21/src/buffer.c
---- boa-0.94.14rc21~/src/buffer.c	2006-11-28 17:39:37.000000000 +0100
-+++ boa-0.94.14rc21/src/buffer.c	2006-11-28 17:39:40.000000000 +0100
+Index: boa-0.94.14rc21/src/buffer.c
+===================================================================
+--- boa-0.94.14rc21.orig/src/buffer.c	2007-08-08 20:09:18.000000000 -0400
++++ boa-0.94.14rc21/src/buffer.c	2007-08-08 20:09:23.000000000 -0400
 @@ -212,7 +212,7 @@
          return -2;
  
@@ -39,30 +34,31 @@ diff -urNad boa-0.94.14rc21~/src/buffer.c boa-0.94.14rc21/src/buffer.c
  
          bytes_written = write(req->fd, req->buffer + req->buffer_start,
                                bytes_to_write);
-diff -urNad boa-0.94.14rc21~/src/config.h.in boa-0.94.14rc21/src/config.h.in
---- boa-0.94.14rc21~/src/config.h.in	2006-11-28 17:39:37.000000000 +0100
-+++ boa-0.94.14rc21/src/config.h.in	2006-11-28 17:39:40.000000000 +0100
-@@ -205,3 +205,17 @@
+Index: boa-0.94.14rc21/src/config.h.in
+===================================================================
+--- boa-0.94.14rc21.orig/src/config.h.in	2007-08-08 20:09:18.000000000 -0400
++++ boa-0.94.14rc21/src/config.h.in	2007-08-08 20:09:23.000000000 -0400
+@@ -205,3 +205,16 @@
  
  /* Define to `int' if <sys/types.h> doesn't define. */
  #undef uid_t
 +
-+#define LFS_ENABLED
-+
 +/* Those enable the LFS ready structures in the system headers */
-+#ifdef LFS_ENABLED
 +#define _FILE_OFFSET_BITS 64 /* glibc style */
 +#define _LARGEFILE_SOURCE 1	/* To make ftello() visible (HP-UX 10.20). */
 +#define _LARGE_FILES 1 	/* Large file defined on AIX-style hosts.  */
 +
 +#define _LARGEFILE64_SOURCE /* tell kernel headers to provide the O_LARGEFILE value */
++
++#if __WORDSIZE == 64
 +#define PRINTF_SIZE_ARG "%lld"
-+#else
++#elif __WORDSIZE == 32
 +#define PRINTF_SIZE_ARG "%ld"
 +#endif
-diff -urNad boa-0.94.14rc21~/src/get.c boa-0.94.14rc21/src/get.c
---- boa-0.94.14rc21~/src/get.c	2006-11-28 17:39:37.000000000 +0100
-+++ boa-0.94.14rc21/src/get.c	2006-11-28 17:39:40.000000000 +0100
+Index: boa-0.94.14rc21/src/get.c
+===================================================================
+--- boa-0.94.14rc21.orig/src/get.c	2007-08-08 20:09:18.000000000 -0400
++++ boa-0.94.14rc21/src/get.c	2007-08-08 20:09:23.000000000 -0400
 @@ -25,6 +25,10 @@
  #include "boa.h"
  #include "access.h"
@@ -154,9 +150,10 @@ diff -urNad boa-0.94.14rc21~/src/get.c boa-0.94.14rc21/src/get.c
      char *escname = NULL;
  
      if (chdir(req->pathname) == -1) {
-diff -urNad boa-0.94.14rc21~/src/globals.h boa-0.94.14rc21/src/globals.h
---- boa-0.94.14rc21~/src/globals.h	2006-11-28 17:39:37.000000000 +0100
-+++ boa-0.94.14rc21/src/globals.h	2006-11-28 17:39:40.000000000 +0100
+Index: boa-0.94.14rc21/src/globals.h
+===================================================================
+--- boa-0.94.14rc21.orig/src/globals.h	2007-08-08 20:09:18.000000000 -0400
++++ boa-0.94.14rc21/src/globals.h	2007-08-08 20:09:23.000000000 -0400
 @@ -130,9 +130,9 @@
      int numranges;
  
@@ -170,9 +167,10 @@ diff -urNad boa-0.94.14rc21~/src/globals.h boa-0.94.14rc21/src/globals.h
      char *data_mem;             /* mmapped/malloced char array */
  
      char *logline;              /* line to log file */
-diff -urNad boa-0.94.14rc21~/src/index_dir.c boa-0.94.14rc21/src/index_dir.c
---- boa-0.94.14rc21~/src/index_dir.c	2006-11-28 17:39:37.000000000 +0100
-+++ boa-0.94.14rc21/src/index_dir.c	2006-11-28 17:39:40.000000000 +0100
+Index: boa-0.94.14rc21/src/index_dir.c
+===================================================================
+--- boa-0.94.14rc21.orig/src/index_dir.c	2007-08-08 20:09:18.000000000 -0400
++++ boa-0.94.14rc21/src/index_dir.c	2007-08-08 20:09:23.000000000 -0400
 @@ -19,6 +19,7 @@
  
  /* $Id: index_dir.c,v 1.32.2.7 2005/02/22 03:00:24 jnelson Exp $*/
@@ -226,9 +224,10 @@ diff -urNad boa-0.94.14rc21~/src/index_dir.c boa-0.94.14rc21/src/index_dir.c
  #ifdef GUNZIP
          }
  #endif
-diff -urNad boa-0.94.14rc21~/src/log.c boa-0.94.14rc21/src/log.c
---- boa-0.94.14rc21~/src/log.c	2006-11-28 17:39:37.000000000 +0100
-+++ boa-0.94.14rc21/src/log.c	2006-11-28 17:39:40.000000000 +0100
+Index: boa-0.94.14rc21/src/log.c
+===================================================================
+--- boa-0.94.14rc21.orig/src/log.c	2007-08-08 20:09:18.000000000 -0400
++++ boa-0.94.14rc21/src/log.c	2007-08-08 20:09:23.000000000 -0400
 @@ -146,7 +146,7 @@
      } else if (vhost_root) {
          printf("%s ", (req->host ? req->host : "(null)"));
@@ -238,9 +237,10 @@ diff -urNad boa-0.94.14rc21~/src/log.c boa-0.94.14rc21/src/log.c
             req->remote_ip_addr,
             get_commonlog_time(),
             req->logline ? req->logline : "-",
-diff -urNad boa-0.94.14rc21~/src/mmap_cache.c boa-0.94.14rc21/src/mmap_cache.c
---- boa-0.94.14rc21~/src/mmap_cache.c	2006-11-28 17:39:37.000000000 +0100
-+++ boa-0.94.14rc21/src/mmap_cache.c	2006-11-28 17:39:40.000000000 +0100
+Index: boa-0.94.14rc21/src/mmap_cache.c
+===================================================================
+--- boa-0.94.14rc21.orig/src/mmap_cache.c	2007-08-08 20:09:18.000000000 -0400
++++ boa-0.94.14rc21/src/mmap_cache.c	2007-08-08 20:09:23.000000000 -0400
 @@ -140,7 +140,7 @@
      int data_fd;
      struct stat statbuf;
@@ -250,9 +250,10 @@ diff -urNad boa-0.94.14rc21~/src/mmap_cache.c boa-0.94.14rc21/src/mmap_cache.c
      if (data_fd == -1) {
          perror(fname);
          return NULL;
-diff -urNad boa-0.94.14rc21~/src/pipe.c boa-0.94.14rc21/src/pipe.c
---- boa-0.94.14rc21~/src/pipe.c	2006-11-28 17:39:39.000000000 +0100
-+++ boa-0.94.14rc21/src/pipe.c	2006-11-28 17:44:06.000000000 +0100
+Index: boa-0.94.14rc21/src/pipe.c
+===================================================================
+--- boa-0.94.14rc21.orig/src/pipe.c	2007-08-08 20:09:23.000000000 -0400
++++ boa-0.94.14rc21/src/pipe.c	2007-08-08 20:19:32.000000000 -0400
 @@ -37,8 +37,8 @@
  
  int read_from_pipe(request * req)
@@ -275,19 +276,19 @@ diff -urNad boa-0.94.14rc21~/src/pipe.c boa-0.94.14rc21/src/pipe.c
  
      if (bytes_to_write == 0) {
          if (req->cgi_status == CGI_DONE)
-@@ -170,9 +170,8 @@
+@@ -170,9 +170,9 @@
  #ifdef HAVE_SENDFILE
  int io_shuffle_sendfile(request * req)
  {
 -    int bytes_written;
 -    size_t bytes_to_write;
--    off_t sendfile_offset;
+     off_t sendfile_offset;
 +    off_t bytes_written;
 +    off_t bytes_to_write;
  
      if (req->method == M_HEAD) {
          return complete_response(req);
-@@ -266,8 +243,8 @@
+@@ -266,8 +266,8 @@
  
  int io_shuffle(request * req)
  {
@@ -298,7 +299,7 @@ diff -urNad boa-0.94.14rc21~/src/pipe.c boa-0.94.14rc21/src/pipe.c
  
      if (req->method == M_HEAD) {
          return complete_response(req);
-@@ -287,7 +264,7 @@
+@@ -287,7 +287,7 @@
          bytes_to_read = bytes_to_write;
  
      if (bytes_to_read > 0 && req->data_fd) {
@@ -307,9 +308,10 @@ diff -urNad boa-0.94.14rc21~/src/pipe.c boa-0.94.14rc21/src/pipe.c
          off_t temp;
  
          temp = lseek(req->data_fd, req->ranges->start, SEEK_SET);
-diff -urNad boa-0.94.14rc21~/src/range.c boa-0.94.14rc21/src/range.c
---- boa-0.94.14rc21~/src/range.c	2006-11-28 17:39:37.000000000 +0100
-+++ boa-0.94.14rc21/src/range.c	2006-11-28 17:39:40.000000000 +0100
+Index: boa-0.94.14rc21/src/range.c
+===================================================================
+--- boa-0.94.14rc21.orig/src/range.c	2007-08-08 20:09:18.000000000 -0400
++++ boa-0.94.14rc21/src/range.c	2007-08-08 20:09:23.000000000 -0400
 @@ -147,7 +147,7 @@
           * 5) start > stop && start != -1 :: invalid
           */
@@ -328,9 +330,10 @@ diff -urNad boa-0.94.14rc21~/src/range.c boa-0.94.14rc21/src/range.c
          }
  
          if (prev == NULL)
-diff -urNad boa-0.94.14rc21~/src/read.c boa-0.94.14rc21/src/read.c
---- boa-0.94.14rc21~/src/read.c	2006-11-28 17:39:37.000000000 +0100
-+++ boa-0.94.14rc21/src/read.c	2006-11-28 17:39:40.000000000 +0100
+Index: boa-0.94.14rc21/src/read.c
+===================================================================
+--- boa-0.94.14rc21.orig/src/read.c	2007-08-08 20:09:18.000000000 -0400
++++ boa-0.94.14rc21/src/read.c	2007-08-08 20:09:23.000000000 -0400
 @@ -38,7 +38,7 @@
  
  int read_header(request * req)
@@ -416,9 +419,10 @@ diff -urNad boa-0.94.14rc21~/src/read.c boa-0.94.14rc21/src/read.c
                      __FILE__, __LINE__, bytes_written,
                      req->header_line, req->filepos, req->filesize);
              req->header_line[bytes_written] = c;
-diff -urNad boa-0.94.14rc21~/src/request.c boa-0.94.14rc21/src/request.c
---- boa-0.94.14rc21~/src/request.c	2006-11-28 17:39:37.000000000 +0100
-+++ boa-0.94.14rc21/src/request.c	2006-11-28 17:39:40.000000000 +0100
+Index: boa-0.94.14rc21/src/request.c
+===================================================================
+--- boa-0.94.14rc21.orig/src/request.c	2007-08-08 20:09:18.000000000 -0400
++++ boa-0.94.14rc21/src/request.c	2007-08-08 20:09:23.000000000 -0400
 @@ -259,14 +259,14 @@
  
  static void sanitize_request(request * req, int new_req)
@@ -445,9 +449,10 @@ diff -urNad boa-0.94.14rc21~/src/request.c boa-0.94.14rc21/src/request.c
                  bytes_to_zero);
      }
  
-diff -urNad boa-0.94.14rc21~/src/util.c boa-0.94.14rc21/src/util.c
---- boa-0.94.14rc21~/src/util.c	2006-11-28 17:39:39.000000000 +0100
-+++ boa-0.94.14rc21/src/util.c	2006-11-28 17:39:40.000000000 +0100
+Index: boa-0.94.14rc21/src/util.c
+===================================================================
+--- boa-0.94.14rc21.orig/src/util.c	2007-08-08 20:09:23.000000000 -0400
++++ boa-0.94.14rc21/src/util.c	2007-08-08 20:09:23.000000000 -0400
 @@ -497,7 +497,7 @@
      memcpy(p, day_tab + t->tm_wday * 4, 4);
  }
