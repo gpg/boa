@@ -2,7 +2,7 @@ Source: boa
 Section: web
 Priority: optional
 Maintainer: Francois-Denis Gonthier <neumann@lostwebsite.net>
-Standards-Version: 3.7.2
+Standards-Version: 3.7.3
 Build-Depends: debhelper (>= 5.0), texinfo, bison, flex, texi2html, tetex-bin, po-debconf, quilt
 
 Package: boa

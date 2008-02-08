@@ -40,8 +40,6 @@ clean: unpatch
 	-[ -f Makefile ] && make mrclean
 	-[ -f docs/Makefile ] && make -C docs clean
 	-rm -f docs/boa.info docs/boa.html docs/index.html
-	debconf-updatepo
-	
 	dh_clean
 
 binary-indep:	build
@@ -57,7 +55,7 @@ binary-arch:	build
 	dh_installinfo -n docs/boa.info
 	dh_installexamples
 	dh_installmenu
-	dh_installinit -n
+	dh_installinit --error-handler=true
 	dh_installdebconf
 	dh_installcron
 	dh_installlogrotate

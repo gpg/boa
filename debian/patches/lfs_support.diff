@@ -1,7 +1,7 @@
 Index: boa-0.94.14rc21/src/boa.h
 ===================================================================
---- boa-0.94.14rc21.orig/src/boa.h	2007-08-08 20:09:18.000000000 -0400
-+++ boa-0.94.14rc21/src/boa.h	2007-08-08 20:09:23.000000000 -0400
+--- boa-0.94.14rc21.orig/src/boa.h	2007-11-03 00:51:46.000000000 -0400
++++ boa-0.94.14rc21/src/boa.h	2007-11-03 01:05:20.000000000 -0400
 @@ -25,7 +25,9 @@
  #ifndef _BOA_H
  #define _BOA_H
@@ -23,8 +23,8 @@ Index: boa-0.94.14rc21/src/boa.h
  int modified_since(time_t * mtime, const char *if_modified_since);
 Index: boa-0.94.14rc21/src/buffer.c
 ===================================================================
---- boa-0.94.14rc21.orig/src/buffer.c	2007-08-08 20:09:18.000000000 -0400
-+++ boa-0.94.14rc21/src/buffer.c	2007-08-08 20:09:23.000000000 -0400
+--- boa-0.94.14rc21.orig/src/buffer.c	2007-11-03 00:51:46.000000000 -0400
++++ boa-0.94.14rc21/src/buffer.c	2007-11-03 01:05:20.000000000 -0400
 @@ -212,7 +212,7 @@
          return -2;
  
@@ -36,8 +36,8 @@ Index: boa-0.94.14rc21/src/buffer.c
                                bytes_to_write);
 Index: boa-0.94.14rc21/src/config.h.in
 ===================================================================
---- boa-0.94.14rc21.orig/src/config.h.in	2007-08-08 20:09:18.000000000 -0400
-+++ boa-0.94.14rc21/src/config.h.in	2007-08-08 20:09:23.000000000 -0400
+--- boa-0.94.14rc21.orig/src/config.h.in	2007-11-03 00:51:46.000000000 -0400
++++ boa-0.94.14rc21/src/config.h.in	2007-11-03 01:08:36.000000000 -0400
 @@ -205,3 +205,16 @@
  
  /* Define to `int' if <sys/types.h> doesn't define. */
@@ -51,14 +51,14 @@ Index: boa-0.94.14rc21/src/config.h.in
 +#define _LARGEFILE64_SOURCE /* tell kernel headers to provide the O_LARGEFILE value */
 +
 +#if __WORDSIZE == 64
-+#define PRINTF_SIZE_ARG "%lld"
++#define PRINTF_OFF_T_ARG "%ld"
 +#elif __WORDSIZE == 32
-+#define PRINTF_SIZE_ARG "%ld"
++#define PRINTF_OFF_T_ARG "%lld"
 +#endif
 Index: boa-0.94.14rc21/src/get.c
 ===================================================================
---- boa-0.94.14rc21.orig/src/get.c	2007-08-08 20:09:18.000000000 -0400
-+++ boa-0.94.14rc21/src/get.c	2007-08-08 20:09:23.000000000 -0400
+--- boa-0.94.14rc21.orig/src/get.c	2007-11-03 00:51:46.000000000 -0400
++++ boa-0.94.14rc21/src/get.c	2007-11-03 01:08:20.000000000 -0400
 @@ -25,6 +25,10 @@
  #include "boa.h"
  #include "access.h"
@@ -125,7 +125,7 @@ Index: boa-0.94.14rc21/src/get.c
       */
      snprintf(pathname_with_index, sizeof(pathname_with_index),
 -             "%s/dir.%d.%ld", cachedir,
-+             "%s/dir.%d." PRINTF_SIZE_ARG, cachedir,
++             "%s/dir.%d." PRINTF_OFF_T_ARG, cachedir,
               (int) statbuf->st_dev, statbuf->st_ino);
 -    data_fd = open(pathname_with_index, O_RDONLY);
 +    data_fd = open(pathname_with_index, O_RDONLY|O_LARGEFILE);
@@ -152,8 +152,8 @@ Index: boa-0.94.14rc21/src/get.c
      if (chdir(req->pathname) == -1) {
 Index: boa-0.94.14rc21/src/globals.h
 ===================================================================
---- boa-0.94.14rc21.orig/src/globals.h	2007-08-08 20:09:18.000000000 -0400
-+++ boa-0.94.14rc21/src/globals.h	2007-08-08 20:09:23.000000000 -0400
+--- boa-0.94.14rc21.orig/src/globals.h	2007-11-03 00:51:46.000000000 -0400
++++ boa-0.94.14rc21/src/globals.h	2007-11-03 01:05:20.000000000 -0400
 @@ -130,9 +130,9 @@
      int numranges;
  
@@ -163,14 +163,14 @@ Index: boa-0.94.14rc21/src/globals.h
 -    unsigned long bytes_written; /* total bytes written (sans header) */
 +    off_t filesize;     /* filesize */
 +    off_t filepos;      /* position in file */
-+    off_t bytes_written; /* total bytes written (sans header) */
++    size_t bytes_written; /* total bytes written (sans header) */
      char *data_mem;             /* mmapped/malloced char array */
  
      char *logline;              /* line to log file */
 Index: boa-0.94.14rc21/src/index_dir.c
 ===================================================================
---- boa-0.94.14rc21.orig/src/index_dir.c	2007-08-08 20:09:18.000000000 -0400
-+++ boa-0.94.14rc21/src/index_dir.c	2007-08-08 20:09:23.000000000 -0400
+--- boa-0.94.14rc21.orig/src/index_dir.c	2007-11-03 00:51:46.000000000 -0400
++++ boa-0.94.14rc21/src/index_dir.c	2007-11-03 01:08:11.000000000 -0400
 @@ -19,6 +19,7 @@
  
  /* $Id: index_dir.c,v 1.32.2.7 2005/02/22 03:00:24 jnelson Exp $*/
@@ -185,7 +185,7 @@ Index: boa-0.94.14rc21/src/index_dir.c
                 "<td align=right>%s</td>"
 -               "<td align=right>%ld bytes</td>"
 +               "<td align=right>"
-+               PRINTF_SIZE_ARG
++               PRINTF_OFF_T_ARG
 +               " bytes</td>"
                 "</tr>\n",
                 escaped_filename, html_filename,
@@ -200,7 +200,7 @@ Index: boa-0.94.14rc21/src/index_dir.c
                     "<td align=right>%s</td>"
 -                   "<td align=right>%ld bytes</td>"
 +                   "<td align=right>"
-+                   PRINTF_SIZE_ARG
++                   PRINTF_OFF_T_ARG
 +                   "bytes</td>"
                     "</tr>\n",
                     escaped_filename, html_filename, http_filename,
@@ -215,7 +215,7 @@ Index: boa-0.94.14rc21/src/index_dir.c
                     "<td align=right>%s</td>"
 -                   "<td align=right>%ld bytes</td>"
 +                   "<td align=right>"
-+                   PRINTF_SIZE_ARG
++                   PRINTF_OFF_T_ARG
 +                   "bytes</td>"
                     "</tr>\n",
                     escaped_filename, html_filename,
@@ -226,21 +226,21 @@ Index: boa-0.94.14rc21/src/index_dir.c
  #endif
 Index: boa-0.94.14rc21/src/log.c
 ===================================================================
---- boa-0.94.14rc21.orig/src/log.c	2007-08-08 20:09:18.000000000 -0400
-+++ boa-0.94.14rc21/src/log.c	2007-08-08 20:09:23.000000000 -0400
+--- boa-0.94.14rc21.orig/src/log.c	2007-11-03 00:51:46.000000000 -0400
++++ boa-0.94.14rc21/src/log.c	2007-11-03 01:05:20.000000000 -0400
 @@ -146,7 +146,7 @@
      } else if (vhost_root) {
          printf("%s ", (req->host ? req->host : "(null)"));
      }
 -    printf("%s - - %s\"%s\" %d %ld \"%s\" \"%s\"\n",
-+    printf("%s - - %s\"%s\" %d " PRINTF_SIZE_ARG " \"%s\" \"%s\"\n",
++    printf("%s - - %s\"%s\" %d %zu \"%s\" \"%s\"\n",
             req->remote_ip_addr,
             get_commonlog_time(),
             req->logline ? req->logline : "-",
 Index: boa-0.94.14rc21/src/mmap_cache.c
 ===================================================================
---- boa-0.94.14rc21.orig/src/mmap_cache.c	2007-08-08 20:09:18.000000000 -0400
-+++ boa-0.94.14rc21/src/mmap_cache.c	2007-08-08 20:09:23.000000000 -0400
+--- boa-0.94.14rc21.orig/src/mmap_cache.c	2007-11-03 00:51:46.000000000 -0400
++++ boa-0.94.14rc21/src/mmap_cache.c	2007-11-03 01:05:20.000000000 -0400
 @@ -140,7 +140,7 @@
      int data_fd;
      struct stat statbuf;
@@ -252,8 +252,8 @@ Index: boa-0.94.14rc21/src/mmap_cache.c
          return NULL;
 Index: boa-0.94.14rc21/src/pipe.c
 ===================================================================
---- boa-0.94.14rc21.orig/src/pipe.c	2007-08-08 20:09:23.000000000 -0400
-+++ boa-0.94.14rc21/src/pipe.c	2007-08-08 20:19:32.000000000 -0400
+--- boa-0.94.14rc21.orig/src/pipe.c	2007-11-03 01:05:20.000000000 -0400
++++ boa-0.94.14rc21/src/pipe.c	2007-11-03 01:05:20.000000000 -0400
 @@ -37,8 +37,8 @@
  
  int read_from_pipe(request * req)
@@ -310,30 +310,21 @@ Index: boa-0.94.14rc21/src/pipe.c
          temp = lseek(req->data_fd, req->ranges->start, SEEK_SET);
 Index: boa-0.94.14rc21/src/range.c
 ===================================================================
---- boa-0.94.14rc21.orig/src/range.c	2007-08-08 20:09:18.000000000 -0400
-+++ boa-0.94.14rc21/src/range.c	2007-08-08 20:09:23.000000000 -0400
+--- boa-0.94.14rc21.orig/src/range.c	2007-11-03 00:51:46.000000000 -0400
++++ boa-0.94.14rc21/src/range.c	2007-11-03 01:05:20.000000000 -0400
 @@ -147,7 +147,7 @@
           * 5) start > stop && start != -1 :: invalid
           */
          DEBUG(DEBUG_RANGE) {
 -            fprintf(stderr, "range.c: ranges_fixup: %lu-%lu\n", r->start, r->stop);
-+            fprintf(stderr, "range.c: ranges_fixup: " PRINTF_SIZE_ARG  "-" PRINTF_SIZE_ARG "\n", r->start, r->stop);
++            fprintf(stderr, "range.c: ranges_fixup: %lu - %lu\n", r->start, r->stop);
          }
  
          /* no stop range specified or stop is too big.
-@@ -206,7 +206,7 @@
-         /* r->stop and r->start may be the same, however */
- 
-         DEBUG(DEBUG_RANGE) {
--            fprintf(stderr, "ending with start: %lu\tstop: %lu\n", r->start, r->stop);
-+            fprintf(stderr, "ending with start: "PRINTF_SIZE_ARG"\tstop: "PRINTF_SIZE_ARG"\n", r->start, r->stop);
-         }
- 
-         if (prev == NULL)
 Index: boa-0.94.14rc21/src/read.c
 ===================================================================
---- boa-0.94.14rc21.orig/src/read.c	2007-08-08 20:09:18.000000000 -0400
-+++ boa-0.94.14rc21/src/read.c	2007-08-08 20:09:23.000000000 -0400
+--- boa-0.94.14rc21.orig/src/read.c	2007-11-03 00:51:46.000000000 -0400
++++ boa-0.94.14rc21/src/read.c	2007-11-03 01:05:20.000000000 -0400
 @@ -38,7 +38,7 @@
  
  int read_header(request * req)
@@ -357,7 +348,7 @@ Index: boa-0.94.14rc21/src/read.c
                          log_error_doc(req);
                          fprintf(stderr,
 -                                "Content-Length [%d] > SinglePostLimit [%d] on POST!\n",
-+                                "Content-Length [" PRINTF_SIZE_ARG "] > SinglePostLimit [%d] on POST!\n",
++                                "Content-Length [" PRINTF_OFF_T_ARG "] > SinglePostLimit [%d] on POST!\n",
                                  content_length, single_post_limit);
                          send_r_bad_request(req);
                          return 0;
@@ -375,7 +366,7 @@ Index: boa-0.94.14rc21/src/read.c
              log_error_time();
              req->client_stream[req->client_stream_pos] = '\0';
 -            fprintf(stderr, "%s:%d -- We read %d bytes: \"%s\"\n",
-+            fprintf(stderr, "%s:%d -- We read " PRINTF_SIZE_ARG " bytes: \"%s\"\n",
++            fprintf(stderr, "%s:%d -- We read " PRINTF_OFF_T_ARG " bytes: \"%s\"\n",
                      __FILE__, __LINE__, bytes,
  #ifdef VERY_FASCIST_LOGGING2
                      req->client_stream + req->client_stream_pos - bytes
@@ -406,7 +397,7 @@ Index: boa-0.94.14rc21/src/read.c
      DEBUG(DEBUG_HEADER_READ) {
          log_error_time();
 -        fprintf(stderr, "%s:%d - wrote %d bytes of CGI body. %ld of %ld\n",
-+        fprintf(stderr, "%s:%d - wrote " PRINTF_SIZE_ARG " bytes of CGI body. " PRINTF_SIZE_ARG " of " PRINTF_SIZE_ARG "\n",
++        fprintf(stderr, "%s:%d - wrote " PRINTF_OFF_T_ARG " bytes of CGI body. " PRINTF_OFF_T_ARG " of " PRINTF_OFF_T_ARG "\n",
                  __FILE__, __LINE__,
                  bytes_written, req->filepos, req->filesize);
      }
@@ -415,14 +406,14 @@ Index: boa-0.94.14rc21/src/read.c
              req->header_line[bytes_written] = '\0';
              fprintf(stderr,
 -                    "%s:%d - wrote %d bytes (%s). %lu of %lu\n",
-+                    "%s:%d - wrote " PRINTF_SIZE_ARG " bytes (%s). " PRINTF_SIZE_ARG " of " PRINTF_SIZE_ARG "\n",
++                    "%s:%d - wrote " PRINTF_OFF_T_ARG " bytes (%s). " PRINTF_OFF_T_ARG " of " PRINTF_OFF_T_ARG "\n",
                      __FILE__, __LINE__, bytes_written,
                      req->header_line, req->filepos, req->filesize);
              req->header_line[bytes_written] = c;
 Index: boa-0.94.14rc21/src/request.c
 ===================================================================
---- boa-0.94.14rc21.orig/src/request.c	2007-08-08 20:09:18.000000000 -0400
-+++ boa-0.94.14rc21/src/request.c	2007-08-08 20:09:23.000000000 -0400
+--- boa-0.94.14rc21.orig/src/request.c	2007-11-03 00:51:46.000000000 -0400
++++ boa-0.94.14rc21/src/request.c	2007-11-03 01:05:20.000000000 -0400
 @@ -259,14 +259,14 @@
  
  static void sanitize_request(request * req, int new_req)
@@ -445,14 +436,14 @@ Index: boa-0.94.14rc21/src/request.c
      DEBUG(DEBUG_REQUEST) {
          log_error_time();
 -        fprintf(stderr, "req: %p, offset: %u\n", (void *) req,
-+        fprintf(stderr, "req: %p, offset: " PRINTF_SIZE_ARG "\n", (void *) req,
++        fprintf(stderr, "req: %p, offset: " PRINTF_OFF_T_ARG "\n", (void *) req,
                  bytes_to_zero);
      }
  
 Index: boa-0.94.14rc21/src/util.c
 ===================================================================
---- boa-0.94.14rc21.orig/src/util.c	2007-08-08 20:09:23.000000000 -0400
-+++ boa-0.94.14rc21/src/util.c	2007-08-08 20:09:23.000000000 -0400
+--- boa-0.94.14rc21.orig/src/util.c	2007-11-03 01:05:20.000000000 -0400
++++ boa-0.94.14rc21/src/util.c	2007-11-03 01:05:20.000000000 -0400
 @@ -497,7 +497,7 @@
      memcpy(p, day_tab + t->tm_wday * 4, 4);
  }

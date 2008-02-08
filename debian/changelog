@@ -1,3 +1,16 @@
+boa (0.94.14rc21-3) unstable; urgency=low
+
+  * Access log garbled (Closes: #449074)
+  * Fixed the lfs-support patch, which produced incorrect logfiles on 32
+    bits machines, and in the same blow removed all build-time warnings
+    which were probably not as harmless as I initially thought.
+  * Removed port detection routines. (Closes: #458855)
+  * dpkg-www: Invalid characters in input. (Closes: #438707)
+  * Removed debconf template and its translations.  This package no
+    longer needs debconf.
+
+ -- Francois-Denis Gonthier <neumann@lostwebsite.net>  Thu, 07 Feb 2008 23:15:51 -0500
+
 boa (0.94.14rc21-2) unstable; urgency=low
 
   * New maintainer (Closes: #406354)
