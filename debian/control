@@ -3,7 +3,7 @@ Section: web
 Priority: optional
 Maintainer: Francois-Denis Gonthier <neumann@lostwebsite.net>
 Standards-Version: 3.7.3
-Build-Depends: debhelper (>= 5.0), texinfo, bison, flex, texi2html, tetex-bin, po-debconf, quilt
+Build-Depends: debhelper (>= 5.0), texinfo, bison, flex, texi2html, texlive-base-bin, po-debconf, quilt
 
 Package: boa
 Architecture: any

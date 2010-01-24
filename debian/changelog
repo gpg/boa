@@ -1,3 +1,11 @@
+boa (0.94.14rc21-3.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * debian/control
+  - Replace non-existing build dependency (Closes: #562362)
+
+ -- Ricardo Mones <mones@debian.org>  Sun, 24 Jan 2010 13:22:38 +0100
+
 boa (0.94.14rc21-3) unstable; urgency=low
 
   * Access log garbled (Closes: #449074)
