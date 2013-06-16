@@ -2,7 +2,7 @@ Source: boa
 Section: httpd
 Priority: optional
 Maintainer: Debian QA Group <packages@qa.debian.org>
-Standards-Version: 3.7.3
+Standards-Version: 3.9.4
 Build-Depends: autotools-dev,
                bison,
                debhelper (>= 9~),
