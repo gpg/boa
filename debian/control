@@ -1,7 +1,7 @@
 Source: boa
 Section: web
 Priority: optional
-Maintainer: Francois-Denis Gonthier <neumann@lostwebsite.net>
+Maintainer: Debian QA Group <packages@qa.debian.org>
 Standards-Version: 3.7.3
 Build-Depends: debhelper (>= 5.0), texinfo, bison, flex, texi2html, texlive-base-bin, po-debconf, quilt
 
