@@ -26,7 +26,6 @@ clean:
 
 	-[ -f Makefile ] && make mrclean
 	-[ -f docs/Makefile ] && make -C docs clean
-	-rm -f docs/boa.info docs/boa.html docs/index.html
 	dh_clean
 
 binary-indep:	build
