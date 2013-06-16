@@ -31,6 +31,7 @@ boa (0.94.14rc21-4) UNRELEASED; urgency=low
     + copyright-without-copyright-notice
     + init.d-script-does-not-implement-required-option
     + init.d-script-missing-lsb-description
+    + package-contains-empty-directory (2x)
   * Change section to httpd
   * Bump Standards-Version to 3.9.4 (no further changes)
   * Apply wrap-and-sort
