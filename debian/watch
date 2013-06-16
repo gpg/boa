@@ -1,0 +1,3 @@
+version=3
+
+http://www.boa.org/ boa-(.*).tar.gz
