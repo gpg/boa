@@ -3,7 +3,8 @@ Section: web
 Priority: optional
 Maintainer: Debian QA Group <packages@qa.debian.org>
 Standards-Version: 3.7.3
-Build-Depends: bison,
+Build-Depends: autotools-dev,
+               bison,
                debhelper (>= 9~),
                flex,
                po-debconf,

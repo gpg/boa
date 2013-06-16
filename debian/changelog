@@ -9,6 +9,8 @@ boa (0.94.14rc21-4) UNRELEASED; urgency=low
     for the patch.
   * Bump debhelper compatibility to 9
     + Update versioned debhelper build-dependency
+  * Use dh_autotools-dev_{update,restore}config (Closes: #537754)
+    + Build-depend on autotools-dev
   * Revamp debian/rules:
     + Use dh_auto_{configure,build,clean}
     + Use dh_prep instead of dh_clean -k
