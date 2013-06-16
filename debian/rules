@@ -24,8 +24,8 @@ build-stamp:
 clean:
 	dh_testdir
 
-	-[ -f Makefile ] && make mrclean
-	-[ -f docs/Makefile ] && make -C docs clean
+	[ ! -f Makefile ] || make mrclean
+	[ ! -f docs/Makefile ] || make -C docs clean
 	dh_clean
 
 binary-indep:	build

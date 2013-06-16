@@ -18,6 +18,7 @@ boa (0.94.14rc21-4) UNRELEASED; urgency=low
     + Remove redundant dh_installchangelogs parameter
     + Use dh_install and debian/install instead of calling install
     + Use debian/clean instead of calling rm
+    + Don't ignore "make clean" failures
   * Apply wrap-and-sort
 
  -- Axel Beckert <abe@debian.org>  Sun, 16 Jun 2013 02:21:37 +0200
