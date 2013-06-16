@@ -23,9 +23,11 @@
 /* boa: response.c */
 
 #include "boa.h"
+#include <sys/uio.h>
 
 static char e_s[MAX_HEADER_LENGTH * 3];
-	
+static char ka_phrase[75];
+
 void print_content_type(request * req)
 {
 	req_write(req, "Content-Type: ");
@@ -42,25 +44,39 @@ void print_content_length(request * req)
 
 void print_last_modified(request * req)
 {
-	req_write(req, "Last-Modified: ");
-	req_write_rfc822_time(req, req->last_modified);
-	req_write(req, "\r\n");
+	static char lm[] = "Last-Modified: "
+	"                             "
+	"\r\n";
+	rfc822_time_buf(lm + 15, req->last_modified);
+	req_write(req, lm);
+}
+
+void init_ka_phrase(void)
+{
+	sprintf(ka_phrase, "Connection: Keep-Alive\r\n"
+			"Keep-Alive: timeout=%d, max=%d\r\n",
+			ka_timeout, ka_max);
+
+}
+
+void print_ka_phrase(void)
+{
+	fprintf(stderr, "ka_phrase: \"%s\"\n", ka_phrase);
 }
 
 void print_http_headers(request * req)
 {
+	static char stuff[] = "Date: "
+	"                             "
+	"\r\nServer: "
+	SERVER_VERSION
+	"\r\n";
 
-	req_write(req, "Date: ");
-	req_write_rfc822_time(req, 0);
-	req_write(req, "\r\nServer: " SERVER_VERSION "\r\n");
+	rfc822_time_buf(stuff + 6, 0);
+	req_write(req, stuff);
 
 	if (req->keepalive == KA_ACTIVE) {
-		req_write(req, "Connection: Keep-Alive\r\n" \
-			"Keep-Alive: timeout=");
-		req_write(req, simple_itoa(ka_timeout));
-		req_write(req, ", max=");
-		req_write(req, simple_itoa(ka_max));
-		req_write(req, "\r\n");
+		req_write(req, ka_phrase);
 	} else
 		req_write(req, "Connection: close\r\n");
 }
@@ -78,14 +94,13 @@ void send_r_request_ok(request * req)
 
 	req_write(req, "HTTP/1.0 200 OK\r\n");
 	print_http_headers(req);
-
+ 
 	if (!req->is_cgi) {
 		print_content_length(req);
 		print_last_modified(req);
 		print_content_type(req);
-		req_write(req, "\r\n");	/* terminate header */
+		req_write(req, "\r\n");
 	}
-	req_flush(req);
 }
 
 /* R_MOVED_PERM: 301 */
@@ -103,8 +118,8 @@ void send_redirect_perm(request * req, char *url)
 	}
 	if (req->method != M_HEAD) {
 		req_write(req, "<HTML><HEAD><TITLE>301 Moved Permanently</TITLE></HEAD>\n"
-					 "<BODY>\n<H1>301 Moved</H1>The document has moved\n"
-					 "<A HREF=\"");
+				  "<BODY>\n<H1>301 Moved</H1>The document has moved\n"
+				  "<A HREF=\"");
 		req_write(req, escape_string(url, e_s));
 		req_write(req, "\">here</A>.\n</BODY></HTML>\n");
 	}
@@ -127,8 +142,8 @@ void send_redirect_temp(request * req, char *url)
 	}
 	if (req->method != M_HEAD) {
 		req_write(req, "<HTML><HEAD><TITLE>302 Moved Temporarily</TITLE></HEAD>\n"
-					 "<BODY>\n<H1>302 Moved</H1>The document has moved\n"
-					 "<A HREF=\"");
+				  "<BODY>\n<H1>302 Moved</H1>The document has moved\n"
+				  "<A HREF=\"");
 		req_write(req, escape_string(url, e_s));
 		req_write(req, "\">here</A>.\n</BODY></HTML>\n");
 	}
@@ -143,6 +158,7 @@ void send_r_not_modified(request * req)
 	print_http_headers(req);
 	print_content_type(req);
 	req_write(req, "\r\n");		/* terminate header */
+	req_flush(req);
 }
 
 /* R_BAD_REQUEST: 400 */
@@ -157,7 +173,7 @@ void send_r_bad_request(request * req)
 	if (req->method != M_HEAD) {
 		req_write(req, "<HTML><HEAD><TITLE>400 Bad Request</TITLE></HEAD>\n"
 				"<BODY><H1>400 Bad Request</H1>\nYour client has issued "
-					 "a malformed or illegal request.\n</BODY></HTML>\n");
+				  "a malformed or illegal request.\n</BODY></HTML>\n");
 	}
 	req_flush(req);
 }
@@ -176,8 +192,8 @@ void send_r_unauthorized(request * req, char *realm_name)
 	}
 	if (req->method != M_HEAD) {
 		req_write(req, "<HTML><HEAD><TITLE>401 Unauthorized</TITLE></HEAD>\n"
-				 "<BODY><H1>401 Unauthorized</H1>\nYour client does not "
-					 "have permission to get URL ");
+				  "<BODY><H1>401 Unauthorized</H1>\nYour client does not "
+				  "have permission to get URL ");
 		req_write(req, escape_string(req->request_uri, e_s));
 		req_write(req, " from this server.\n</BODY></HTML>\n");
 	}
@@ -195,8 +211,8 @@ void send_r_forbidden(request * req)
 	}
 	if (req->method != M_HEAD) {
 		req_write(req, "<HTML><HEAD><TITLE>403 Forbidden</TITLE></HEAD>\n"
-					 "<BODY><H1>403 Forbidden</H1>\nYour client does not "
-					 "have permission to get URL ");
+				  "<BODY><H1>403 Forbidden</H1>\nYour client does not "
+				  "have permission to get URL ");
 		req_write(req, escape_string(req->request_uri, e_s));
 		req_write(req, " from this server.\n</BODY></HTML>\n");
 	}
@@ -214,7 +230,7 @@ void send_r_not_found(request * req)
 	}
 	if (req->method != M_HEAD) {
 		req_write(req, "<HTML><HEAD><TITLE>404 Not Found</TITLE></HEAD>\n"
-					 "<BODY><H1>404 Not Found</H1>\nThe requested URL ");
+				  "<BODY><H1>404 Not Found</H1>\nThe requested URL ");
 		req_write(req, escape_string(req->request_uri, e_s));
 		req_write(req, " was not found on this server.\n</BODY></HTML>\n");
 	}
@@ -234,7 +250,7 @@ void send_r_error(request * req)
 		req_write(req, "<HTML><HEAD><TITLE>500 Server Error</TITLE></HEAD>\n"
 			   "<BODY><H1>500 Server Error</H1>\nThe server encountered "
 			   "an internal error and could not complete your request.\n"
-					 "</BODY></HTML>\n");
+				  "</BODY></HTML>\n");
 	}
 	req_flush(req);
 }
@@ -251,7 +267,7 @@ void send_r_not_implemented(request * req)
 	if (req->method != M_HEAD) {
 		req_write(req, "<HTML><HEAD><TITLE>501 Not Implemented</TITLE></HEAD>\n"
 				"<BODY><H1>501 Not Implemented</H1>\nPOST to non-script "
-					 "is not supported in Boa.\n</BODY></HTML>\n");
+				  "is not supported in Boa.\n</BODY></HTML>\n");
 	}
 	req_flush(req);
 }
@@ -267,9 +283,9 @@ void send_r_bad_version(request * req)
 	}
 	if (req->method != M_HEAD) {
 		req_write(req, "<HTML><HEAD><TITLE>505 HTTP Version Not Supported</TITLE></HEAD>\n"
-				"<BODY><H1>505 HTTP Version Not Supported</H1>\nHTTP versions "
-					 "other than 0.9 and 1.0 "
-					 "are not supported in Boa.\n<p><p>Version encountered: ");
+		  "<BODY><H1>505 HTTP Version Not Supported</H1>\nHTTP versions "
+				  "other than 0.9 and 1.0 "
+			   "are not supported in Boa.\n<p><p>Version encountered: ");
 		req_write(req, req->http_version);
 		req_write(req, "<p><p></BODY></HTML>\n");
 	}

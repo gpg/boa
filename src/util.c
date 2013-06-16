@@ -1,3 +1,4 @@
+
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <psp@well.com>
@@ -36,9 +37,6 @@
 static time_t cur_time;
 const char month_tab[48] = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec ";
 const char day_tab[] = "Sun,Mon,Tue,Wed,Thu,Fri,Sat,";
-
-char *error_log_name;
-char *access_log_name;
 
 #include "escape.h"
 
@@ -104,18 +102,18 @@ int modified_since(time_t * mtime, char *if_modified_since)
 	int comp;
 
 	ims_info = if_modified_since;
-	
+
 	/* the pre-space in the third scanf skips whitespace for the string */
 	if (sscanf(ims_info, "%d %3s %d %d:%d:%d GMT",	/* RFC 1123 */
-		&day, monthname, &year, &hour, &minute, &second) == 6);
-	else if (sscanf(ims_info, "%d-%3s-%d %d:%d:%d GMT",  /* RFC 1036 */
-		 &day, monthname, &year, &hour, &minute, &second) == 6)
+			   &day, monthname, &year, &hour, &minute, &second) == 6);
+	else if (sscanf(ims_info, "%d-%3s-%d %d:%d:%d GMT",		/* RFC 1036 */
+					&day, monthname, &year, &hour, &minute, &second) == 6)
 		year += 1900;
-	else if (sscanf(ims_info, " %3s %d %d:%d:%d %d",  /* asctime() format */
-		monthname, &day, &hour, &minute, &second, &year) == 6);
+	else if (sscanf(ims_info, " %3s %d %d:%d:%d %d",	/* asctime() format */
+				  monthname, &day, &hour, &minute, &second, &year) == 6);
 	else
 		return -1;				/* error */
-	
+
 	file_gmt = gmtime(mtime);
 	month = month2int(monthname);
 
@@ -316,27 +314,27 @@ void fixup_server_root()
  * "Sun, 06 Nov 1994 08:49:37 GMT"
  */
 
-int req_write_rfc822_time(request *req, time_t s)
-{	
+int req_write_rfc822_time(request * req, time_t s)
+{
 	struct tm *t;
 	char *p;
 	unsigned int a;
-	
+
 	if (req->buffer_end + 29 > BUFFER_SIZE)
-		return 0;	
-	
+		return 0;
+
 	if (!s) {
 		time(&cur_time);
 		t = gmtime(&cur_time);
 	} else
 		t = gmtime(&s);
-	
+
 	p = req->buffer + req->buffer_end + 28;
 	/* p points to the last char in the buf */
-	
-	p -= 3; /* p points to where the ' ' will go */
+
+	p -= 3;						/* p points to where the ' ' will go */
 	memcpy(p--, " GMT", 4);
-	
+
 	a = t->tm_sec;
 	*p-- = '0' + a % 10;
 	*p-- = '0' + a / 10;
@@ -365,11 +363,64 @@ int req_write_rfc822_time(request *req, time_t s)
 	*p-- = ' ';
 	p -= 3;
 	memcpy(p, day_tab + t->tm_wday * 4, 4);
-	
-	req->buffer_end += 29;	
+
+	req->buffer_end += 29;
+	req_flush(req);
 	return 29;
 }
 
+/* rfc822 (1123) time is exactly 29 characters long
+ * "Sun, 06 Nov 1994 08:49:37 GMT"
+ */
+
+void rfc822_time_buf(char *buf, time_t s)
+{
+	struct tm *t;
+	char *p;
+	unsigned int a;
+
+	if (!s) {
+		time(&cur_time);
+		t = gmtime(&cur_time);
+	} else
+		t = gmtime(&s);
+
+	p = buf + 28;
+	/* p points to the last char in the buf */
+
+	p -= 3;		
+	/* p points to where the ' ' will go */
+	memcpy(p--, " GMT", 4);
+
+	a = t->tm_sec;
+	*p-- = '0' + a % 10;
+	*p-- = '0' + a / 10;
+	*p-- = ':';
+	a = t->tm_min;
+	*p-- = '0' + a % 10;
+	*p-- = '0' + a / 10;
+	*p-- = ':';
+	a = t->tm_hour;
+	*p-- = '0' + a % 10;
+	*p-- = '0' + a / 10;
+	*p-- = ' ';
+	a = 1900 + t->tm_year;
+	while (a) {
+		*p-- = '0' + a % 10;
+		a /= 10;
+	}
+	/* p points to an unused spot to where the space will go */
+	p -= 3;
+	/* p points to where the first char of the month will go */
+	memcpy(p--, month_tab + 4 * (t->tm_mon), 4);
+	*p-- = ' ';
+	a = t->tm_mday;
+	*p-- = '0' + a % 10;
+	*p-- = '0' + a / 10;
+	*p-- = ' ';
+	p -= 3;
+	memcpy(p, day_tab + t->tm_wday * 4, 4);
+}
 
 
 /*
@@ -390,14 +441,14 @@ char *get_commonlog_time(void)
 	char *p;
 	unsigned int a;
 	static char buf[27];
-	
+
 	time(&cur_time);
 	t = gmtime(&cur_time);
-	
+
 	p = buf + 27 - 1 - 5;
-	
+
 	memcpy(p--, " GMT] ", 6);
-	
+
 	a = t->tm_sec;
 	*p-- = '0' + a % 10;
 	*p-- = '0' + a / 10;
@@ -416,7 +467,7 @@ char *get_commonlog_time(void)
 		a /= 10;
 	}
 	/* p points to an unused spot */
-	*p-- = '/';	
+	*p-- = '/';
 	p -= 2;
 	memcpy(p--, month_tab + 4 * (t->tm_mon), 3);
 	*p-- = '/';
@@ -424,7 +475,7 @@ char *get_commonlog_time(void)
 	*p-- = '0' + a % 10;
 	*p-- = '0' + a / 10;
 	*p = '[';
-	return p; /* should be same as returning buf */
+	return p;					/* should be same as returning buf */
 }
 
 char *simple_itoa(int i)
@@ -434,10 +485,10 @@ char *simple_itoa(int i)
 	static char local[22];
 	char *p = &local[21];
 	*p-- = '\0';
-	while (i > 0) {
+	do {
 		*p-- = '0' + i % 10;
 		i /= 10;
-	}
+	} while (i > 0);
 	return p + 1;
 }
 
@@ -462,7 +513,7 @@ char *escape_string(char *inp, char *buf)
 	max = strlen(inp) * 3;
 
 	if (buf == NULL && max)
-		buf = malloc(sizeof(char) * max + 1);
+		buf = malloc(sizeof (char) * max + 1);
 
 	if (buf == NULL)
 		return NULL;
@@ -484,58 +535,61 @@ char *escape_string(char *inp, char *buf)
  * Name: req_write
  * 
  * Description: Buffers data before sending to client.
+ * Returns: -1 for error, otherwise how much is stored
  */
 
-int req_write(request *req, char *msg)
-		
+int req_write(request * req, char *msg)
 {
 	int msg_len;
-	
+
 	msg_len = strlen(msg);
-	if (!msg_len)
-		return 1;
+
+	if (req->status == CLOSE || !msg_len)
+		return req->buffer_end;
 
 	if (req->buffer_end + msg_len > BUFFER_SIZE) {
 		log_error_time();
 		fprintf(stderr, "Ran out of Buffer space!\n");
-		return 0;
+		req->status = CLOSE;
+		return -1;
 	}
-	
 	memcpy(req->buffer + req->buffer_end, msg, msg_len);
 	req->buffer_end += msg_len;
-	return 1;
+	return req->buffer_end;
 }
 
 /*
  * Name: flush_req
  * 
  * Description: Sends any backlogged buffer to client.
+ *
+ * Returns: -2 for error, -1 for blocked, otherwise how much is stored
  */
 
 int req_flush(request * req)
 {
 	int bytes_to_write;
-	
+
 	bytes_to_write = req->buffer_end - req->buffer_start;
 	if (bytes_to_write) {
 		int bytes_written;
-		
-		bytes_written = write(req->fd, 
-				req->buffer + req->buffer_start,
-				bytes_to_write);
-		
+
+		bytes_written = write(req->fd,
+							  req->buffer + req->buffer_start,
+							  bytes_to_write);
+
 		if (bytes_written == -1)
 			if (errno == EWOULDBLOCK || errno == EAGAIN)
-				return -1;			/* request blocked at the pipe level, but keep going */
+				return -1;		/* request blocked at the pipe level, but keep going */
 			else {
 				req->buffer_start = req->buffer_end = 0;
 				if (errno != EPIPE)
-					perror("buffer flush");	/* OK to disable if your logs get too big */
-				return 0;
+					perror("buffer flush");		/* OK to disable if your logs get too big */
+				return -2;
 			}
 		req->buffer_start += bytes_written;
-    }
+	}
 	if (req->buffer_start == req->buffer_end)
 		req->buffer_start = req->buffer_end = 0;
-	return 1; /* successful */
+	return req->buffer_end;		/* successful */
 }

@@ -80,4 +80,5 @@ void read_config_files()
 		}
 		server_name = strdup(hostentbuf->h_name);
 	}
+	init_ka_phrase();
 }

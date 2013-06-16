@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/socket.h> /* for SO_MAXCONN */
 #include <pwd.h>		/* struct passwd */
 #include <grp.h>		/* struct group */
 #include "globals.h"
@@ -48,11 +49,10 @@ char fakename[256];		/* ScriptAlias */
 };
 
 /* boa.conf tokens */
-%token B_PORT B_USER B_GROUP
+%token B_PORT B_BACKLOG B_USER B_GROUP
 %token B_SERVERADMIN B_SERVERROOT B_ERRORLOG B_ACCESSLOG
 %token B_CGILOG B_VERBOSECGILOGS
 %token B_SERVERNAME
-%token B_VIRTUALHOST
 
 /* srm.conf tokens */
 %token B_DOCUMENTROOT B_USERDIR B_DIRECTORYINDEX
@@ -78,7 +78,8 @@ BoaConfigStmts:		BoaConfigStmts BoaConfigStmt
 
 BoaConfigStmt:		
 			PortStmt
-	|		UserStmt
+	|		BackLogStmt
+	|		UserStmt	
 	|		GroupStmt
 	|		ServerAdminStmt
 	|		ServerRootStmt
@@ -87,7 +88,6 @@ BoaConfigStmt:
 	|		CgiLogStmt
 	|		VerboseCGILogsStmt
 	|		ServerNameStmt
-	|		VirtualHostStmt	
 	|		DocumentRootStmt
 	|		UserDirStmt
 	|		DirectoryIndexStmt
@@ -104,6 +104,13 @@ BoaConfigStmt:
 
 PortStmt:		B_PORT INTEGER
 		{ server_port = $2; }
+	;
+
+BackLogStmt:		B_BACKLOG INTEGER
+		{ backlog = $2; 
+		  if (backlog < 1 || backlog > SO_MAXCONN)
+		    backlog = SO_MAXCONN;
+		}
 	;
 
 UserStmt:		B_USER STRING
@@ -180,10 +187,6 @@ ServerNameStmt:		B_SERVERNAME STRING
 			free(server_name);
 		  server_name = strdup($2); 
 		}
-	;
-
-VirtualHostStmt:	B_VIRTUALHOST
-		{ virtualhost = 1; }
 	;
 
 DocumentRootStmt:	B_DOCUMENTROOT STRING

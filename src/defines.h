@@ -30,10 +30,10 @@
 
 /***** Various stuff that you may want to tweak, but probably shouldn't *****/
 
-#define SOCKETBUF_SIZE				4096
+#define SOCKETBUF_SIZE				8192
 #define MAX_HEADER_LENGTH			1024
 #define CLIENT_STREAM_SIZE			8192
-#define BUFFER_SIZE					SOCKETBUF_SIZE
+#define BUFFER_SIZE				CLIENT_STREAM_SIZE
 
 #define MIME_HASHTABLE_SIZE			47
 #define ALIAS_HASHTABLE_SIZE		17
@@ -49,6 +49,10 @@
        what you are doing *****/
 
 #include <dirent.h>				/* for MAXNAMLEN */
+#include <sys/socket.h>
+#ifndef SO_MAXCONN
+#define SO_MAXCONN 100
+#endif
 
 #define MAX_SITENAME_LENGTH			256
 #define MAX_CGI_VARS				50
@@ -64,7 +68,7 @@
 
 #define COMMON_CGI_VARS				8
 
-#define SERVER_VERSION				"Boa/0.93.14.1"
+#define SERVER_VERSION				"Boa/0.93.15"
 #define CGI_VERSION				"CGI/1.1"
 
 /******************* RESPONSE CLASSES *****************/
@@ -146,7 +150,11 @@
 #define WRITE                   6
 #define PIPE_READ               7	/* used to read from pipe */
 #define PIPE_WRITE              8
-#define CLOSE					9	/* used only for CGI_STATUS */
+#define CLOSE			9
+
+#define CGI_READ				0
+#define CGI_WRITE				1
+#define CGI_CLOSE				2	/* used only for CGI_STATUS */
 
 #define CLIENT_WRITABLE(status) (status==WRITE || status==PIPE_WRITE)
 #define CLIENT_READABLE(status) (status < BODY_WRITE)

@@ -42,6 +42,7 @@ int lineno = 1;
 <MIME>[^ \t\n]+\/[^ \t\n]+	{ yylval.sval = yytext; return MIMETYPE; }
 
 Port		{ BEGIN INITIAL; return B_PORT; }
+BackLog         { BEGIN INITIAL; return B_BACKLOG; }
 User		{ BEGIN INITIAL; return B_USER; }
 Group		{ BEGIN INITIAL; return B_GROUP; }
 ServerAdmin	{ BEGIN INITIAL; return B_SERVERADMIN; }
@@ -51,7 +52,6 @@ AccessLog	{ BEGIN INITIAL; return B_ACCESSLOG; }
 CgiLog		{ BEGIN INITIAL; return B_CGILOG; }
 VerboseCGILogs	{ BEGIN INITIAL; return B_VERBOSECGILOGS; }
 ServerName	{ BEGIN INITIAL; return B_SERVERNAME; }
-VirtualHost { BEGIN INITIAL; return B_VIRTUALHOST; }
 Redirect	{ BEGIN INITIAL; return B_REDIRECT; }
 
 DocumentRoot	{ BEGIN INITIAL; return B_DOCUMENTROOT; }

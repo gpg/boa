@@ -39,7 +39,6 @@
 #include <arpa/inet.h>			/* inet_ntoa */
 
 #include <unistd.h>
-#include <sys/mman.h>			/* mmap */
 #include <sys/time.h>			/* select */
 #include <sys/resource.h>		/* setrlimit */
 #include <sys/types.h>			/* socket, bind, accept */
@@ -116,6 +115,8 @@ void free_requests(void);
 
 /* response */
 
+void init_ka_phrase(void);
+void print_ka_phrase(void);
 void print_content_type(request * req);
 void print_content_length(request * req);
 void print_last_modified(request * req);
@@ -149,7 +150,6 @@ int init_cgi(request * req);
 void init_signals(void);
 void sighup_run(void);
 void sigchld_run(void);
-void lame_duck_mode_run(void);
 
 /* util */
 
@@ -162,11 +162,12 @@ char *escape_uri(char *uri);
 void close_unused_fds(request * head);
 void fixup_server_root(void);
 char *get_commonlog_time(void);
-int req_write_rfc822_time(request *req, time_t s);
+int req_write_rfc822_time(request * req, time_t s);
+void rfc822_time_buf(char *buf, time_t s);
 char *simple_itoa(int i);
 char *escape_string(char *inp, char *buf);
-int req_write(request *req, char *msg);
-int req_flush(request *req);
+int req_write(request * req, char *msg);
+int req_flush(request * req);
 
 /* cgi_header.c */
 int process_cgi_header(request * req);

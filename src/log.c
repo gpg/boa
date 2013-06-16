@@ -1,3 +1,4 @@
+
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <psp@well.com>
@@ -49,33 +50,53 @@ void open_logs(void)
 			perror("logfile open");
 			exit(1);
 		}
-		setvbuf(access_log, (char *) NULL, _IOLBF, 0); 
+		/* line buffer the access log */
+		setvbuf(access_log, (char *) NULL, _IOLBF, 0);
 	} else
 		access_log = NULL;
 
-	if (cgi_log_name) {
-		cgi_log_fd = open(cgi_log_name, 
-				O_WRONLY | O_CREAT | O_APPEND,
-				S_IRUSR | S_IWUSR | S_IROTH | S_IRGRP);
+	if (!cgi_log_name)
+		cgi_log_name = strdup("/dev/null");
+
+	{
+		cgi_log_fd = open(cgi_log_name,
+						  O_WRONLY | O_CREAT | O_APPEND,
+						  S_IRUSR | S_IWUSR | S_IROTH | S_IRGRP);
 		if (cgi_log_fd == -1) {
 			log_error_time();
 			perror("open cgi_log");
 			free(cgi_log_name);
 			cgi_log_name = NULL;
 			cgi_log_fd = 0;
+		} else {
+			if (fcntl(cgi_log_fd, F_SETFD, 1) == -1) {
+				perror("unable to set close-on-exec flag for cgi_log!");
+				close(cgi_log_fd);
+				cgi_log_fd = 0;
+				free(cgi_log_name);
+				cgi_log_name = NULL;
+			}
 		}
 	}
-	
+
 	if (!error_log_name) {
 		fputs("No ErrorLog directive specified in boa.conf.\n", stderr);
 		exit(1);
 	}
 	if (!(error_log = fopen(error_log_name, "a")))
 		die(NO_OPEN_LOG);
-	
+
 	/* redirect stderr to error_log */
-	dup2(fileno(error_log), STDERR_FILENO);
-	fclose(error_log);	
+	if (dup2(fileno(error_log), STDERR_FILENO) == -1) {
+		perror("unable to dup2 the error log");
+		exit(1);
+	}
+	/* set the close-on-exec to true */
+	if (fcntl(STDERR_FILENO, F_SETFD, 1) == -1) {
+		perror("unable to fcntl the error log");
+		exit(1);
+	}
+	fclose(error_log);
 }
 
 /*
@@ -98,16 +119,7 @@ void close_access_log(void)
 void log_access(request * req)
 {
 	if (access_log) {
-		if (req->local_ip_addr)
- 			fprintf(access_log, "%s - - %s\"%s\" %d %ld \"http://%s%s\" -\n",
- 				req->remote_ip_addr,
- 				get_commonlog_time(),
- 				req->logline,
- 				req->response_status,
- 				req->filepos,
- 				req->local_ip_addr, req->request_uri);
-		else
-			fprintf(access_log, "%s - - %s\"%s\" %d %ld\n",
+		fprintf(access_log, "%s - - %s\"%s\" %d %ld\n",
 				req->remote_ip_addr,
 				get_commonlog_time(),
 				req->logline,
@@ -143,22 +155,21 @@ void log_error_time()
  * null pointers, I changed from fprintf to fputs.
  *
  * Example output:
-[08/Nov/1997:01:05:03] request from 192.228.331.232 "GET /~joeblow/dir/ HTTP/1.0" ("/usr/user1/joeblow/public_html/dir/"): write: Broken pipe
+ [08/Nov/1997:01:05:03] request from 192.228.331.232 "GET /~joeblow/dir/ HTTP/1.0" ("/usr/user1/joeblow/public_html/dir/"): write: Broken pipe
  */
 
 void log_error_doc(request * req)
 {
 	int errno_save = errno;
-	
+
 	fprintf(stderr, "%srequest from %s \"%s\" (\"%s\"): ",
-			get_commonlog_time(), 
-			(req->remote_ip_addr != NULL ? 
-				req->remote_ip_addr : "(unknown)"),
+			get_commonlog_time(),
+			req->remote_ip_addr,
 			(req->logline != NULL ?
-				req->logline : "(null)"),
+			 req->logline : "(null)"),
 			(req->pathname != NULL ?
-				req->pathname : "(null)"));
-	
+			 req->pathname : "(null)"));
+
 	errno = errno_save;
 }
 

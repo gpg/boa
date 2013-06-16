@@ -49,7 +49,7 @@ struct request {				/* pending requests */
 
 	int client_stream_pos;		/* how much have we read... */
 	int pipeline_start;			/* how much have we processed */
-	char *header_line;		
+	char *header_line;
 	char *header_end;
 	int buffer_start;
 	int buffer_end;
@@ -59,7 +59,6 @@ struct request {				/* pending requests */
 
 	char *if_modified_since;	/* If-Modified-Since */
 	char remote_ip_addr[20];	/* after inet_ntoa */
-	char *local_ip_addr;		/* used for VIRTUAL_HOST */
 	int remote_port;			/* could be used for ident */
 
 	time_t last_modified;		/* Last-modified: */
@@ -83,8 +82,8 @@ struct request {				/* pending requests */
 
 	struct request *next;		/* next */
 	struct request *prev;		/* previous */
-	
-	char buffer[BUFFER_SIZE + 1];			/* generic I/O buffer */
+
+	char buffer[BUFFER_SIZE + 1];	/* generic I/O buffer */
 	char request_uri[MAX_HEADER_LENGTH + 1];	/* uri */
 	char client_stream[CLIENT_STREAM_SIZE];		/* data from client - fit or be hosed */
 #ifdef ACCEPT_ON
@@ -138,13 +137,13 @@ extern char *error_log_name;
 extern char *cgi_log_name;
 extern int cgi_log_fd;
 
+extern int server_s;
 extern int server_port;
 extern uid_t server_uid;
 extern gid_t server_gid;
 extern char *server_admin;
 extern char *server_root;
 extern char *server_name;
-extern int virtualhost;
 
 extern char *document_root;
 extern char *user_dir;
@@ -161,5 +160,7 @@ extern int sigchld_flag;
 extern int lame_duck_mode;
 
 extern int verbose_cgi_logs;
+
+extern int backlog;
 
 #endif

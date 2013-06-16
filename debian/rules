@@ -1,0 +1,71 @@
+#!/usr/bin/make -f
+# Sample debian.rules file - for GNU Hello (1.3).
+# Copyright 1994,1995 by Ian Jackson.
+# I hereby give you perpetual unlimited permission to copy,
+# modify and relicense this file, provided that you do not remove
+# my name from the file itself.  (I assert my moral right of
+# paternity under the Copyright, Designs and Patents Act 1988.)
+# This file may have to be extensively modified
+#
+# Modified to be a prototype for debmake by Christoph Lameter <clameter@debian.org>
+
+export DH_VERBOSE=1
+
+package=boa
+
+build:	build-stamp
+
+build-stamp:
+	dh_testdir
+	cd src;./configure;make depend;make
+	cd docs;make boa.dvi;make boa.html;ln -s boa.html index.html
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+
+	rm -f build-stamp
+
+	-cd src;make mrclean
+	-cd docs;make clean;rm -f index.html
+	
+	dh_clean
+
+binary-indep:	build
+
+binary-arch:	build
+	dh_testdir
+	dh_testroot
+
+	dh_clean -k
+	dh_installdirs
+
+	dh_installdocs README Gnu_License docs
+	dh_installexamples examples
+	dh_installmenu
+	dh_installinit
+	dh_installcron
+	dh_installmanpages
+	dh_installchangelogs src/Changelog
+
+	install src/boa debian/tmp/usr/sbin
+	install src/boa_indexer debian/tmp/usr/lib/cgi-bin
+	install boa.conf debian/tmp/etc/boa/boa.conf
+
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_suidregister
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_makeshlibs
+	dh_md5sums
+	dh_builddeb
+
+# Below here is fairly generic really
+
+binary:		binary-indep binary-arch
+
+.PHONY: build clean binary-arch binary-indep binary

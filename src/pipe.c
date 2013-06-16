@@ -1,3 +1,4 @@
+
 /*
  *  Boa, an http server
  *  Based on code Copyright (C) 1995 Paul Phillips <psp@well.com>
@@ -33,20 +34,28 @@
 
 int read_from_pipe(request * req)
 {
-	int bytes_read, bytes_to_read = 
-			BUFFER_SIZE - (req->header_end - req->buffer);
-	
+	int bytes_read, bytes_to_read =
+	BUFFER_SIZE - (req->header_end - req->buffer);
+
 	if (bytes_to_read == 0) {	/* buffer full */
 		req->status = PIPE_WRITE;
-		if (req->cgi_status == READ_HEADER)
+		if (req->cgi_status == CGI_READ) {
+			*req->header_end = '\0';	/* points to end of read data */
 			return process_cgi_header(req);
+		}
 		return 1;
 	}
-	
-	bytes_read = read(req->data_fd, 
-		req->header_end,
-		bytes_to_read);
-	
+	bytes_read = read(req->data_fd,
+					  req->header_end,
+					  bytes_to_read);
+#ifdef FASCIST_LOGGING
+	if (bytes_read > 0)
+		fprintf(stderr, "pipe.c - read %d bytes: \"%s\"\n", bytes_read,
+				req->header_end);
+	else
+		fprintf(stderr, "pipe.c - read %d bytes\n", bytes_read);
+#endif
+
 	if (bytes_read == -1) {
 		if (errno == EWOULDBLOCK || errno == EAGAIN)
 			return -1;			/* request blocked at the pipe level, but keep going */
@@ -56,11 +65,12 @@ int read_from_pipe(request * req)
 		}
 	} else if (bytes_read == 0) {	/* eof, write rest of buffer */
 		req->status = PIPE_WRITE;
-		if (req->cgi_status == READ_HEADER) {	/* hasn't processed header yet */
-			req->cgi_status = CLOSE;
+		if (req->cgi_status == CGI_READ) {	/* hasn't processed header yet */
+			req->cgi_status = CGI_CLOSE;
+			*req->header_end = '\0';	/* points to end of read data */
 			return process_cgi_header(req);		/* cgi_status will change */
 		}
-		req->cgi_status = CLOSE;
+		req->cgi_status = CGI_CLOSE;
 		return 1;
 	}
 	req->header_end += bytes_read;
@@ -82,18 +92,18 @@ int write_from_pipe(request * req)
 	int bytes_written, bytes_to_write = req->header_end - req->header_line;
 
 	if (bytes_to_write == 0) {
-		if (req->cgi_status == CLOSE)
+		if (req->cgi_status == CGI_CLOSE)
 			return 0;
 
 		req->status = PIPE_READ;
 
-		
-				req->header_end = req->header_line = req->buffer;
+
+		req->header_end = req->header_line = req->buffer;
 		return 1;
 	}
 	bytes_written = write(req->fd,
-			req->header_line,
-			bytes_to_write);
+						  req->header_line,
+						  bytes_to_write);
 
 	if (bytes_written == -1)
 		if (errno == EWOULDBLOCK || errno == EAGAIN)
@@ -103,7 +113,6 @@ int write_from_pipe(request * req)
 			perror("pipe write");	/* OK to disable if your logs get too big */
 			return 0;
 		}
-		
 	req->header_line += bytes_written;
 	req->filepos += bytes_written;
 

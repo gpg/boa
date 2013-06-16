@@ -27,6 +27,7 @@
 #include <grp.h>
 
 int server_s;					/* boa socket */
+int backlog = SO_MAXCONN;
 struct sockaddr_in server_sockaddr;		/* boa socket address */
 
 struct timeval req_timeout;		/* timeval for select */
@@ -64,12 +65,6 @@ int main(int argc, char **argv)
 
 	fixup_server_root();
 
-/* HP-UX doesn't support this */
-#ifdef RLIM_INFINITY
-	rl.rlim_cur = RLIM_INFINITY;
-	setrlimit(RLIMIT_CORE, &rl);
-#endif
-
 	read_config_files();
 	open_logs();
 	create_common_env();
@@ -82,7 +77,7 @@ int main(int argc, char **argv)
 		die(NO_FCNTL);
 
 	if ((setsockopt(server_s, SOL_SOCKET, SO_REUSEADDR, (void *) &sock_opt,
-					sizeof(sock_opt))) == -1)
+					sizeof (sock_opt))) == -1)
 		die(NO_SETSOCKOPT);
 
 	/* internet socket */
@@ -91,11 +86,11 @@ int main(int argc, char **argv)
 	server_sockaddr.sin_port = htons(server_port);
 
 	if (bind(server_s, (struct sockaddr *) &server_sockaddr,
-			 sizeof(server_sockaddr)) == -1)
+			 sizeof (server_sockaddr)) == -1)
 		die(NO_BIND);
 
 	/* listen: large number just in case your kernel is nicely tweaked */
-	if (listen(server_s, 100) == -1)
+	if (listen(server_s, backlog) == -1)
 		die(NO_LISTEN);
 
 	init_signals();
@@ -106,6 +101,18 @@ int main(int argc, char **argv)
 		if (fork())
 			exit(0);
 
+	/* close server socket on exec 
+	 * so cgi's can't write to it */
+
+	if (fcntl(server_s, F_SETFD, 1) == -1) {
+		perror("can't set close-on-exec on server socket!");
+		exit(0);
+	}
+	/* close STDIN on exec so cgi's can't read from it */
+	if (fcntl(STDIN_FILENO, F_SETFD, 1) == -1) {
+		perror("can't set close-on-exec on STDIN!");
+		exit(0);
+	}
 	/* give away our privs if we can */
 
 	if (getuid() == 0) {
@@ -123,7 +130,8 @@ int main(int argc, char **argv)
 		if (server_gid || server_uid) {
 			log_error_time();
 			fprintf(stderr, "Warning: "
-					"Not running as root: no attempt to change to uid %d gid %d\n",
+					"Not running as root: no attempt to change"
+					" to uid %d gid %d\n",
 					server_uid, server_gid);
 		}
 		server_gid = getgid();
@@ -133,33 +141,28 @@ int main(int argc, char **argv)
 	/* main loop */
 
 	timestamp();
+
 	FD_ZERO(&block_read_fdset);
 	FD_ZERO(&block_write_fdset);
-	
+
 	status.requests = 0;
 	status.errors = 0;
 
-	fdset_update();				/* set server_s and req_timeout */
+	fdset_update();
+	/* set server_s and req_timeout */
 
 	while (1) {
 		if (sighup_flag)
 			sighup_run();
 		if (sigchld_flag)
 			sigchld_run();
-		
-		switch(lame_duck_mode) {
-			case 1:
-					lame_duck_mode_run();
-					FD_CLR(server_s, &block_read_fdset);
-					close(server_s);
-			case 2:
-				if (!request_ready && !request_block)
-					die(SHUTDOWN);
-				break;
-			default:
-		}
+
+		if (lame_duck_mode && !request_ready && !request_block)
+			die(SHUTDOWN);
+
 		if (!request_ready) {
-			if (select(OPEN_MAX, &block_read_fdset, &block_write_fdset, NULL,
+			if (select(OPEN_MAX, &block_read_fdset,
+					   &block_write_fdset, NULL,
 					   (request_block ? &req_timeout : NULL)) == -1)
 				if (errno == EINTR || errno == EBADF)
 					continue;	/* while(1) */
@@ -169,9 +172,11 @@ int main(int argc, char **argv)
 			if (FD_ISSET(server_s, &block_read_fdset))
 				get_request();
 
-			fdset_update();		/* move selected req's from request_block to request_ready */
+			fdset_update();
+			/* move selected req's from request_block to request_ready */
 		}
-		process_requests();		/* any blocked req's move from request_ready to request_block */
+		process_requests();
+		/* any blocked req's move from request_ready to request_block */
 	}
 }
 
@@ -203,16 +208,18 @@ void fdset_update(void)
 		 * has been read via header position, etc... */
 		if (current->kacount && (time_since >= ka_timeout) && !current->logline) {
 			SQUASH_KA(current);
+			current->status = CLOSE;
 			free_request(&request_block, current);
 		} else if (time_since > REQUEST_TIMEOUT) {
 			log_error_doc(current);
 			fputs("connection timed out\n", stderr);
 			SQUASH_KA(current);
+			current->status = CLOSE;
 			free_request(&request_block, current);
 		} else if (current->buffer_end) {
 			if (FD_ISSET(current->fd, &block_write_fdset))
 				ready_request(current);
-		} else {			
+		} else {
 			switch (current->status) {
 			case PIPE_WRITE:
 			case WRITE:

@@ -33,9 +33,8 @@ int process_cgi_header(request * req)
 	char *buf;
 	char *c;
 
-	req->cgi_status = WRITE;
+	req->cgi_status = CGI_WRITE;
 	buf = req->header_line;
-	*req->header_end = '\0';	/* points to end of read data */
 
 	c = strstr(buf, "\n\r\n");
 	if (c == NULL) {
@@ -92,7 +91,7 @@ int process_cgi_header(request * req)
 		send_r_request_ok(req);	/* does not terminate */
 
 	if (req->method == M_HEAD) {
-		*c = '\0'; /* terminate headers */
+		*c = '\0';				/* terminate headers */
 		req_write(req, req->header_line);
 		req_write(req, "\r\n\r\n");
 		req_flush(req);

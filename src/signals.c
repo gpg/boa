@@ -102,12 +102,16 @@ void sigterm(int dummy)
 	lame_duck_mode = 1;
 }
 
-void lame_duck_mode_run(void)
+void lame_duck_mode_run(int server_s2)
 {
 	log_error_time();
 	fputs("caught SIGTERM, starting shutdown\n", stderr);
+	FD_CLR(server_s, &block_read_fdset);
+	close(server_s);
 	lame_duck_mode = 2;
 }
+
+
 
 void sighup(int dummy)
 {
@@ -166,9 +170,8 @@ void sigchld_run(void)
 }
 
 void sigusr1(int dummy)
-		
 {
 	log_error_time();
-	fprintf(stderr, "%ld requests, %ld errors\n", 
+	fprintf(stderr, "%ld requests, %ld errors\n",
 			status.requests, status.errors);
 }

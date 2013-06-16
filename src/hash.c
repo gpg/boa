@@ -67,7 +67,7 @@ void add_mime_type(char *extension, char *type)
 	current = mime_hashtable[hash];
 
 	if (!current) {
-		mime_hashtable[hash] = (hash_struct *) malloc(sizeof(hash_struct));
+		mime_hashtable[hash] = (hash_struct *) malloc(sizeof (hash_struct));
 		mime_hashtable[hash]->key = strdup(extension);
 		mime_hashtable[hash]->value = strdup(type);
 		mime_hashtable[hash]->next = NULL;
@@ -81,7 +81,7 @@ void add_mime_type(char *extension, char *type)
 				break;
 		}
 
-		current->next = (hash_struct *) malloc(sizeof(hash_struct));
+		current->next = (hash_struct *) malloc(sizeof (hash_struct));
 		current = current->next;
 
 		current->key = strdup(extension);
@@ -172,7 +172,7 @@ char *get_home_dir(char *name)
 			return NULL;
 
 		passwd_hashtable[hash] =
-			(hash_struct *) malloc(sizeof(hash_struct));
+		  (hash_struct *) malloc(sizeof (hash_struct));
 
 		passwd_hashtable[hash]->key = strdup(name);
 		passwd_hashtable[hash]->value = strdup(passwdbuf->pw_dir);
@@ -196,7 +196,7 @@ char *get_home_dir(char *name)
 
 	/* exists -- have to add to hashtable */
 
-	trailer->next = (hash_struct *) malloc(sizeof(hash_struct));
+	trailer->next = (hash_struct *) malloc(sizeof (hash_struct));
 	current = trailer->next;
 
 	current->key = strdup(name);

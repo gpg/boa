@@ -1,0 +1,530 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/darren@hiebert.com/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://darren.hiebert.com/ctags/index.html	/official site/
+!_TAG_PROGRAM_VERSION	2.3.2	/with C++ and Java support/
+ALIAS	defines.h	170;"	d
+ALIAS_HASHTABLE_SIZE	defines.h	39;"	d
+ARGC_MAX	cgi.c	201;"	d	file:
+BEGIN	lex.yy.c	79;"	d	file:
+BODY_READ	defines.h	148;"	d
+BODY_WRITE	defines.h	149;"	d
+BUFFER_SIZE	defines.h	36;"	d
+B_ACCESSLOG	y.tab.c	15;"	d	file:
+B_ACCESSLOG	y.tab.h	12;"	d
+B_ADDTYPE	y.tab.c	25;"	d	file:
+B_ADDTYPE	y.tab.h	22;"	d
+B_ALIAS	y.tab.c	26;"	d	file:
+B_ALIAS	y.tab.h	23;"	d
+B_BACKLOG	y.tab.c	9;"	d	file:
+B_BACKLOG	y.tab.h	6;"	d
+B_CGILOG	y.tab.c	16;"	d	file:
+B_CGILOG	y.tab.h	13;"	d
+B_DEFAULTTYPE	y.tab.c	24;"	d	file:
+B_DEFAULTTYPE	y.tab.h	21;"	d
+B_DIRECTORYINDEX	y.tab.c	21;"	d	file:
+B_DIRECTORYINDEX	y.tab.h	18;"	d
+B_DIRECTORYMAKER	y.tab.c	22;"	d	file:
+B_DIRECTORYMAKER	y.tab.h	19;"	d
+B_DOCUMENTROOT	y.tab.c	19;"	d	file:
+B_DOCUMENTROOT	y.tab.h	16;"	d
+B_ERRORLOG	y.tab.c	14;"	d	file:
+B_ERRORLOG	y.tab.h	11;"	d
+B_GROUP	y.tab.c	11;"	d	file:
+B_GROUP	y.tab.h	8;"	d
+B_KEEPALIVEMAX	y.tab.c	29;"	d	file:
+B_KEEPALIVEMAX	y.tab.h	26;"	d
+B_KEEPALIVETIMEOUT	y.tab.c	30;"	d	file:
+B_KEEPALIVETIMEOUT	y.tab.h	27;"	d
+B_MIMETYPES	y.tab.c	23;"	d	file:
+B_MIMETYPES	y.tab.h	20;"	d
+B_PORT	y.tab.c	8;"	d	file:
+B_PORT	y.tab.h	5;"	d
+B_REDIRECT	y.tab.c	28;"	d	file:
+B_REDIRECT	y.tab.h	25;"	d
+B_SCRIPTALIAS	y.tab.c	27;"	d	file:
+B_SCRIPTALIAS	y.tab.h	24;"	d
+B_SERVERADMIN	y.tab.c	12;"	d	file:
+B_SERVERADMIN	y.tab.h	9;"	d
+B_SERVERNAME	y.tab.c	18;"	d	file:
+B_SERVERNAME	y.tab.h	15;"	d
+B_SERVERROOT	y.tab.c	13;"	d	file:
+B_SERVERROOT	y.tab.h	10;"	d
+B_USER	y.tab.c	10;"	d	file:
+B_USER	y.tab.h	7;"	d
+B_USERDIR	y.tab.c	20;"	d	file:
+B_USERDIR	y.tab.h	17;"	d
+B_VERBOSECGILOGS	y.tab.c	17;"	d	file:
+B_VERBOSECGILOGS	y.tab.h	14;"	d
+CGI	defines.h	165;"	d
+CGI_CLOSE	defines.h	157;"	d
+CGI_MIME_TYPE	defines.h	44;"	d
+CGI_READ	defines.h	155;"	d
+CGI_VERSION	defines.h	72;"	d
+CGI_WRITE	defines.h	156;"	d
+CLIENT_READABLE	defines.h	160;"	d
+CLIENT_STREAM_SIZE	defines.h	35;"	d
+CLIENT_WRITABLE	defines.h	159;"	d
+CLOSE	defines.h	153;"	d
+COMMON_CGI_VARS	defines.h	69;"	d
+DEFAULT_PATH	defines.h	45;"	d
+ECHO	lex.yy.c	742;"	d	file:
+EOB_ACT_CONTINUE_SCAN	lex.yy.c	104;"	d	file:
+EOB_ACT_END_OF_FILE	lex.yy.c	105;"	d	file:
+EOB_ACT_LAST_MATCH	lex.yy.c	106;"	d	file:
+FLEX_SCANNER	lex.yy.c	7;"	d	file:
+GETPWUID	defines.h	137;"	d
+GUNZIP	config.h	41;"	d
+HAVE_DIRENT_H	config.h	68;"	d
+HAVE_FCNTL_H	config.h	71;"	d
+HAVE_GETCWD	config.h	44;"	d
+HAVE_GETHOSTNAME	config.h	47;"	d
+HAVE_GETPAGESIZE	config.h	50;"	d
+HAVE_LIBNSL	config.h	92;"	d
+HAVE_LIMITS_H	config.h	74;"	d
+HAVE_MKDIR	config.h	53;"	d
+HAVE_MMAP	config.h	13;"	d
+HAVE_SELECT	config.h	56;"	d
+HAVE_SOCKET	config.h	59;"	d
+HAVE_STRDUP	config.h	62;"	d
+HAVE_STRSTR	config.h	65;"	d
+HAVE_SYS_TIME_H	config.h	86;"	d
+HAVE_SYS_WAIT_H	config.h	16;"	d
+HAVE_UNISTD_H	config.h	89;"	d
+HEX	request.c	93;"	d	file:
+HEX_TO_DECIMAL	util.c	30;"	d	file:
+INITGROUPS	defines.h	138;"	d
+INITIAL	lex.yy.c	629;"	d	file:
+INTEGER	y.tab.c	33;"	d	file:
+INTEGER	y.tab.h	30;"	d
+INT_TO_HEX	index_dir.c	33;"	d	file:
+INT_TO_HEX	util.c	34;"	d	file:
+KA_ACTIVE	defines.h	178;"	d
+KA_INACTIVE	defines.h	176;"	d
+KA_STOPPED	defines.h	177;"	d
+MAP_OPTIONS	compat.h	39;"	d
+MAP_OPTIONS	compat.h	41;"	d
+MAX_ACCEPT_LENGTH	defines.h	64;"	d
+MAX_ACCEPT_LENGTH	defines.h	66;"	d
+MAX_CGI_VARS	defines.h	58;"	d
+MAX_FILE_LENGTH	defines.h	60;"	d
+MAX_FILE_LENGTH	index_dir.c	29;"	d	file:
+MAX_HEADER_LENGTH	defines.h	34;"	d
+MAX_LOG_LENGTH	defines.h	59;"	d
+MAX_PATH_LENGTH	defines.h	61;"	d
+MAX_PATH_LENGTH	index_dir.c	30;"	d	file:
+MAX_SITENAME_LENGTH	defines.h	57;"	d
+MIME	lex.yy.c	660;"	d	file:
+MIMETYPE	y.tab.c	31;"	d	file:
+MIMETYPE	y.tab.h	28;"	d
+MIME_HASHTABLE_SIZE	defines.h	38;"	d
+M_DELETE	defines.h	120;"	d
+M_GET	defines.h	116;"	d
+M_HEAD	defines.h	117;"	d
+M_LINK	defines.h	121;"	d
+M_POST	defines.h	119;"	d
+M_PUT	defines.h	118;"	d
+M_UNLINK	defines.h	122;"	d
+NOBLOCK	compat.h	33;"	d
+NOBLOCK	compat.h	35;"	d
+NO_BIND	defines.h	131;"	d
+NO_CREATE_SOCKET	defines.h	128;"	d
+NO_FCNTL	defines.h	129;"	d
+NO_LISTEN	defines.h	132;"	d
+NO_OPEN_LOG	defines.h	135;"	d
+NO_SETGID	defines.h	133;"	d
+NO_SETSOCKOPT	defines.h	130;"	d
+NO_SETUID	defines.h	134;"	d
+NO_ZERO_FILL_LENGTH	globals.h	94;"	d
+NPH	defines.h	166;"	d
+ONE_CR	defines.h	145;"	d
+ONE_LF	defines.h	146;"	d
+OPEN_MAX	compat.h	29;"	d
+OUT_OF_MEMORY	defines.h	127;"	d
+PASSWD_HASHTABLE_SIZE	defines.h	40;"	d
+PIPE_READ	defines.h	151;"	d
+PIPE_READABLE	defines.h	161;"	d
+PIPE_WRITE	defines.h	152;"	d
+READ_HEADER	defines.h	144;"	d
+REDIRECT	defines.h	172;"	d
+REJECT	lex.yy.c	623;"	d	file:
+REQUEST_TIMEOUT	defines.h	42;"	d
+R_ACCEPTED	defines.h	86;"	d
+R_BAD_GATEWAY	defines.h	109;"	d
+R_BAD_REQUEST	defines.h	95;"	d
+R_BAD_VERSION	defines.h	112;"	d
+R_CLIENT_ERROR	defines.h	79;"	d
+R_CONFLICT	defines.h	104;"	d
+R_CREATED	defines.h	85;"	d
+R_ERROR	defines.h	107;"	d
+R_FORBIDDEN	defines.h	98;"	d
+R_GATEWAY_TO	defines.h	111;"	d
+R_GONE	defines.h	105;"	d
+R_INFORMATIONAL	defines.h	76;"	d
+R_METHOD_NA	defines.h	100;"	d
+R_MOVED_PERM	defines.h	91;"	d
+R_MOVED_TEMP	defines.h	92;"	d
+R_MULTIPLE	defines.h	90;"	d
+R_NONE_ACC	defines.h	101;"	d
+R_NOT_FOUND	defines.h	99;"	d
+R_NOT_IMP	defines.h	108;"	d
+R_NOT_MODIFIED	defines.h	93;"	d
+R_NO_CONTENT	defines.h	88;"	d
+R_PAYMENT	defines.h	97;"	d
+R_PROVISIONAL	defines.h	87;"	d
+R_PROXY	defines.h	102;"	d
+R_REDIRECTION	defines.h	78;"	d
+R_REQUEST_OK	defines.h	84;"	d
+R_REQUEST_TO	defines.h	103;"	d
+R_SERVER_ERROR	defines.h	80;"	d
+R_SERVICE_UNAV	defines.h	110;"	d
+R_SUCCESS	defines.h	77;"	d
+R_UNAUTHORIZED	defines.h	96;"	d
+SCRIPTALIAS	defines.h	171;"	d
+SELECT	defines.h	136;"	d
+SERVER_ERROR	defines.h	126;"	d
+SERVER_ROOT	defines.h	28;"	d
+SERVER_VERSION	defines.h	71;"	d
+SHUTDOWN	defines.h	140;"	d
+SOCKETBUF_SIZE	defines.h	33;"	d
+SO_MAXCONN	defines.h	54;"	d
+SQUASH_KA	defines.h	180;"	d
+STDC_HEADERS	config.h	30;"	d
+STRING	y.tab.c	32;"	d	file:
+STRING	y.tab.h	29;"	d
+TIME_WITH_SYS_TIME	config.h	33;"	d
+TWO_CR	defines.h	147;"	d
+WRITE	defines.h	150;"	d
+YYABORT	y.tab.c	343;"	d	file:
+YYACCEPT	y.tab.c	342;"	d	file:
+YYBACKUP	y.tab.c	351;"	d	file:
+YYBISON	y.tab.c	6;"	d	file:
+YYEMPTY	y.tab.c	340;"	d	file:
+YYEOF	y.tab.c	341;"	d	file:
+YYERRCODE	y.tab.c	364;"	d	file:
+YYERROR	y.tab.c	344;"	d	file:
+YYFAIL	y.tab.c	349;"	d	file:
+YYFINAL	y.tab.c	95;"	d	file:
+YYFLAG	y.tab.c	96;"	d	file:
+YYINITDEPTH	y.tab.c	411;"	d	file:
+YYLAST	y.tab.c	253;"	d	file:
+YYLEX	y.tab.c	367;"	d	file:
+YYLEX	y.tab.c	373;"	d	file:
+YYLEX	y.tab.c	375;"	d	file:
+YYLEX	y.tab.c	379;"	d	file:
+YYLEX	y.tab.c	381;"	d	file:
+YYMAXDEPTH	y.tab.c	422;"	d	file:
+YYNTBASE	y.tab.c	97;"	d	file:
+YYPARSE_PARAM_ARG	y.tab.c	479;"	d	file:
+YYPARSE_PARAM_ARG	y.tab.c	482;"	d	file:
+YYPARSE_PARAM_ARG	y.tab.c	486;"	d	file:
+YYPARSE_PARAM_DECL	y.tab.c	480;"	d	file:
+YYPARSE_PARAM_DECL	y.tab.c	483;"	d	file:
+YYPARSE_PARAM_DECL	y.tab.c	487;"	d	file:
+YYPOPSTACK	y.tab.c	512;"	d	file:
+YYPOPSTACK	y.tab.c	514;"	d	file:
+YYRECOVERING	y.tab.c	350;"	d	file:
+YYSTATE	lex.yy.c	86;"	d	file:
+YYSTYPE	y.tab.c	/^} YYSTYPE;$/;"	t	file:
+YYSTYPE	y.tab.h	/^} YYSTYPE;$/;"	t
+YYTERROR	y.tab.c	363;"	d	file:
+YYTRANSLATE	y.tab.c	99;"	d	file:
+YY_AT_BOL	lex.yy.c	262;"	d	file:
+YY_BREAK	lex.yy.c	801;"	d	file:
+YY_BUFFER_EOF_PENDING	lex.yy.c	198;"	d	file:
+YY_BUFFER_NEW	lex.yy.c	186;"	d	file:
+YY_BUFFER_NORMAL	lex.yy.c	187;"	d	file:
+YY_BUFFER_STATE	lex.yy.c	/^typedef struct yy_buffer_state *YY_BUFFER_STATE;$/;"	t	file:
+YY_BUF_SIZE	lex.yy.c	97;"	d	file:
+YY_CHAR	lex.yy.c	/^typedef unsigned char YY_CHAR;$/;"	t	file:
+YY_CURRENT_BUFFER	lex.yy.c	207;"	d	file:
+YY_DECL	lex.yy.c	789;"	d	file:
+YY_DO_BEFORE_ACTION	lex.yy.c	278;"	d	file:
+YY_END_OF_BUFFER	lex.yy.c	286;"	d	file:
+YY_END_OF_BUFFER_CHAR	lex.yy.c	94;"	d	file:
+YY_EXIT_FAILURE	lex.yy.c	1824;"	d	file:
+YY_FATAL_ERROR	lex.yy.c	782;"	d	file:
+YY_FLEX_MAJOR_VERSION	lex.yy.c	8;"	d	file:
+YY_FLEX_MINOR_VERSION	lex.yy.c	9;"	d	file:
+YY_FLUSH_BUFFER	lex.yy.c	236;"	d	file:
+YY_INPUT	lex.yy.c	749;"	d	file:
+YY_MORE_ADJ	lex.yy.c	625;"	d	file:
+YY_NEW_FILE	lex.yy.c	92;"	d	file:
+YY_NO_POP_STATE	lex.yy.c	712;"	d	file:
+YY_NO_PUSH_STATE	lex.yy.c	711;"	d	file:
+YY_NO_TOP_STATE	lex.yy.c	713;"	d	file:
+YY_NULL	lex.yy.c	66;"	d	file:
+YY_NUM_RULES	lex.yy.c	285;"	d	file:
+YY_PROTO	lex.yy.c	60;"	d	file:
+YY_PROTO	lex.yy.c	62;"	d	file:
+YY_READ_BUF_SIZE	lex.yy.c	733;"	d	file:
+YY_RESTORE_YY_MORE_OFFSET	lex.yy.c	626;"	d	file:
+YY_RULE_SETUP	lex.yy.c	804;"	d	file:
+YY_SC_TO_UI	lex.yy.c	73;"	d	file:
+YY_START	lex.yy.c	85;"	d	file:
+YY_START_STACK_INCR	lex.yy.c	777;"	d	file:
+YY_STATE_EOF	lex.yy.c	89;"	d	file:
+YY_USER_ACTION	lex.yy.c	796;"	d	file:
+YY_USE_CONST	lex.yy.c	31;"	d	file:
+YY_USE_CONST	lex.yy.c	38;"	d	file:
+YY_USE_CONST	lex.yy.c	48;"	d	file:
+YY_USE_PROTOS	lex.yy.c	28;"	d	file:
+YY_USE_PROTOS	lex.yy.c	37;"	d	file:
+YY_USE_PROTOS	lex.yy.c	49;"	d	file:
+_BOA_H	boa.h	24;"	d
+_COMPAT_H	compat.h	22;"	d
+_DEFINES_H	defines.h	23;"	d
+_GLOBALS_H	globals.h	24;"	d
+__NEEDS_ESCAPE__	escape.h	2;"	d
+__cplusplus	lex.yy.c	17;"	d	file:
+__yy_memcpy	y.tab.c	/^__yy_memcpy (char *to, char *from, int count)$/;"	f	file:
+__yy_memcpy	y.tab.c	/^__yy_memcpy (to, from, count)$/;"	f	file:
+__yy_memcpy	y.tab.c	431;"	d	file:
+_hash_struct_	hash.c	/^struct _hash_struct_ {$/;"	s	file:
+_needs_escape	escape.h	/^unsigned long _needs_escape[8] =$/;"	v
+access_log	log.c	/^FILE *access_log;$/;"	v
+access_log_name	log.c	/^char *access_log_name;$/;"	v
+add_accept_header	request.c	/^void add_accept_header(request * req, char *mime_type)$/;"	f
+add_alias	alias.c	/^void add_alias(char *fakename, char *realname, int type)$/;"	f
+add_cgi_env	cgi.c	/^void add_cgi_env(request * req, char *key, char *value)$/;"	f
+add_mime_type	hash.c	/^void add_mime_type(char *extension, char *type)$/;"	f
+alias	globals.h	/^struct alias {$/;"	s
+alias	globals.h	/^typedef struct alias alias;$/;"	t
+alias_hashtable	alias.c	/^static alias *alias_hashtable[ALIAS_HASHTABLE_SIZE];$/;"	v	file:
+alloca	y.tab.c	302;"	d	file:
+backlog	boa.c	/^int backlog = SO_MAXCONN;$/;"	v
+block_read_fdset	boa.c	/^fd_set block_read_fdset;$/;"	v
+block_request	queue.c	/^void block_request(request * req)$/;"	f
+block_write_fdset	boa.c	/^fd_set block_write_fdset;$/;"	v
+boa_perror	log.c	/^void boa_perror(request * req, char *message)$/;"	f
+cgi_log_fd	log.c	/^int cgi_log_fd;$/;"	v
+cgi_log_name	log.c	/^char *cgi_log_name;$/;"	v
+clean_pathname	util.c	/^void clean_pathname(char *pathname)$/;"	f
+close_access_log	log.c	/^void close_access_log(void)$/;"	f
+close_unused_fds	util.c	/^void close_unused_fds(request * head)$/;"	f
+common_cgi_env	cgi.c	/^static char **common_cgi_env;$/;"	v	file:
+complete_env	cgi.c	/^void complete_env(request * req)$/;"	f
+const	y.tab.c	89;"	d	file:
+create_argv	cgi.c	/^void create_argv(request * req, char **aargv)$/;"	f
+create_common_env	cgi.c	/^void create_common_env()$/;"	f
+create_env	cgi.c	/^void create_env(request * req)$/;"	f
+cur_time	util.c	/^static time_t cur_time;$/;"	v	file:
+day_tab	util.c	/^const char day_tab[] = "Sun,Mon,Tue,Wed,Thu,Fri,Sat,";$/;"	v
+default_type	config.c	/^char *default_type;$/;"	v
+dequeue	queue.c	/^void dequeue(request ** head, request * req)$/;"	f
+die	boa.c	/^void die(int exit_code)$/;"	f
+directory_index	config.c	/^char *directory_index;$/;"	v
+dirmaker	config.c	/^char *dirmaker;$/;"	v
+do_fork	boa.c	/^int do_fork = 1;$/;"	v
+document_root	config.c	/^char *document_root;$/;"	v
+dump_alias	alias.c	/^void dump_alias(void)$/;"	f
+dump_mime	hash.c	/^void dump_mime(void)$/;"	f
+dump_passwd	hash.c	/^void dump_passwd(void)$/;"	f
+e_s	response.c	/^static char e_s[MAX_HEADER_LENGTH * 3];$/;"	v	file:
+enqueue	queue.c	/^void enqueue(request ** head, request * req)$/;"	f
+env_gen	boa.h	141;"	d
+env_gen_extra	cgi.c	/^char *env_gen_extra(const char *key, const char *value, int extra)$/;"	f
+error_log_name	log.c	/^char *error_log_name;$/;"	v
+escape_string	index_dir.c	/^char *escape_string(char *inp, char *buf)$/;"	f
+escape_string	util.c	/^char *escape_string(char *inp, char *buf)$/;"	f
+fakename	y.tab.c	/^char fakename[256];		\/* ScriptAlias *\/$/;"	v
+fdset_update	boa.c	/^void fdset_update(void)$/;"	f
+file	lex.yy.c	/^static int file = 0;$/;"	v	file:
+fixup_server_root	util.c	/^void fixup_server_root()$/;"	f
+free_request	request.c	/^void free_request(request ** list_head_addr, request * req)$/;"	f
+free_requests	request.c	/^void free_requests(void)$/;"	f
+get_alias_hash_value	alias.c	/^inline int get_alias_hash_value(char *file)$/;"	f
+get_commonlog_time	util.c	/^char *get_commonlog_time(void)$/;"	f
+get_dir	get.c	/^int get_dir(request * req, struct stat *statbuf)$/;"	f
+get_home_dir	hash.c	/^char *get_home_dir(char *name)$/;"	f
+get_mime_hash_value	hash.c	/^int get_mime_hash_value(char *extension)$/;"	f
+get_mime_type	hash.c	/^char *get_mime_type(char *filename)$/;"	f
+get_request	request.c	/^void get_request(void)$/;"	f
+groupbuf	y.tab.c	/^struct group * groupbuf;$/;"	v
+hash_struct	hash.c	/^typedef struct _hash_struct_ hash_struct;$/;"	t	file:
+index_directory	index_dir.c	/^int index_directory(char *dir, char *title)$/;"	f
+init_cgi	cgi.c	/^int init_cgi(request * req)$/;"	f
+init_get	get.c	/^int init_get(request * req)$/;"	f
+init_ka_phrase	response.c	/^void init_ka_phrase(void)$/;"	f
+init_script_alias	alias.c	/^int init_script_alias(request * req, alias * current1)$/;"	f
+init_signals	signals.c	/^void init_signals(void)$/;"	f
+ka_max	config.c	/^int ka_max;$/;"	v
+ka_phrase	response.c	/^static char ka_phrase[75];$/;"	v	file:
+ka_timeout	config.c	/^int ka_timeout;$/;"	v
+lame_duck_mode	boa.c	/^int lame_duck_mode = 0;$/;"	v
+lame_duck_mode_run	signals.c	/^void lame_duck_mode_run(int server_s2)$/;"	f
+lineno	lex.yy.c	/^int lineno = 1;$/;"	v
+log_access	log.c	/^void log_access(request * req)$/;"	f
+log_error_doc	log.c	/^void log_error_doc(request * req)$/;"	f
+log_error_time	log.c	/^void log_error_time()$/;"	f
+main	boa.c	/^int main(int argc, char **argv)$/;"	f
+main	index_dir.c	/^int main(int argc, char *argv[])$/;"	f
+main	lex.yy.c	/^int main()$/;"	f
+mime_hashtable	hash.c	/^static hash_struct *mime_hashtable[MIME_HASHTABLE_SIZE];$/;"	v	file:
+mime_type	y.tab.c	/^char mime_type[256];		\/* global to inherit *\/$/;"	v
+mime_types	lex.yy.c	/^char *mime_types = NULL;$/;"	v
+modified_since	util.c	/^int modified_since(time_t * mtime, char *if_modified_since)$/;"	f
+month2int	util.c	/^int month2int(char *monthname)$/;"	f
+month_tab	util.c	/^const char month_tab[48] = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec ";$/;"	v
+needs_escape	escape.h	7;"	d
+new_request	request.c	/^request *new_request(void)$/;"	f
+open_logs	log.c	/^void open_logs(void)$/;"	f
+passwd_hashtable	hash.c	/^static hash_struct *passwd_hashtable[PASSWD_HASHTABLE_SIZE];$/;"	v	file:
+passwdbuf	y.tab.c	/^struct passwd * passwdbuf;$/;"	v
+print_content_length	response.c	/^void print_content_length(request * req)$/;"	f
+print_content_type	response.c	/^void print_content_type(request * req)$/;"	f
+print_http_headers	response.c	/^void print_http_headers(request * req)$/;"	f
+print_ka_phrase	response.c	/^void print_ka_phrase(void)$/;"	f
+print_last_modified	response.c	/^void print_last_modified(request * req)$/;"	f
+process_cgi_header	cgi_header.c	/^int process_cgi_header(request * req)$/;"	f
+process_get	get.c	/^int process_get(request * req)$/;"	f
+process_header_end	request.c	/^int process_header_end(request * req)$/;"	f
+process_logline	request.c	/^int process_logline(request * req)$/;"	f
+process_option_line	request.c	/^void process_option_line(request * req)$/;"	f
+process_requests	request.c	/^void process_requests(void)$/;"	f
+read_body	read.c	/^int read_body(request * req)$/;"	f
+read_config_files	config.c	/^void read_config_files()$/;"	f
+read_from_pipe	pipe.c	/^int read_from_pipe(request * req)$/;"	f
+read_header	read.c	/^int read_header(request * req)$/;"	f
+ready_request	queue.c	/^void ready_request(request * req)$/;"	f
+req_flush	util.c	/^int req_flush(request * req)$/;"	f
+req_timeout	boa.c	/^struct timeval req_timeout;		\/* timeval for select *\/$/;"	v
+req_write	util.c	/^int req_write(request * req, char *msg)$/;"	f
+req_write_rfc822_time	util.c	/^int req_write_rfc822_time(request * req, time_t s)$/;"	f
+request	globals.h	/^struct request {				\/* pending requests *\/$/;"	s
+request	globals.h	/^typedef struct request request;$/;"	t
+request_block	queue.c	/^request *request_block = NULL;	\/* blocked list head *\/$/;"	v
+request_free	queue.c	/^request *request_free = NULL;	\/* free list head *\/$/;"	v
+request_ready	queue.c	/^request *request_ready = NULL;	\/* ready list head *\/$/;"	v
+rfc822_time_buf	util.c	/^void rfc822_time_buf(char *buf, time_t s)$/;"	f
+select_files	index_dir.c	/^int select_files(const struct dirent *dirbuf)$/;"	f
+send_error	index_dir.c	/^void send_error(int error)$/;"	f
+send_r_bad_request	response.c	/^void send_r_bad_request(request * req)$/;"	f
+send_r_bad_version	response.c	/^void send_r_bad_version(request * req)$/;"	f
+send_r_error	response.c	/^void send_r_error(request * req)$/;"	f
+send_r_forbidden	response.c	/^void send_r_forbidden(request * req)$/;"	f
+send_r_not_found	response.c	/^void send_r_not_found(request * req)$/;"	f
+send_r_not_implemented	response.c	/^void send_r_not_implemented(request * req)$/;"	f
+send_r_not_modified	response.c	/^void send_r_not_modified(request * req)$/;"	f
+send_r_request_ok	response.c	/^void send_r_request_ok(request * req)$/;"	f
+send_r_unauthorized	response.c	/^void send_r_unauthorized(request * req, char *realm_name)$/;"	f
+send_redirect_perm	response.c	/^void send_redirect_perm(request * req, char *url)$/;"	f
+send_redirect_temp	response.c	/^void send_redirect_temp(request * req, char *url)$/;"	f
+server_admin	config.c	/^char *server_admin;$/;"	v
+server_gid	config.c	/^gid_t server_gid;$/;"	v
+server_name	config.c	/^char *server_name;$/;"	v
+server_port	config.c	/^int server_port;$/;"	v
+server_root	config.c	/^char *server_root;$/;"	v
+server_s	boa.c	/^int server_s;					\/* boa socket *\/$/;"	v
+server_sockaddr	boa.c	/^struct sockaddr_in server_sockaddr;		\/* boa socket address *\/$/;"	v
+server_uid	config.c	/^uid_t server_uid;$/;"	v
+sigbus	signals.c	/^void sigbus(int dummy)$/;"	f
+sigchld	signals.c	/^void sigchld(int dummy)$/;"	f
+sigchld_flag	boa.c	/^int sigchld_flag = 0;			\/* 1 => signal has happened, needs attention *\/$/;"	v
+sigchld_run	signals.c	/^void sigchld_run(void)$/;"	f
+sighup	signals.c	/^void sighup(int dummy)$/;"	f
+sighup_flag	boa.c	/^int sighup_flag = 0;			\/* 1 => signal has happened, needs attention *\/$/;"	v
+sighup_run	signals.c	/^void sighup_run(void)$/;"	f
+sigint	signals.c	/^void sigint(int dummy)$/;"	f
+sigsegv	signals.c	/^void sigsegv(int dummy)$/;"	f
+sigterm	signals.c	/^void sigterm(int dummy)$/;"	f
+sigusr1	signals.c	/^void sigusr1(int dummy)$/;"	f
+simple_itoa	util.c	/^char *simple_itoa(int i)$/;"	f
+sock_opt	boa.c	/^int sock_opt = 1;$/;"	v
+sockbufsize	request.c	/^int sockbufsize = SOCKETBUF_SIZE;$/;"	v
+status	globals.h	/^struct status status;$/;"	v
+status	globals.h	/^struct status {$/;"	s
+timestamp	timestamp.c	/^void timestamp(void)$/;"	f
+to_upper	util.c	/^char *to_upper(char *str)$/;"	f
+translate_uri	alias.c	/^int translate_uri(request * req)$/;"	f
+unescape_uri	util.c	/^int unescape_uri(char *uri)$/;"	f
+unput	lex.yy.c	135;"	d	file:
+user_dir	config.c	/^char *user_dir;$/;"	v
+verbose_cgi_logs	cgi.c	/^int verbose_cgi_logs = 0;$/;"	v
+virtualhost	config.c	/^int virtualhost;$/;"	v
+write_body	read.c	/^int write_body(request * req)$/;"	f
+write_from_pipe	pipe.c	/^int write_from_pipe(request * req)$/;"	f
+yy_accept	lex.yy.c	/^static yyconst short int yy_accept[379] =$/;"	v	file:
+yy_base	lex.yy.c	/^static yyconst short int yy_base[388] =$/;"	v	file:
+yy_buffer_state	lex.yy.c	/^struct yy_buffer_state$/;"	s	file:
+yy_c_buf_p	lex.yy.c	/^static char *yy_c_buf_p = (char *) 0;$/;"	v	file:
+yy_chk	lex.yy.c	/^static yyconst short int yy_chk[657] =$/;"	v	file:
+yy_create_buffer	lex.yy.c	/^YY_BUFFER_STATE yy_create_buffer( FILE *file, int size )$/;"	f
+yy_current_buffer	lex.yy.c	/^static YY_BUFFER_STATE yy_current_buffer = 0;$/;"	v	file:
+yy_def	lex.yy.c	/^static yyconst short int yy_def[388] =$/;"	v	file:
+yy_delete_buffer	lex.yy.c	/^void yy_delete_buffer( YY_BUFFER_STATE b )$/;"	f
+yy_did_buffer_switch_on_eof	lex.yy.c	/^static int yy_did_buffer_switch_on_eof;$/;"	v	file:
+yy_ec	lex.yy.c	/^static yyconst int yy_ec[256] =$/;"	v	file:
+yy_fatal_error	lex.yy.c	/^static void yy_fatal_error( yyconst char msg[] )$/;"	f	file:
+yy_flex_alloc	lex.yy.c	/^static void *yy_flex_alloc( yy_size_t size )$/;"	f	file:
+yy_flex_free	lex.yy.c	/^static void yy_flex_free( void *ptr )$/;"	f	file:
+yy_flex_realloc	lex.yy.c	/^static void *yy_flex_realloc( void *ptr, yy_size_t size )$/;"	f	file:
+yy_flex_strlen	lex.yy.c	/^static int yy_flex_strlen( yyconst char *s )$/;"	f	file:
+yy_flex_strncpy	lex.yy.c	/^static void yy_flex_strncpy( char *s1, yyconst char *s2, int n )$/;"	f	file:
+yy_flush_buffer	lex.yy.c	/^void yy_flush_buffer( YY_BUFFER_STATE b )$/;"	f
+yy_get_next_buffer	lex.yy.c	/^static int yy_get_next_buffer()$/;"	f	file:
+yy_get_previous_state	lex.yy.c	/^static yy_state_type yy_get_previous_state()$/;"	f	file:
+yy_hold_char	lex.yy.c	/^static char yy_hold_char;$/;"	v	file:
+yy_init	lex.yy.c	/^static int yy_init = 1;		\/* whether we need to initialize *\/$/;"	v	file:
+yy_init_buffer	lex.yy.c	/^void yy_init_buffer( YY_BUFFER_STATE b, FILE *file )$/;"	f
+yy_last_accepting_cpos	lex.yy.c	/^static char *yy_last_accepting_cpos;$/;"	v	file:
+yy_last_accepting_state	lex.yy.c	/^static yy_state_type yy_last_accepting_state;$/;"	v	file:
+yy_load_buffer_state	lex.yy.c	/^void yy_load_buffer_state( void )$/;"	f
+yy_meta	lex.yy.c	/^static yyconst int yy_meta[46] =$/;"	v	file:
+yy_n_chars	lex.yy.c	/^static int yy_n_chars;		\/* number of characters read into yy_ch_buf *\/$/;"	v	file:
+yy_new_buffer	lex.yy.c	246;"	d	file:
+yy_nxt	lex.yy.c	/^static yyconst short int yy_nxt[657] =$/;"	v	file:
+yy_pop_state	lex.yy.c	/^static void yy_pop_state()$/;"	f	file:
+yy_push_state	lex.yy.c	/^static void yy_push_state( int new_state )$/;"	f	file:
+yy_scan_buffer	lex.yy.c	/^YY_BUFFER_STATE yy_scan_buffer( char *base, yy_size_t size )$/;"	f
+yy_scan_bytes	lex.yy.c	/^YY_BUFFER_STATE yy_scan_bytes( yyconst char *bytes, int len )$/;"	f
+yy_scan_string	lex.yy.c	/^YY_BUFFER_STATE yy_scan_string( yyconst char *yy_str )$/;"	f
+yy_set_bol	lex.yy.c	255;"	d	file:
+yy_set_interactive	lex.yy.c	248;"	d	file:
+yy_size_t	lex.yy.c	/^typedef unsigned int yy_size_t;$/;"	t	file:
+yy_start	lex.yy.c	/^static int yy_start = 0;	\/* start state number *\/$/;"	v	file:
+yy_start_stack	lex.yy.c	/^static int *yy_start_stack = 0;$/;"	v	file:
+yy_start_stack_depth	lex.yy.c	/^static int yy_start_stack_depth = 0;$/;"	v	file:
+yy_start_stack_ptr	lex.yy.c	/^static int yy_start_stack_ptr = 0;$/;"	v	file:
+yy_state_type	lex.yy.c	/^typedef int yy_state_type;$/;"	t	file:
+yy_switch_to_buffer	lex.yy.c	/^void yy_switch_to_buffer( YY_BUFFER_STATE new_buffer )$/;"	f
+yy_top_state	lex.yy.c	/^static int yy_top_state()$/;"	f	file:
+yy_try_NUL_trans	lex.yy.c	/^static yy_state_type yy_try_NUL_trans( yy_state_type yy_current_state )$/;"	f	file:
+yychar	y.tab.c	/^int	yychar;			\/*  the lookahead symbol		*\/$/;"	v
+yycheck	y.tab.c	/^static const short yycheck[] = {     3,$/;"	v	file:
+yyclearin	y.tab.c	339;"	d	file:
+yyconst	lex.yy.c	53;"	d	file:
+yyconst	lex.yy.c	55;"	d	file:
+yydebug	y.tab.c	/^int yydebug;			\/*  nonzero means print parse trace	*\/$/;"	v
+yydefact	y.tab.c	/^static const short yydefact[] = {     3,$/;"	v	file:
+yydefgoto	y.tab.c	/^static const short yydefgoto[] = {    86,$/;"	v	file:
+yyerrok	y.tab.c	338;"	d	file:
+yyerror	lex.yy.c	/^int yyerror(char * msg)$/;"	f
+yyin	lex.yy.c	/^FILE *yyin = (FILE *) 0, *yyout = (FILE *) 0;$/;"	v
+yyinput	lex.yy.c	/^static int yyinput()$/;"	f	file:
+yyleng	lex.yy.c	/^int yyleng;$/;"	v
+yyless	lex.yy.c	124;"	d	file:
+yyless	lex.yy.c	1843;"	d	file:
+yylloc	y.tab.c	/^YYLTYPE yylloc;			\/*  location data for the lookahead	*\/$/;"	v
+yylval	y.tab.c	/^YYSTYPE	yylval;			\/*  the semantic value of the		*\/$/;"	v
+yymore	lex.yy.c	624;"	d	file:
+yynerrs	y.tab.c	/^int yynerrs;			\/*  number of parse errors so far       *\/$/;"	v
+yyout	lex.yy.c	/^FILE *yyin = (FILE *) 0, *yyout = (FILE *) 0;$/;"	v
+yypact	y.tab.c	/^static const short yypact[] = {-32768,$/;"	v	file:
+yyparse	y.tab.c	/^yyparse(YYPARSE_PARAM_ARG)$/;"	f
+yypgoto	y.tab.c	/^static const short yypgoto[] = {-32768,$/;"	v	file:
+yyprhs	y.tab.c	/^static const short yyprhs[] = {     0,$/;"	v	file:
+yyr1	y.tab.c	/^static const short yyr1[] = {     0,$/;"	v	file:
+yyr2	y.tab.c	/^static const short yyr2[] = {     0,$/;"	v	file:
+yyrestart	lex.yy.c	/^void yyrestart( FILE *input_file )$/;"	f
+yyrhs	y.tab.c	/^static const short yyrhs[] = {    30,$/;"	v	file:
+yyrline	y.tab.c	/^static const short yyrline[] = { 0,$/;"	v	file:
+yytable	y.tab.c	/^static const short yytable[] = {     2,$/;"	v	file:
+yyterminate	lex.yy.c	772;"	d	file:
+yytext	lex.yy.c	/^char *yytext;$/;"	v
+yytext_ptr	lex.yy.c	268;"	d	file:
+yytname	y.tab.c	/^static const char * const yytname[] = {   "$","error","$undefined.","B_PORT",$/;"	v	file:
+yytranslate	y.tab.c	/^static const char yytranslate[] = {     0,$/;"	v	file:
+yyunput	lex.yy.c	/^static void yyunput( int c, register char *yy_bp )$/;"	f	file:
+yywrap	lex.yy.c	/^int yywrap()$/;"	f

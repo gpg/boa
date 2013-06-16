@@ -21,6 +21,7 @@
  */
 
 #include "boa.h"
+#include <sys/mman.h>
 
 /*
  * Name: init_get
@@ -36,7 +37,7 @@ int init_get(request * req)
 	int data_fd;
 	char buf[MAX_PATH_LENGTH];
 	struct stat statbuf;
-	
+
 	data_fd = open(req->pathname, O_RDONLY);
 
 	if (data_fd == -1) {		/* cannot open */
@@ -63,7 +64,7 @@ int init_get(request * req)
 		close(data_fd);
 
 		req->response_status = R_REQUEST_OK;
-		if (!req->simple) {			
+		if (!req->simple) {
 			req_write(req, "HTTP/1.0 200 OK-GUNZIP\r\n");
 			print_http_headers(req);
 			print_content_type(req);
@@ -114,19 +115,46 @@ int init_get(request * req)
 	if (req->method == M_HEAD) {
 		send_r_request_ok(req);
 		close(data_fd);
+		req->status = CLOSE;
 		return 0;
 	}
 	/* MAP_OPTIONS: see compat.h */
-	req->data_mem = mmap(0, statbuf.st_size, PROT_READ, MAP_OPTIONS,
-						 data_fd, 0);
-	close(data_fd);				/* close data file */
+	req->data_mem = mmap(NULL, req->filesize, PROT_READ,
+			 MAP_FILE | MAP_PRIVATE, data_fd, 0);
+	close(data_fd);			/* close data file */
 
 	if ((long) req->data_mem == -1) {
 		boa_perror(req, "mmap");
+		req->status = CLOSE;
 		return 0;
 	}
-	send_r_request_ok(req);		/* All's well */
 
+	send_r_request_ok(req);		/* All's well */
+	{							/* combine first part of file with headers */
+		int bob;
+
+		bob = BUFFER_SIZE - req->buffer_end;
+		/* bob is now how much the buffer can hold
+		 * after the headers
+		 */
+		
+		if (bob > 0) {
+			if (bob > req->filesize)
+				bob = req->filesize;
+
+			memcpy(req->buffer + req->buffer_end,
+				   req->data_mem,
+				   bob);
+			req->buffer_end += bob;
+			req->filepos += bob;
+			req_flush(req);
+		}
+	}
+
+	if (req->filepos == req->filesize) {
+		req->status = CLOSE;
+		return 0;				/* done! */
+	}
 	/* We lose statbuf here, so make sure response has been sent */
 	return 1;
 }
@@ -146,25 +174,32 @@ int process_get(request * req)
 	int bytes_written, bytes_to_write;
 
 	bytes_to_write = req->filesize - req->filepos;
+	if (bytes_to_write > SOCKETBUF_SIZE)
+		bytes_to_write = SOCKETBUF_SIZE;
 
 	bytes_written = write(req->fd, req->data_mem + req->filepos,
 						  bytes_to_write);
 
 	if (bytes_written == -1)
 		if (errno == EWOULDBLOCK || errno == EAGAIN)
-			return -1;			/* request blocked at the pipe level, but keep going */
+			return -1;
+	/* request blocked at the pipe level, but keep going */
 		else {
 			if (errno != EPIPE) {
-				log_error_doc(req);	/* Can generate lots of log entries, */
-				perror("write");	/* OK to disable if your logs get too big */
+				log_error_doc(req);
+				/* Can generate lots of log entries, */
+				perror("write");
+				/* OK to disable if your logs get too big */
 			}
 			return 0;
 		}
+
 	req->filepos += bytes_written;
+
 	if (req->filepos == req->filesize)	/* EOF */
 		return 0;
 	else
-		return 1;				/* more to do */
+	        return 1;				/* more to do */
 }
 
 /*

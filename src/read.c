@@ -39,11 +39,11 @@ int read_header(request * req)
 	int bytes, buf_bytes_left;
 	char *check, *buffer;
 
-	if (req->pipeline_start){
+	if (req->pipeline_start) {
 		buffer = req->client_stream;
 		bytes = req->client_stream_pos = req->pipeline_start;
 		req->pipeline_start = 0;
-	} else { /* first from free_request */
+	} else {					/* first from free_request */
 		buffer = req->client_stream + req->client_stream_pos;
 		buf_bytes_left = CLIENT_STREAM_SIZE - req->client_stream_pos;
 		if (buf_bytes_left < 0) {
@@ -52,14 +52,14 @@ int read_header(request * req)
 			return 0;
 		}
 		bytes = read(req->fd, buffer, buf_bytes_left);
-	
+
 		if (bytes == -1) {
 			if (errno == EINTR)
 				return 1;
 			if (errno == EAGAIN || errno == EWOULDBLOCK)	/* request blocked */
 				return -1;
 			else if (errno == EBADF || errno == EPIPE) {
-				SQUASH_KA(req);		/* force close fd */
+				SQUASH_KA(req);	/* force close fd */
 				return 0;
 			} else {
 				boa_perror(req, "header read");
@@ -91,7 +91,8 @@ int read_header(request * req)
 				req->status = READ_HEADER;
 			break;
 
-		case ONE_LF:			/* if here, we've found the end (for sure) of a header */
+		case ONE_LF:
+			/* if here, we've found the end (for sure) of a header */
 			if (*check == '\r')	/* could be end o headers */
 				req->status = TWO_CR;
 			else if (*check == '\n')
@@ -115,10 +116,14 @@ int read_header(request * req)
 
 		if (req->status == ONE_LF) {
 			*req->header_end = '\0';
-			/* terminate string that begins at req->header_line */
-			/* (or at req->data_mem, if we've never been here before */
+			/* terminate string that begins at req->header_line
+			   (or at req->data_mem, if we've never been here 
+			   before 
+			 */
 
-			/* the following logic still needs work, esp. after req->simple */
+			/* the following logic still needs work, especially
+			   after req->simple 
+			 */
 			if (req->logline)
 				process_option_line(req);
 			else {
@@ -127,11 +132,11 @@ int read_header(request * req)
 				if (req->simple)
 					return process_header_end(req);
 			}
-			req->header_line = check; /* start of unprocessed data */
+			req->header_line = check;	/* start of unprocessed data */
 		} else if (req->status == BODY_READ) {
 			int retval = process_header_end(req);
 			/* process_header_end inits non-POST cgi's */
-			
+
 			req->pipeline_start = (check - req->client_stream);
 
 			if (retval && req->method == M_POST) {
@@ -148,20 +153,26 @@ int read_header(request * req)
 					log_error_time();
 					fprintf(stderr, "Unknown Content-Length POST\n");
 				}
-				
+
 				/* buffer + bytes is 1 past the end of the data */
 				req->filepos = (buffer + bytes) - check;
 				req->header_line = check;
-				req->header_end = (buffer + bytes);				
+				req->header_end = (buffer + bytes);
+				/* (should be) same as req->client_stream +
+				 * req->client_stream_pos */
 
 				if (req->filepos > req->filesize)
-					req->cgi_status = CLOSE;	/* close after write */
-				
-				req->filepos = 0;	/* haven't actually anything it yet */
-				req->status = BODY_WRITE;	/* so write it */
+					req->cgi_status = CGI_CLOSE;
+				/* close after write */
+
+				req->filepos = 0;
+				/* haven't actually written anything it yet */
+
+				req->status = BODY_WRITE;
+				/* so write it */
 				/* have to write first, or read will be confused
-				 * because of the special case where the filesize is 
-				 * less than we have already read.  
+				 * because of the special case where the 
+				 * filesize is less than we have already read.
 				 */
 			}
 			return retval;		/* 0 - close it done, 1 - keep on ready */
@@ -207,9 +218,9 @@ int read_body(request * req)
 		req->status = BODY_WRITE;	/* go write it */
 		return 1;
 	}
-	bytes_read = read(req->fd, 
-			req->header_end,
-			bytes_to_read);
+	bytes_read = read(req->fd,
+					  req->header_end,
+					  bytes_to_read);
 
 	if (bytes_read == -1) {
 		if (errno == EWOULDBLOCK || errno == EAGAIN) {
@@ -225,7 +236,7 @@ int read_body(request * req)
 		}
 	} else if (bytes_read == 0) {
 		req->status = BODY_WRITE;
-		req->cgi_status = CLOSE;	/* init cgi when write finished */
+		req->cgi_status = CGI_CLOSE;	/* init cgi when write finished */
 	}
 	req->header_end += bytes_read;
 
@@ -251,15 +262,15 @@ int write_body(request * req)
 
 	if (bytes_to_write == 0) {	/* nothing left in buffer to write */
 		req->header_line = req->header_end = req->buffer;
-		if (req->cgi_status == CLOSE || req->filepos >= req->filesize)
+		if (req->cgi_status == CGI_CLOSE || req->filepos >= req->filesize)
 			return init_cgi(req);	/* init_cgi should change status approp. */
 		/* if here, we can safely assume that there is more to read */
 		req->status = BODY_READ;
 		return 1;
 	}
 	bytes_written = write(req->post_data_fd,
-			req->header_line,
-			bytes_to_write);
+						  req->header_line,
+						  bytes_to_write);
 
 	if (bytes_written == -1)
 		if (errno == EWOULDBLOCK || errno == EAGAIN)
@@ -268,7 +279,6 @@ int write_body(request * req)
 			boa_perror(req, "write body");	/* OK to disable if your logs get too big */
 			return 0;
 		}
-		
 	req->filepos += bytes_written;
 	req->header_line += bytes_written;
 

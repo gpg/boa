@@ -22,6 +22,8 @@
 #define _COMPAT_H
 
 #include "config.h"
+#include <unistd.h>
+#include <sys/mman.h>
 
 #ifndef OPEN_MAX
 #define OPEN_MAX 256

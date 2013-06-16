@@ -36,7 +36,7 @@
 #include "escape.h"
 
 char *escape_string(char *inp, char *buf);
-int select_files(struct dirent *d);
+int select_files(const struct dirent *d);
 int index_directory(char *dir, char *title);
 
 /*
@@ -60,7 +60,7 @@ char *escape_string(char *inp, char *buf)
 	max = strlen(inp) * 3;
 
 	if (buf == NULL && max)
-		buf = malloc(sizeof(unsigned char) * (max + 1));
+		buf = malloc(sizeof (unsigned char) * (max + 1));
 
 	if (buf == NULL)
 		return NULL;
@@ -104,7 +104,7 @@ void send_error(int error)
 		   "<body>\n%s\n</body>\n</html>\n", the_error, the_error);
 }
 
-int select_files(struct dirent *dirbuf)
+int select_files(const struct dirent *dirbuf)
 {
 	if (dirbuf->d_name[0] == '.')
 		return 0;

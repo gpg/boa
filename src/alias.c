@@ -71,7 +71,7 @@ void add_alias(char *fakename, char *realname, int type)
 				return;
 			old = old->next;
 		}
-	new = (alias *) malloc(sizeof(alias));
+	new = (alias *) malloc(sizeof (alias));
 	if (!new)
 		die(OUT_OF_MEMORY);
 
@@ -108,6 +108,7 @@ int translate_uri(request * req)
 	alias *current;
 	int is_nph = 0;
 	char c, *p;
+	int hash;
 
 	/* clean pathname */
 	clean_pathname(req->request_uri);
@@ -141,8 +142,42 @@ int translate_uri(request * req)
 		send_r_bad_request(req);
 		return 0;
 	}
-	/* Find UserDir */
+	/* Find ScriptAlias, Alias, or Redirect */
 
+	hash = get_alias_hash_value(req->request_uri);
+
+	current = alias_hashtable[hash];
+	while (current) {
+
+		if (!memcmp(req->request_uri, current->fakename,
+					current->fake_len)) {
+			if (current->fakename[current->fake_len - 1] != '/' &&
+				req->request_uri[current->fake_len] != '/' &&
+				req->request_uri[current->fake_len] != '\0') {
+				break;
+			}
+			if (current->type == SCRIPTALIAS) {		/* Script */
+				if (is_nph)
+					req->is_cgi = NPH;
+				else
+					req->is_cgi = CGI;
+				return init_script_alias(req, current);
+			}
+			sprintf(buffer, "%s%s", current->realname,
+					&req->request_uri[current->fake_len]);
+
+			if (current->type == REDIRECT) {	/* Redirect */
+				send_redirect_temp(req, buffer);
+				return 0;
+			} else {			/* Alias */
+				req->pathname = strdup(buffer);
+				return 1;
+			}
+		}
+		current = current->next;
+	}
+
+	/* No Aliasing done... try userdir */
 	if (user_dir && req->request_uri[1] == '~') {
 		char *user_homedir;
 
@@ -153,9 +188,8 @@ int translate_uri(request * req)
 			*p = '\0';
 
 		user_homedir = get_home_dir(req_urip);
-		if (p)
-			*p = '/';			/* have to restore request_uri in case of
-								   error */
+		if (p)					/* have to restore request_uri in case of error */
+			*p = '/';
 
 		if (!user_homedir) {	/*no such user */
 			send_r_not_found(req);
@@ -164,48 +198,8 @@ int translate_uri(request * req)
 		sprintf(buffer, "%s/%s", user_homedir, user_dir);
 		if (p)
 			strcat(buffer, p);
-	} else {
-		/* Find ScriptAlias, Alias, or Redirect */
-		int hash;
-
-		hash = get_alias_hash_value(req->request_uri);
-
-		current = alias_hashtable[hash];
-		while (current) {
-
-			if (!memcmp(req->request_uri, current->fakename,
-						current->fake_len)) {
-				if (current->fakename[current->fake_len - 1] != '/' &&
-					req->request_uri[current->fake_len] != '/' &&
-					req->request_uri[current->fake_len] != '\0') {
-					break;
-				}
-				if (current->type == SCRIPTALIAS) {		/* Script */
-					if (is_nph)
-						req->is_cgi = NPH;
-					else
-						req->is_cgi = CGI;
-					return init_script_alias(req, current);
-				}
-				sprintf(buffer, "%s%s", current->realname,
-						&req->request_uri[current->fake_len]);
-
-				if (current->type == REDIRECT) {	/* Redirect */
-					send_redirect_temp(req, buffer);
-					return 0;
-				} else {		/* Alias */
-					req->pathname = strdup(buffer);
-					return 1;
-				}
-			}
-			current = current->next;
-		}
-		if (req->local_ip_addr)
-			sprintf(buffer, "%s/%s%s", document_root,
-					req->local_ip_addr,
-					req->request_uri);
-		else
-			sprintf(buffer, "%s%s", document_root, req->request_uri);
+	} else {					/* no aliasing, no userdir... */
+		sprintf(buffer, "%s%s", document_root, req->request_uri);
 	}
 
 	req->pathname = strdup(buffer);
@@ -234,76 +228,85 @@ int translate_uri(request * req)
  * 1: success, continue          
  */
 
-int init_script_alias(request * req, alias * current)
+int init_script_alias(request * req, alias * current1)
 {
 	char pathname[MAX_HEADER_LENGTH + 1];
-	char path_info[MAX_HEADER_LENGTH + 1];
-	char script_name[MAX_HEADER_LENGTH + 1];
-	char buffer[MAX_HEADER_LENGTH + 1];
 	struct stat statbuf;
+	char buffer[MAX_HEADER_LENGTH + 1];
 
-	int index = 0, index_trailer = 0;
+	int index = 0;
 	char c;
 
-	sprintf(pathname, "%s%s", current->realname,
-			&req->request_uri[current->fake_len]);
-	strcpy(script_name, req->request_uri);
+	sprintf(pathname, "%s%s", current1->realname,
+			&req->request_uri[current1->fake_len]);
 
-	index = current->real_len;
-	index_trailer = current->fake_len;
+	index = current1->real_len;
 
-	for (c = pathname[index]; c != '\0' && c != '/'; c = pathname[++index])
-		index_trailer++;
+	do {
+		c = pathname[++index];
+	} while (c != '/' && c != '\0');
 
+	if (c == '/') {				/* path_info... still have to check for query */
+		int hash;
+		alias *current;
 
-	pathname[index++] = '\0';
+		req->path_info = strdup(pathname + index);
+		pathname[index] = '\0';	/* kill path_info from path */
 
+		hash = get_alias_hash_value(req->path_info);
+		current = alias_hashtable[hash];
+		while (current && !req->path_translated) {
+			if (!strncmp(req->path_info, current->fakename,
+						 current->fake_len)) {
+				sprintf(buffer, "%s%s", current->realname,
+						&req->path_info[current->fake_len]);
+				req->path_translated = strdup(buffer);
+			}
+			current = current->next;
+		}
+		/* no alias... try userdir */
+		if (!req->path_translated && user_dir &&
+			req->path_info[1] == '~') {
+			char *user_homedir;
+			char *p;
+
+			p = strchr(pathname + index + 1, '/');
+			if (p)
+				*p = '\0';
+
+			user_homedir = get_home_dir(pathname + index + 2);
+			if (p)
+				*p = '/';
+
+			if (!user_homedir) {	/* no such user */
+				send_r_not_found(req);
+				return 0;
+			}
+			sprintf(buffer, "%s/%s", user_homedir, user_dir);
+			if (p)
+				strcat(buffer, p);
+			req->path_translated = strdup(buffer);
+		}
+		if (!req->path_translated) {
+			/* no userdir, no aliasing... stock */
+			sprintf(buffer, "%s%s", document_root,
+					req->path_info);
+			req->path_translated = strdup(buffer);
+		}
+	}
 	if (stat(pathname, &statbuf) == -1) {
 		send_r_not_found(req);
 		return 0;
-	} else if (!S_ISREG(statbuf.st_mode) || access(pathname, R_OK | X_OK) == -1) {
+	} else if (!S_ISREG(statbuf.st_mode) ||
+			   access(pathname, R_OK | X_OK) == -1) {
 		send_r_forbidden(req);
 		return 0;
 	}
 	req->pathname = strdup(pathname);
 
-	script_name[index_trailer] = '\0';
-	req->script_name = strdup(script_name);
+	/* there used to be some ip stuff in here */
 
-	index_trailer = 0;
-
-	if (c == '/') {				/* we have path_info */
-		int hash;
-
-		while (c != '\0' && c != '?') {
-			path_info[index_trailer++] = c;
-			c = pathname[index++];
-		}
-		path_info[index_trailer] = '\0';
-		req->path_info = strdup(path_info);
-
-		hash = get_alias_hash_value(req->path_info);
-
-		current = alias_hashtable[hash];
-		while (current) {
-			if (!strncmp(req->path_info, current->fakename,
-						 current->fake_len)) {
-
-				sprintf(buffer, "%s%s", current->realname,
-						&req->path_info[current->fake_len]);
-
-				req->path_translated = strdup(buffer);
-				return 1;
-			}
-			current = current->next;
-		}
-	}
-	if (req->local_ip_addr)
-		sprintf(buffer, "%s/%s%s", document_root,
-				req->local_ip_addr, req->path_info);
-	else
-		sprintf(buffer, "%s%s", document_root, req->path_info);
-	req->path_translated = strdup(buffer);
+	req->script_name = strdup(pathname + current1->fake_len - 1);
 	return 1;
 }
 

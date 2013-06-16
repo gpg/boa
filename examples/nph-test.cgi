@@ -9,12 +9,15 @@
 # Also, we should stop after the header if REQUEST_METHOD == "HEAD".
 # But that's too much refinement for this very crude example.
 
-print "Content-type: text/html\n\n";
+print "HTTP/1.0 200 OK\r\n";
+print "Date: ";
+print `date`;
+print "Connection: close\r\n";
+print "Content-type: text/html\r\n\r\n";
 
 if ($ENV{"REQUEST_METHOD"} eq "HEAD") {
  exit 0;
- }
-
+}
 print "<html><head><title>Boa CGI test</title></head><body>\n";
 print "<H2>Boa CGI test</H2>\n\n";
 

@@ -40,7 +40,7 @@ void create_common_env()
 {
 	int index = 0;
 
-	common_cgi_env = (char **) malloc(sizeof(char *) * COMMON_CGI_VARS);
+	common_cgi_env = (char **) malloc(sizeof (char *) * COMMON_CGI_VARS);
 	common_cgi_env[index++] = env_gen("PATH", DEFAULT_PATH);
 	common_cgi_env[index++] = env_gen("SERVER_SOFTWARE", SERVER_VERSION);
 	common_cgi_env[index++] = env_gen("SERVER_NAME", server_name);
@@ -68,7 +68,7 @@ void create_env(request * req)
 {
 	int i;
 
-	req->cgi_env = (char **) malloc(sizeof(char *) * MAX_CGI_VARS);
+	req->cgi_env = (char **) malloc(sizeof (char *) * MAX_CGI_VARS);
 
 	for (i = 0; i < COMMON_CGI_VARS; i++)
 		req->cgi_env[i] = common_cgi_env[i];
@@ -93,31 +93,31 @@ void create_env(request * req)
 			break;
 		}
 		req->cgi_env[req->cgi_env_index++] =
-			env_gen("REQUEST_METHOD", w);
+		  env_gen("REQUEST_METHOD", w);
 	}
 
 	req->cgi_env[req->cgi_env_index++] =
-		env_gen("SERVER_PROTOCOL", req->http_version);
+	  env_gen("SERVER_PROTOCOL", req->http_version);
 
 	if (req->path_info) {
 		req->cgi_env[req->cgi_env_index++] =
-			env_gen("PATH_INFO", req->path_info);
+		  env_gen("PATH_INFO", req->path_info);
 		/* path_translated depends upon path_info */
 		req->cgi_env[req->cgi_env_index++] =
-			env_gen("PATH_TRANSLATED", req->path_translated);
+		  env_gen("PATH_TRANSLATED", req->path_translated);
 	}
 	req->cgi_env[req->cgi_env_index++] =
-		env_gen("SCRIPT_NAME", req->script_name);
+	  env_gen("SCRIPT_NAME", req->script_name);
 
 	if (req->query_string) {
 		req->cgi_env[req->cgi_env_index++] =
-			env_gen("QUERY_STRING", req->query_string);
+		  env_gen("QUERY_STRING", req->query_string);
 	}
 	req->cgi_env[req->cgi_env_index++] =
-		env_gen("REMOTE_ADDR", req->remote_ip_addr);
+	  env_gen("REMOTE_ADDR", req->remote_ip_addr);
 
 	req->cgi_env[req->cgi_env_index++] =
-		env_gen("REMOTE_PORT", simple_itoa(req->remote_port));
+	  env_gen("REMOTE_PORT", simple_itoa(req->remote_port));
 }
 
 /*
@@ -172,14 +172,14 @@ void complete_env(request * req)
 	if (req->method == M_POST) {
 		if (req->content_type)
 			req->cgi_env[req->cgi_env_index++] =
-				env_gen("CONTENT_TYPE", req->content_type);
+			  env_gen("CONTENT_TYPE", req->content_type);
 		else
 			req->cgi_env[req->cgi_env_index++] =
-				env_gen("CONTENT_TYPE", default_type);
+			  env_gen("CONTENT_TYPE", default_type);
 
 		if (req->content_length) {
 			req->cgi_env[req->cgi_env_index++] =
-				env_gen("CONTENT_LENGTH", req->content_length);
+			  env_gen("CONTENT_LENGTH", req->content_length);
 		}
 	}
 /*      
@@ -258,6 +258,12 @@ int init_cgi(request * req)
 			perror("pipe");
 			return 0;
 		}
+		if (fcntl(p[0], F_SETFL, O_NONBLOCK) == -1) {
+			fprintf(stderr, "Unable to do something.\n");
+			close(p[0]);
+			close(p[1]);
+			return 0;
+		}
 	}
 	if ((child_pid = fork()) == -1) {	/* fork unsuccessful */
 		if (req->is_cgi == CGI) {
@@ -273,20 +279,25 @@ int init_cgi(request * req)
 	if (!child_pid) {			/* 0 == child */
 
 		if (req->is_cgi != CGI) {	/* nph or gunzip, etc... */
-			/* Switch socket flags back to blocking */
-			if (fcntl(req->fd, F_SETFL, 0) == -1)
-				perror("cgi-fcntl");
-
 			/* tie stdout to socket */
 			if (dup2(req->fd, STDOUT_FILENO) == -1)
 				perror("dup2");
-			close(req->fd);
+			/* close(req->fd); */
+			/* close-on-exec should be set for req->fd */
+
+			/* Switch socket flags back to blocking */
+			if (fcntl(STDOUT_FILENO, F_SETFL, 0) == -1)
+				perror("cgi-fcntl");
 		} else {
 			/* tie stdout to write end of pipe */
 			if (dup2(p[1], STDOUT_FILENO) == -1)
 				perror("dup2");
 			close(p[1]);
 			close(p[0]);
+
+			/* Switch socket flags back to blocking */
+			if (fcntl(STDOUT_FILENO, F_SETFL, 0) == -1)
+				perror("cgi-fcntl");
 		}
 
 		/* tie post_data_fd to POST stdin */
@@ -295,18 +306,19 @@ int init_cgi(request * req)
 			dup2(req->post_data_fd, STDIN_FILENO);
 			close(req->post_data_fd);
 		}
-		/* Proper behavior, so CGI program can't scribble where it shouldn't */
-		close_unused_fds(request_block);
-		close_unused_fds(request_ready);
+		/* Close access log, so CGI program can't scribble 
+		 * where it shouldn't 
+		 */
 		close_access_log();
 
 		if (!cgi_log_fd)
 			close(STDERR_FILENO);
 		else
-			dup2(cgi_log_fd, STDERR_FILENO);	/* tie STDERR to cgi_log_fd */
-
-		/* Faster, more trusting alternative: */
-		/* close(req->fd); */
+			dup2(cgi_log_fd, STDERR_FILENO);
+		/* 
+		 * tie STDERR to cgi_log_fd 
+		 * cgi_log_fd will automatically close, close-on-exec rocks!
+		 */
 
 		if (req->is_cgi) {
 			char *aargv[ARGC_MAX + 1];
@@ -340,22 +352,22 @@ int init_cgi(request * req)
 		return 0;
 
 	req->data_fd = p[0];
-	close(p[1]);				/* close duplicate write end of pipe */
-	/* Switch socket flags to non-blocking */
-	if (fcntl(p[0], F_SETFL, O_NONBLOCK) == -1)
-		perror("cgi-pipe-fcntl");
-	
-	req->status = PIPE_READ;
-	req->filesize = req->filepos = 0; /* why is this here??? */
 
-	if (req->is_cgi == CGI) {		/* cgi */
-		req->header_line = req->header_end = (req->buffer + BUFFER_SIZE / 2);
+	/* close duplicate write end of pipe */
+	close(p[1]);
+
+	req->status = PIPE_READ;
+	req->filesize = req->filepos = 0;	/* why is this here??? */
+
+	if (req->is_cgi == CGI) {	/* cgi */
 		/* for cgi_header... I get half the buffer! */
-		req->cgi_status = READ_HEADER;	/* got to parse cgi header */
-	} else	{					/* gunzip or similar */
+		req->header_line = req->header_end =
+		  (req->buffer + BUFFER_SIZE / 2);
+		req->cgi_status = CGI_READ;		/* got to parse cgi header */
+	} else {					/* gunzip or similar */
 		req->header_line = req->header_end = req->buffer;
-		req->cgi_status = WRITE;	/* don't do it. */
+		req->cgi_status = CGI_WRITE;	/* don't do it. */
 	}
-	
+
 	return 1;					/* success */
 }
