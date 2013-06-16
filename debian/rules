@@ -24,8 +24,6 @@ build-stamp:
 clean:
 	dh_testdir
 
-	rm -f *-stamp
-
 	-[ -f Makefile ] && make mrclean
 	-[ -f docs/Makefile ] && make -C docs clean
 	-rm -f docs/boa.info docs/boa.html docs/index.html
