@@ -1,5 +1,6 @@
 boa (0.94.14rc21-5) UNRELEASED; urgency=low
 
+  * QA upload
   * Revamp init.d script
     + SIGHUP and signal 1 are actually same
     + Do stop and start on restart and force-reload (LP: #46908)
