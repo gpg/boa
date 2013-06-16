@@ -47,7 +47,7 @@ binary-arch:	build
 	dh_installcron
 	dh_installlogrotate
 	dh_installman
-	dh_installchangelogs CHANGES
+	dh_installchangelogs
 
 	install src/boa debian/boa/usr/sbin
 	install src/boa_indexer debian/boa/usr/lib/boa

@@ -15,6 +15,7 @@ boa (0.94.14rc21-4) UNRELEASED; urgency=low
     + No more manually clean stamp files, done by dh_clean now
     + Use debian/{docs,manpages,info} instead of dh_install{docs,man,info}
       parameters
+    + Remove redundant dh_installchangelogs parameter
   * Apply wrap-and-sort
 
  -- Axel Beckert <abe@debian.org>  Sun, 16 Jun 2013 02:21:37 +0200
