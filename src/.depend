@@ -1,0 +1,15 @@
+alias.o: alias.c boa.h defines.h globals.h compat.h config.h
+boa.o: boa.c boa.h defines.h globals.h compat.h config.h
+cgi.o: cgi.c boa.h defines.h globals.h compat.h config.h
+config.o: config.c boa.h defines.h globals.h compat.h config.h
+get.o: get.c boa.h defines.h globals.h compat.h config.h
+hash.o: hash.c boa.h defines.h globals.h compat.h config.h
+log.o: log.c boa.h defines.h globals.h compat.h config.h
+queue.o: queue.c boa.h defines.h globals.h compat.h config.h
+read.o: read.c boa.h defines.h globals.h compat.h config.h
+request.o: request.c boa.h defines.h globals.h compat.h config.h
+response.o: response.c boa.h defines.h globals.h compat.h config.h
+signals.o: signals.c boa.h defines.h globals.h compat.h config.h
+util.o: util.c boa.h defines.h globals.h compat.h config.h escape.h
+cgi_header.o: cgi_header.c boa.h defines.h globals.h compat.h config.h
+pipe.o: pipe.c boa.h defines.h globals.h compat.h config.h
