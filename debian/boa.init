@@ -7,6 +7,7 @@
 
 ### BEGIN INIT INFO
 # Provides:          boa
+# Description:       Boa HTTPd
 # Required-Start:    $local_fs $remote_fs $network
 # Required-Stop:     $local_fs $remote_fs $network
 # Default-Start:     2 3 4 5
