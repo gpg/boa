@@ -7,9 +7,5 @@ override_dh_auto_build:
 	dh_auto_build
 	cd docs;make boa.html boa.info
 
-override_dh_auto_clean:
-	[ ! -f Makefile ] || make mrclean
-	[ ! -f docs/Makefile ] || make -C docs clean
-
 override_dh_installinit:
 	dh_installinit --error-handler=true
