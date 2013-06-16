@@ -49,10 +49,7 @@ binary-arch:	build
 	dh_installman
 	dh_installchangelogs
 
-	install src/boa debian/boa/usr/sbin
-	install src/boa_indexer debian/boa/usr/lib/boa
-	install --mode=0640 debian/boa.conf debian/boa/etc/boa/boa.conf
-#	install --mode=0640 debian/logrotate.d debian/boa/etc/logrotate.d/boa
+	dh_install
 
 	dh_strip
 	dh_compress

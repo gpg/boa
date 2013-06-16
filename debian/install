@@ -1,0 +1,3 @@
+src/boa usr/sbin
+src/boa_indexer usr/lib/boa
+debian/boa.conf etc/boa
