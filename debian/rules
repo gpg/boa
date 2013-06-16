@@ -37,7 +37,7 @@ binary-arch:	build
 	dh_testdir
 	dh_testroot
 
-	dh_clean -k
+	dh_prep
 	dh_installdirs
 
 	dh_installdocs README docs/boa.html docs/boa_banner.png docs/boa.texi

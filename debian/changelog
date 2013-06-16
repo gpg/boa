@@ -11,6 +11,7 @@ boa (0.94.14rc21-4) UNRELEASED; urgency=low
     + Update versioned debhelper build-dependency
   * Revamp debian/rules:
     + Use dh_auto_{configure,build}
+    + Use dh_prep instead of dh_clean -k
   * Apply wrap-and-sort
 
  -- Axel Beckert <abe@debian.org>  Sun, 16 Jun 2013 02:21:37 +0200
