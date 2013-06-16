@@ -3,7 +3,7 @@ boa for DEBIAN
 
 To read the docs try
 
-file:/usr/doc/boa/boa.html
+file:///usr/share/doc/boa/boa.html
 or
 http://localhost/doc/boa/boa.html
 

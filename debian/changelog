@@ -25,6 +25,7 @@ boa (0.94.14rc21-4) UNRELEASED; urgency=low
   * Fix the following lintian warnings:
     + maintainer-script-ignores-errors
     + no-homepage-field
+    + readme-debian-mentions-usr-doc
   * Apply wrap-and-sort
 
  -- Axel Beckert <abe@debian.org>  Sun, 16 Jun 2013 02:21:37 +0200
