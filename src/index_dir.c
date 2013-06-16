@@ -17,49 +17,105 @@
  *
  */
 
-/* $Id: index_dir.c,v 1.24 2000/02/12 21:52:45 jon Exp $*/
+/* $Id: index_dir.c,v 1.28 2001/10/13 20:25:49 jnelson Exp $*/
 
 #include <stdio.h>
 #include <sys/stat.h>
 #include <limits.h>             /* for PATH_MAX */
-#include <dirent.h>             /* for MAXNAMLEN */
 #include <time.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "compat.h"
 
 #define MAX_FILE_LENGTH                         MAXNAMLEN
 #define MAX_PATH_LENGTH                         PATH_MAX
-
 
 #define INT_TO_HEX(x) \
   ((((x)-10)>=0)?('A'+((x)-10)):('0'+(x)))
 
 #include "escape.h"
 
-char *escape_string(char *inp, char *buf);
-int select_files(const struct dirent *d);
+char *html_escape_string(char *inp, char *buf, const int len);
+char *http_escape_string(char *inp, char *buf, const int len);
+
+#if defined __GNUC__ && \
+    (__GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ > 0))
+#define CONST const
+#else
+#define CONST
+#endif
+
+int select_files(CONST struct dirent *d);
 int index_directory(char *dir, char *title);
 
 /*
+ * Name: html_escape_string
+ */
+char *html_escape_string(char *inp, char *dest, const int len)
+{
+    int max;
+    char *buf;
+    unsigned char c;
+
+    max = len * 5;
+
+    if (dest == NULL && max)
+        dest = malloc(sizeof (unsigned char) * (max + 1));
+
+    if (dest == NULL)
+        return NULL;
+
+    buf = dest;
+    while ((c = *inp++)) {
+        switch (c) {
+        case '>':
+            *dest++ = '&';
+            *dest++ = 'g';
+            *dest++ = 't';
+            *dest++ = ';';
+            break;
+        case '<':
+            *dest++ = '&';
+            *dest++ = 'l';
+            *dest++ = 't';
+            *dest++ = ';';
+            break;
+        case '&':
+            *dest++ = '&';
+            *dest++ = 'a';
+            *dest++ = 'm';
+            *dest++ = 'p';
+            *dest++ = ';';
+            break;
+        default:
+            *dest++ = c;
+        }
+    }
+    *dest = '\0';
+    return buf;
+}
+
+
+/*
  * Name: escape_string
- * 
+ *
  * Description: escapes the string inp.  Uses variable buf.  If buf is
  *  NULL when the program starts, it will attempt to dynamically allocate
- *  the space that it needs, otherwise it will assume that the user 
+ *  the space that it needs, otherwise it will assume that the user
  *  has already allocated enough space for the variable buf, which
  *  could be up to 3 times the size of inp.  If the routine dynamically
  *  allocates the space, the user is responsible for freeing it afterwords
  * Returns: NULL on error, pointer to string otherwise.
  */
 
-char *escape_string(char *inp, char *buf)
+char *http_escape_string(char *inp, char *buf, const int len)
 {
     int max;
     char *index;
     unsigned char c;
 
-    max = strlen(inp) * 3;
+    max = len * 3;
 
     if (buf == NULL && max)
         buf = malloc(sizeof (unsigned char) * (max + 1));
@@ -99,15 +155,21 @@ void send_error(int error)
         break;
     case 4:
         the_error = "There was an error escaping a string.";
+    case 5:
+        the_error = "Too many arguments were passed to the indexer.";
+        break;
+    case 6:
+        the_error = "No files in this directory.";
+        break;
     default:
         the_error = "An unknown error occurred producing the directory.";
         break;
     }
-    printf("<html>\n<head>\n<title>\n%s\n</title>\n" \
+    printf("<html>\n<head>\n<title>\n%s\n</title>\n"
            "<body>\n%s\n</body>\n</html>\n", the_error, the_error);
 }
 
-int select_files(const struct dirent *dirbuf)
+int select_files(CONST struct dirent *dirbuf)
 {
     if (dirbuf->d_name[0] == '.')
         return 0;
@@ -129,10 +191,9 @@ int index_directory(char *dir, char *title)
     int numdir;
     struct dirent **array;
     struct stat statbuf;
-    char filename[MAX_FILE_LENGTH * 3];
-    time_t timep;
+    char http_filename[MAX_FILE_LENGTH * 3];
+    char html_filename[MAX_FILE_LENGTH * 4];
     int i;
-    char *header;
 
     if (chdir(dir) == -1) {
         send_error(3);
@@ -141,6 +202,9 @@ int index_directory(char *dir, char *title)
     numdir = scandir(".", &array, select_files, alphasort);
     if (numdir == -1) {
         send_error(2);
+        return -1;
+    } else if (numdir == -2) {
+        send_error(6);
         return -1;
     }
     printf("<html>\n"
@@ -162,16 +226,22 @@ int index_directory(char *dir, char *title)
         if (!S_ISDIR(statbuf.st_mode))
             continue;
 
-        if (escape_string(dirbuf->d_name, filename) == NULL) {
+        if (html_escape_string(dirbuf->d_name, html_filename,
+                               NAMLEN(dirbuf)) == NULL) {
+            send_error(4);
+            return -1;
+        }
+        if (http_escape_string(dirbuf->d_name, http_filename,
+                               NAMLEN(dirbuf)) == NULL) {
             send_error(4);
             return -1;
         }
         printf("<tr>"
                "<td width=\"40%%\"><a href=\"%s/\">%s/</a></td>"
-               "<td align=right>%24s</td>"
+               "<td align=right>%s</td>"
                "<td align=right>%ld bytes</td>"
                "</tr>\n",
-               filename, dirbuf->d_name,
+               http_filename, html_filename,
                ctime(&statbuf.st_mtime), (long) statbuf.st_size);
     }
 
@@ -179,6 +249,7 @@ int index_directory(char *dir, char *title)
         ("<tr><td colspan=3>&nbsp;</td></tr>\n<tr><td colspan=3><h3>Files</h3></td></tr>\n");
 
     for (i = 0; i < numdir; ++i) {
+        int len;
         dirbuf = array[i];
 
         if (stat(dirbuf->d_name, &statbuf) == -1)
@@ -188,39 +259,86 @@ int index_directory(char *dir, char *title)
         if (S_ISDIR(statbuf.st_mode))
             continue;
 
-        if (escape_string(dirbuf->d_name, filename) == NULL) {
+        if (html_escape_string(dirbuf->d_name, html_filename,
+                              NAMLEN(dirbuf)) == NULL) {
             send_error(4);
             return -1;
         }
-        printf("<tr>"
-               "<td width=\"40%%\"><a href=\"%s\">%s</a></td>"
-               "<td align=right>%24s</td>"
-               "<td align=right>%ld bytes</td>"
-               "</tr>\n",
-               filename, dirbuf->d_name,
-               ctime(&statbuf.st_mtime), (long) statbuf.st_size);
-    }
+        if (http_escape_string(dirbuf->d_name, http_filename,
+                              NAMLEN(dirbuf)) == NULL) {
+            send_error(4);
+            return -1;
+        }
 
-    time(&timep);
-    printf("</table>\n<hr noshade>\nIndex generated %s\n "
-           "<!-- This program is part of the Boa Webserver Copyright (C) 1991-1999 http://www.boa.org -->\n"
-           "</body>\n</html>\n", ctime(&timep));
+        len = strlen(http_filename);
+#ifdef GUNZIP
+        if (len > 3 && !memcmp(http_filename + len - 3, ".gz", 3)) {
+            http_filename[len - 3] = '\0';
+            html_filename[strlen(html_filename) - 3] = '\0';
+
+            printf("<tr>"
+                   "<td width=\"40%%\"><a href=\"%s\">%s</a> "
+                   "<a href=\"%s.gz\">(.gz)</a></td>"
+                   "<td align=right>%s</td>"
+                   "<td align=right>%ld bytes</td>"
+                   "</tr>\n",
+                   http_filename, html_filename, http_filename,
+                   ctime(&statbuf.st_mtime), (long) statbuf.st_size);
+        } else {
+#endif
+            printf("<tr>"
+                   "<td width=\"40%%\"><a href=\"%s\">%s</a></td>"
+                   "<td align=right>%s</td>"
+                   "<td align=right>%ld bytes</td>"
+                   "</tr>\n",
+                   http_filename, html_filename,
+                   ctime(&statbuf.st_mtime), (long) statbuf.st_size);
+#ifdef GUNZIP
+        }
+#endif
+    }
+    /* hey -- even though this is a one-shot deal, we should
+     * still free memory we ought to free
+     * You never know -- this code might get used elsewhere!
+     */
+    for (i = 0; i < numdir; ++i) {
+        free(array[i]);
+        array[i] = NULL;
+    }
+    free(array);
+    array = NULL;
 
     return 0;                   /* success */
 }
 
 int main(int argc, char *argv[])
 {
-    int c;
+    time_t timep;
+    struct tm *timeptr;
+    char *now;
 
-    if (argc < 2) {
+    if (argc < 3) {
         send_error(1);
         return -1;
+    } else if (argc > 3) {
+        send_error(5);
+        return -1;
     }
-    for (c = 1; c < argc; c += 2)
-        if (argv[c + 1] == NULL)
-            index_directory(argv[c], argv[c]);
-        else
-            index_directory(argv[c], argv[c + 1]);
+
+    build_needs_escape();
+
+    if (argv[2] == NULL)
+        index_directory(argv[1], argv[1]);
+    else
+        index_directory(argv[1], argv[2]);
+
+    time(&timep);
+    timeptr = gmtime(&timep);
+    now = strdup(asctime(timeptr));
+    now[strlen(now) - 1] = '\0';
+    printf("</table>\n<hr noshade>\nIndex generated %s UTC\n"
+           "<!-- This program is part of the Boa Webserver Copyright (C) 1991-1999 http://www.boa.org -->\n"
+           "</body>\n</html>\n", now);
+
     return 0;
 }

@@ -20,7 +20,7 @@
  *
  */
 
-/* $Id: read.c,v 1.40 2000/05/26 02:44:22 jon Exp $*/
+/* $Id: read.c,v 1.44 2001/10/20 02:58:39 jnelson Exp $*/
 
 #include "boa.h"
 
@@ -152,48 +152,25 @@ int read_header(request * req)
 
                  */
 
-                /* Update 5 Jan 2000
-                   While debugging some weird errors, I learned that
-                   Netscape Navigator breaks HTTP specification.
-                   Again.
-                   Surprise.
-
-                   Some research on the issue brought up:
-
-                   http://www.apache.org/docs/misc/known_client_problems.html
-
-                   As quoted here:
-
-                   "
-                   Trailing CRLF on POSTs
-
-                   This is a legacy issue. The CERN webserver required POST
-                   data to have an extra CRLF following it. Thus many
-                   clients send an extra CRLF that is not included in the
-                   Content-Length of the request. Apache works around this
-                   problem by eating any empty lines which appear before a
-                   request.
-                   "
-
-                   Boa will (for now) hack around this stupid bug in Netscape
-                   by reading up to 2 more bytes than the content-length.
-                   *Any* error (incl. client blocked) results in
-                   the immediate completion of the request to write_body
-
-                   Building bugs *into* software to be compatable is
-                   just plain wrong
-                 */
-
                 if (req->content_length) {
                     req->filesize = atoi(req->content_length);
                     req->filepos = 0;
+                    if (single_post_limit && req->filesize > single_post_limit) {
+                        log_error_time();
+                        fprintf(stderr, "Content-Length [%ld] > SinglePostLimit [%d] on POST!\n",
+                               req->filesize, single_post_limit);
+                        send_r_bad_request(req);
+                        return 0;
+                    }
                 } else {
                     log_error_time();
                     fprintf(stderr, "Unknown Content-Length POST!\n");
                     send_r_bad_request(req);
                     return 0;
                 }
-
+                if (req->header_end - req->header_line > req->filesize) {
+                    req->header_end = req->header_line + req->filesize;
+                }
             }                   /* either process_header_end failed or req->method != POST */
             return retval;      /* 0 - close it done, 1 - keep on ready */
         }                       /* req->status == BODY_READ */
@@ -217,10 +194,9 @@ int read_header(request * req)
             return 0;
         }
 
-        bytes =
-            read(req->fd, buffer + req->client_stream_pos, buf_bytes_left);
+        bytes = read(req->fd, buffer + req->client_stream_pos, buf_bytes_left);
 
-        if (bytes == -1) {
+        if (bytes < 0) {
             if (errno == EINTR)
                 return 1;
             if (errno == EAGAIN || errno == EWOULDBLOCK) /* request blocked */
@@ -285,7 +261,7 @@ int read_body(request * req)
     int bytes_read, bytes_to_read, bytes_free;
 
     bytes_free = BUFFER_SIZE - (req->header_end - req->header_line);
-    bytes_to_read = req->filesize - req->filepos + 2;
+    bytes_to_read = req->filesize - req->filepos;
 
     if (bytes_to_read > bytes_free)
         bytes_to_read = bytes_free;
@@ -296,11 +272,6 @@ int read_body(request * req)
     }
 
     bytes_read = read(req->fd, req->header_end, bytes_to_read);
-    if (bytes_read <= 0 && bytes_to_read == 2) {
-        /* those extra 2 bytes that Netscape puts in there */
-        req->status = BODY_WRITE;
-        return 1;
-    }
 
     if (bytes_read == -1) {
         if (errno == EWOULDBLOCK || errno == EAGAIN) {
@@ -367,7 +338,13 @@ int write_body(request * req)
             return -1;          /* request blocked at the pipe level, but keep going */
         else if (errno == EINTR)
             return 1;
-        else {
+        else if (errno == ENOSPC) {
+            /* 20010520 - Alfred Fluckiger */
+            /* No test was originally done in this case, which might  */
+            /* lead to a "no space left on device" error.             */
+            boa_perror(req, "write body"); /* OK to disable if your logs get too big */
+            return 0;
+        } else {
             boa_perror(req, "write body"); /* OK to disable if your logs get too big */
             return 0;
         }

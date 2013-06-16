@@ -21,7 +21,7 @@
  *
  */
 
-/* $Id: boa.c,v 1.79 2000/05/28 15:27:47 jon Exp $*/
+/* $Id: boa.c,v 1.82 2001/09/19 01:21:19 jnelson Exp $*/
 
 #include "boa.h"
 #include <sys/resource.h>       /* setrlimit */
@@ -44,7 +44,7 @@ fd_set block_write_fdset;
 
 int sighup_flag = 0;            /* 1 => signal has happened, needs attention */
 int sigchld_flag = 0;           /* 1 => signal has happened, needs attention */
-int lame_duck_mode = 0;
+short lame_duck_mode = 0;
 time_t current_time;
 
 int sock_opt = 1;
@@ -69,6 +69,9 @@ int main(int argc, char **argv)
     }
 
     fixup_server_root();
+
+    /* set umask to u+rw, u-x, go-rwx */
+    umask(~0600);
 
     /* For when we have done more work with chroot....
        if (chdir(chroot_path) == -1) {
@@ -101,6 +104,14 @@ int main(int argc, char **argv)
         exit(errno);
     }
 
+    /* close server socket on exec so cgi's can't write to it */
+    if (fcntl(server_s, F_SETFD, 1) == -1) {
+        log_error_mesg(__FILE__, __LINE__,
+                       "can't set close-on-exec on server socket!");
+        exit(errno);
+    }
+
+    /* reuse socket addr */
     if ((setsockopt(server_s, SOL_SOCKET, SO_REUSEADDR, (void *) &sock_opt,
                     sizeof (sock_opt))) == -1) {
         log_error_mesg(__FILE__, __LINE__, "setsockopt");
@@ -127,15 +138,6 @@ int main(int argc, char **argv)
         if (fork())
             exit(0);
 
-    /* close server socket on exec
-     * so cgi's can't write to it */
-
-    if (fcntl(server_s, F_SETFD, 1) == -1) {
-        log_error_mesg(__FILE__, __LINE__,
-                       "can't set close-on-exec on server socket!");
-        exit(errno);
-    }
-
     /* make STDIN and STDOUT point to /dev/null */
     {
         int devnull = open("/dev/null", 0);
@@ -156,6 +158,7 @@ int main(int argc, char **argv)
                            "can't dup2 /dev/null to STDIN_FILENO");
             exit(errno);
         }
+        close(devnull);
     }
 
     /* write a PID file if we have one */
@@ -216,12 +219,9 @@ int main(int argc, char **argv)
         max_connections = rl.rlim_cur;
     }
 
-    /* set umask to u+rw, u-x, go-rwx */
-    umask(~0600);
-
     /* main loop */
-
     timestamp();
+    build_needs_escape();
 
     FD_ZERO(&block_read_fdset);
     FD_ZERO(&block_write_fdset);
@@ -246,6 +246,7 @@ int main(int argc, char **argv)
             if (!request_ready && !request_block) {
                 log_error_time();
                 fprintf(stderr, "exiting Boa normally\n");
+                chdir(tempdir);
                 exit(0);
             }
         }

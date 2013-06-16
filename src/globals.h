@@ -20,17 +20,10 @@
  *
  */
 
-/* $Id: globals.h,v 1.51 2000/05/26 02:43:14 jon Exp $*/
+/* $Id: globals.h,v 1.54 2001/10/20 02:57:41 jnelson Exp $*/
 
 #ifndef _GLOBALS_H
 #define _GLOBALS_H
-
-#include <stdio.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-
-#include "defines.h"
-#include "compat.h"
 
 struct mmap_entry {
     dev_t dev;
@@ -171,12 +164,16 @@ extern char *mime_types;
 extern char *cachedir;
 extern char *pidfile;
 
+extern char *tempdir;
+
+extern int single_post_limit;
+
 extern int ka_timeout;
 extern int ka_max;
 
 extern int sighup_flag;
 extern int sigchld_flag;
-extern int lame_duck_mode;
+extern short lame_duck_mode;
 
 extern int verbose_cgi_logs;
 

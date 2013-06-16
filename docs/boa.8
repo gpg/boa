@@ -132,7 +132,8 @@ MimeTypes <file>
 The location of the 
 .I mime.types
 file.  If this does not start with /, it is considered relative to 
-the server root.
+the server root. Set to /dev/null if you do not want to load a mime types 
+file. Do *not* comment out (better use AddType!)
 .TP
 DefaultType <mime type>
 MIME type used if the file extension is unknown, or there is no file extension.
@@ -161,7 +162,7 @@ for defaults and examples.
 .SH HISTORY
 Like the Linux kernel, even numbered versions are "stable", and odd numbered
 versions are "unstable", or rather, "development".
-Versions 0.91 and 0.91beta of Boa were released by Paul Phillips <psp@well.com>
+Versions 0.91 and 0.91beta of Boa were released by Paul Phillips <paulp@go2net.com>
 .PP
 Version 0.92 was released by Larry Doolittle on 
 December 12, 1996.
@@ -172,7 +173,7 @@ Version 0.94 was released 22 Jan 2000.
 .SH BUGS
 There are probably bugs, but we are not aware of any at this time.
 .SH AUTHOR
-Boa was created by Paul Phillips <psp@well.com>. It is now being maintained and
+Boa was created by Paul Phillips <paulp@go2net.com>. It is now being maintained and
 enhanced by Larry Doolittle
 <ldoolitt@boa.org> and
 Jon Nelson <jnelson@boa.org>.

@@ -19,7 +19,7 @@
  *
  */
 
-/* $Id: defines.h,v 1.83 2000/10/03 23:41:44 jon Exp $*/
+/* $Id: defines.h,v 1.90 2001/11/02 04:37:46 jnelson Exp $*/
 
 #ifndef _DEFINES_H
 #define _DEFINES_H
@@ -50,26 +50,9 @@
 /***** You will probably introduce buffer overruns unless you know
        what you are doing *****/
 
-#if defined HAVE_DIRENT_H
-#include <dirent.h>             /* for MAXNAMLEN */
-#elif defined HAVE_NDIR_H
-#include <ndir.h>
-#elif defined HAVE_SYS_DIR_H
-#include <sys/dir.h>
-#elif defined HAVE_SYS_NDIR_H
-#include <sys/ndir.h>
-#endif
-#include <sys/socket.h>
-#ifndef SO_MAXCONN
-#define SO_MAXCONN 250
-#endif
-
 #define MAX_SITENAME_LENGTH			256
 #define MAX_LOG_LENGTH				MAX_HEADER_LENGTH + 1024
 #define MAX_FILE_LENGTH				NAME_MAX
-#ifndef PATH_MAX
-#define PATH_MAX 2048
-#endif
 #define MAX_PATH_LENGTH				PATH_MAX
 
 #ifdef ACCEPT_ON
@@ -79,7 +62,7 @@
 #endif
 
 #ifndef SERVER_VERSION
-#define SERVER_VERSION 				"Boa/0.94.8.3"
+#define SERVER_VERSION 				"Boa/0.94.11"
 #endif
 
 #define CGI_VERSION				"CGI/1.1"
@@ -204,9 +187,5 @@
 #define MMAP_LIST_HASH(dev,ino,size) ((ino)&MMAP_LIST_MASK)
 
 #define MAX_FILE_MMAP 100 * 1024 /* 100K */
-
-#ifndef NI_MAXHOST
-#define NI_MAXHOST 20
-#endif
 
 #endif

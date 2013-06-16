@@ -20,7 +20,7 @@
  *
  */
 
-/* $Id: request.c,v 1.95 2000/05/26 02:46:03 jon Exp $*/
+/* $Id: request.c,v 1.100 2001/07/18 03:40:10 jnelson Exp $*/
 
 #include "boa.h"
 #include <netinet/tcp.h>
@@ -84,6 +84,11 @@ void get_request(int server_s)
         if (errno != EAGAIN && errno != EWOULDBLOCK) /* no requests */
             log_error_mesg(__FILE__, __LINE__, "accept");
         return;
+    }
+    if (fd >= FD_SETSIZE) {
+        log_error_mesg(__FILE__, __LINE__, "Got fd >= FD_SETSIZE.");
+        close(fd);
+	return;
     }
 #ifdef DEBUGNONINET
     /* This shows up due to race conditions in some Linux kernels
@@ -244,6 +249,9 @@ static void free_request(request ** list_head_addr, request * req)
     if (req->data_fd)
         close(req->data_fd);
 
+    if (req->post_data_fd)
+        close(req->post_data_fd);
+
     if (req->response_status >= 400)
         status.errors++;
 
@@ -262,8 +270,6 @@ static void free_request(request ** list_head_addr, request * req)
         free(req->path_translated);
     if (req->script_name)
         free(req->script_name);
-    if (req->query_string)
-        free(req->query_string);
 
     if ((req->keepalive == KA_ACTIVE) &&
         (req->response_status < 500) && req->kacount > 0) {
@@ -279,6 +285,7 @@ static void free_request(request ** list_head_addr, request * req)
 
         /* for log file and possible use by CGI programs */
         memcpy(conn->remote_ip_addr, req->remote_ip_addr, NI_MAXHOST);
+        memcpy(conn->local_ip_addr, req->local_ip_addr, NI_MAXHOST);
 
         /* for possible use by CGI programs */
         conn->remote_port = req->remote_port;
@@ -303,6 +310,42 @@ static void free_request(request ** list_head_addr, request * req)
             }
         }
     } else {
+        /*
+         While debugging some weird errors, Jon Nelson learned that
+         some versions of Netscape Navigator break the
+         HTTP specification.
+
+         Some research on the issue brought up:
+
+         http://www.apache.org/docs/misc/known_client_problems.html
+
+         As quoted here:
+
+         "
+         Trailing CRLF on POSTs
+
+         This is a legacy issue. The CERN webserver required POST
+         data to have an extra CRLF following it. Thus many
+         clients send an extra CRLF that is not included in the
+         Content-Length of the request. Apache works around this
+         problem by eating any empty lines which appear before a
+         request.
+         "
+
+         Boa will (for now) hack around this stupid bug in Netscape
+         (and Internet Exploder)
+         by reading up to 32k after the connection is all but closed.
+         This should eliminate any remaining spurious crlf sent
+         by the client.
+
+         Building bugs *into* software to be compatable is
+         just plain wrong
+         */
+
+        if (req->method == M_POST || req->method == M_PUT) {
+            char buf[32768];
+            read(req->fd, buf, 32768);
+        }
         close(req->fd);
         total_connections--;
     }
@@ -458,6 +501,9 @@ int process_logline(request * req)
         return 0;
     }
 
+    req->http_version = SIMPLE_HTTP_VERSION;
+    req->simple = 1;
+
     /* Guaranteed to find ' ' since we matched a method above */
     stop = req->logline + 3;
     if (*stop != ' ')
@@ -484,21 +530,19 @@ int process_logline(request * req)
 
     if (*stop2 == ' ') {
         /* if found, we should get an HTTP/x.x */
-        int p1, p2;
+        unsigned int p1, p2;
 
-        if (sscanf(++stop2, "HTTP/%d.%d", &p1, &p2) == 2 && p1 >= 1) {
-            req->http_version = stop2;
-            req->simple = 0;
+        if (sscanf(++stop2, "HTTP/%u.%u", &p1, &p2) == 2) {
+            /* HTTP/{0.9,1.0,1.1} */
+            if (p1 == 1 && (p2 == 0 || p2 == 1)) {
+                req->http_version = stop2;
+                req->simple = 0;
+            } else if (p1 > 1 || (p1 != 0 && p2 > 1)) {
+                goto BAD_VERSION;
+            }
         } else {
-            log_error_time();
-            fprintf(stderr, "bogus HTTP version: \"%s\"\n", stop2);
-            send_r_bad_request(req);
-            return 0;
+            goto BAD_VERSION;
         }
-
-    } else {
-        req->http_version = SIMPLE_HTTP_VERSION;
-        req->simple = 1;
     }
 
     if (req->method == M_HEAD && req->simple) {
@@ -512,6 +556,12 @@ int process_logline(request * req)
     if (req->is_cgi)
         create_env(req);
     return 1;
+
+BAD_VERSION:
+    log_error_time();
+    fprintf(stderr, "bogus HTTP version: \"%s\"\n", stop2);
+    send_r_bad_request(req);
+    return 0;
 }
 
 /*

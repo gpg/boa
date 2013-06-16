@@ -21,7 +21,7 @@
  *
  */
 
-/* $Id: signals.c,v 1.26 2000/04/10 19:48:17 jon Exp $*/
+/* $Id: signals.c,v 1.29 2001/09/19 01:19:38 jnelson Exp $*/
 
 #include "boa.h"
 #ifdef HAVE_SYS_WAIT_H
@@ -57,6 +57,8 @@ void init_signals(void)
     sigaddset(&sa.sa_mask, SIGPIPE);
     sigaddset(&sa.sa_mask, SIGCHLD);
     sigaddset(&sa.sa_mask, SIGALRM);
+    sigaddset(&sa.sa_mask, SIGUSR1);
+    sigaddset(&sa.sa_mask, SIGUSR2);
 
     sa.sa_handler = sigsegv;
     sigaction(SIGSEGV, &sa, NULL);
@@ -81,23 +83,29 @@ void init_signals(void)
 
     sa.sa_handler = sigalrm;
     sigaction(SIGALRM, &sa, NULL);
+
+    sa.sa_handler = SIG_IGN;
+    sigaction(SIGUSR1, &sa, NULL);
+
+    sa.sa_handler = SIG_IGN;
+    sigaction(SIGUSR2, &sa, NULL);
 }
 
 void sigsegv(int dummy)
 {
     log_error_time();
-    fputs("caught SIGSEGV, dumping core in /tmp\n", stderr);
+    fprintf(stderr, "caught SIGSEGV, dumping core in %s\n", tempdir);
     fclose(stderr);
-    chdir("/tmp");
+    chdir(tempdir);
     abort();
 }
 
 void sigbus(int dummy)
 {
     log_error_time();
-    fputs("caught SIGBUS, dumping core in /tmp\n", stderr);
+    fprintf(stderr, "caught SIGBUS, dumping core in %s\n", tempdir);
     fclose(stderr);
-    chdir("/tmp");
+    chdir(tempdir);
     abort();
 }
 
@@ -148,6 +156,7 @@ void sigint(int dummy)
     log_error_time();
     fputs("caught SIGINT: shutting down\n", stderr);
     fclose(stderr);
+    chdir(tempdir);
     exit(1);
 }
 

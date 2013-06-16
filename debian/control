@@ -3,6 +3,7 @@ Section: web
 Priority: optional
 Maintainer: Jonathon D Nelson <jnelson@boa.org>
 Standards-Version: 3.1.1.1
+Build-Depends: debhelper, texinfo, bison, flex, texi2html, tetex-bin
 
 Package: boa
 Architecture: any

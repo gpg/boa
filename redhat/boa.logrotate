@@ -1,8 +1,6 @@
 /var/log/boa/*_log {
-  rotate 7
-  daily
+  weekly
   compress
   copytruncate
   missingok
-  notifempty
 }

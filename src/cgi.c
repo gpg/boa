@@ -21,7 +21,7 @@
  *
  */
 
-/* $Id: cgi.c,v 1.66 2000/10/03 01:49:20 jon Exp $ */
+/* $Id: cgi.c,v 1.70 2001/07/18 03:41:44 jnelson Exp $ */
 
 #include "boa.h"
 
@@ -237,18 +237,64 @@ void create_argv(request * req, char **aargv)
     q = req->query_string;
     aargv[0] = req->pathname;
 
+    /* here, we handle a special "indexed" query string.
+     * Taken from the CGI/1.1 SPEC:
+     * This is identified by a GET or HEAD request with a query string
+     * with no *unencoded* '=' in it.
+     * For such a request, I'm supposed to parse the search string
+     * into words, according to the following rules:
+
+       search-string = search-word *( "+" search-word )
+       search-word   = 1*schar
+       schar         = xunreserved | escaped | xreserved
+       xunreserved   = alpha | digit | xsafe | extra
+       xsafe         = "$" | "-" | "_" | "."
+       xreserved     = ";" | "/" | "?" | ":" | "@" | "&"
+
+       After parsing, each word is URL-decoded, optionally encoded in a system
+       defined manner, and then the argument list
+       is set to the list of words.
+
+
+      Thus, schar is alpha|digit|"$"|"-"|"_"|"."|";"|"/"|"?"|":"|"@"|"&"
+
+      As of this writing, escape.pl escapes the following chars:
+
+       "-", "_", ".", "!", "~", "*", "'", "(", ")",
+       "0".."9", "A".."Z", "a".."z",
+       ";", "/", "?", ":", "@", "&", "=", "+", "\$", ","
+
+      Which therefore means
+       "=", "+", "~", "!", "*", "'", "(", ")", ","
+       are *not* escaped and should be?
+      Wait, we don't do any escaping, and nor should we.
+      According to the RFC draft, we unescape and then re-escape
+      in a "system defined manner" (here: none).
+
+      The CGI/1.1 draft (03, latest is 1999???) is very unclear here.
+
+      I am using the latest published RFC, 2396, for what does and does
+      not need escaping.
+
+      Since boa builds the argument list and does not call /bin/sh,
+      (boa uses execve for CGI)
+     */
+
     if (q && !strchr(q, '=')) {
-        /* fprintf(stderr,"Parsing string %s\n",q); */
+        /* we have an 'index' style */
         q = strdup(q);
         for (aargc = 1; q && (aargc < CGI_ARGC_MAX);) {
             r = q;
+            /* for an index-style CGI, + is used to seperate arguments
+             * an escaped '+' is of no concern to us
+             */
             if ((p = strchr(q, '+'))) {
                 *p = '\0';
                 q = p + 1;
             } else {
                 q = NULL;
             }
-            if (unescape_uri(r)) {
+            if (unescape_uri(r, NULL)) {
                 /* printf("parameter %d: %s\n",aargc,r); */
                 aargv[aargc++] = r;
             }
@@ -325,6 +371,7 @@ int init_cgi(request * req)
                 close(pipes[1]);
                 exit(1);
             }
+            close(pipes[1]);
         } else {
             /* tie stdout to socket */
             if (dup2(req->fd, STDOUT_FILENO) == -1) {
@@ -387,8 +434,10 @@ int init_cgi(request * req)
                 req->pathname, child_pid);
     }
 
-    if (req->method == M_POST)
+    if (req->method == M_POST) {
         close(req->post_data_fd); /* child closed it too */
+        req->post_data_fd = 0;
+    }
 
     /* NPH, GUNZIP, etc... all go straight to the fd */
     if (req->is_cgi != CGI)

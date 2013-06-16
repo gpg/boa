@@ -10,6 +10,7 @@
 # Modified to be a prototype for debmake by Christoph Lameter <clameter@debian.org>
 
 export DH_VERBOSE=1
+export DH_COMPAT=3
 
 package=boa
 
@@ -18,7 +19,7 @@ build:	build-stamp
 build-stamp:
 	dh_testdir
 	cd src;./configure;make
-	cd docs;make boa.dvi;make boa.html;ln -s boa.html index.html
+	cd docs;make boa.html boa.info
 	touch build-stamp
 
 clean:
@@ -41,23 +42,23 @@ binary-arch:	build
 	dh_clean -k
 	dh_installdirs
 
-	dh_installdocs README docs
-	dh_installexamples examples/*
+	dh_installdocs README docs/boa.html docs/boa_banner.png docs/boa.texi
+	dh_installinfo docs/boa.info
+	dh_installexamples examples/{cgi-test.cgi,nph-test.cgi,resolver.pl}
 	dh_installmenu
 	dh_installinit
 	dh_installcron
 	dh_installmanpages
 	dh_installchangelogs src/Changelog
 
-	install src/boa debian/tmp/usr/sbin
-	install src/boa_indexer debian/tmp/usr/lib/boa
-	install --mode=0640 debian/boa.conf debian/tmp/etc/boa/boa.conf
-	install --mode=0640 debian/logrotate.d debian/tmp/etc/logrotate.d/boa
+	install src/boa debian/boa/usr/sbin
+	install src/boa_indexer debian/boa/usr/lib/boa
+	install --mode=0640 debian/boa.conf debian/boa/etc/boa/boa.conf
+	install --mode=0640 debian/logrotate.d debian/boa/etc/logrotate.d/boa
 
 	dh_strip
 	dh_compress
 	dh_fixperms
-	dh_suidregister
 	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol

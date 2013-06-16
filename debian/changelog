@@ -1,3 +1,98 @@
+boa (0.94.11-1) unstable; urgency=low
+
+  * New upstream version 
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Thu,  1 Nov 2001 22:37:50 -0600
+
+boa (0.94.10.1-1) unstable; urgency=low
+
+  * New upsteam release
+  * Forgot to update version in source
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Tue, 25 Sep 2001 23:05:25 -0500
+
+boa (0.94.10-1) unstable testing; urgency=medium
+
+  * New upstream version
+  * Fixes escaping rules
+  * Fixes segfault when directory_index is undefined and
+    directory needs to be generated
+  * adds dummy signal handlers for SIGUSR1 and SIGUSR2
+  * Update documentation regarding mime.types (Closes: #69991)
+  * Make sure documentation builds (Closes: #110818)
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Mon, 24 Sep 2001 22:21:37 -0500
+
+boa (0.94.9-2) unstable testing; urgency=low
+
+  * upload to testing as well 
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Mon, 13 Aug 2001 12:31:32 -0500
+
+boa (0.94.9-1) unstable; urgency=low
+
+  * support subdirectories in ScriptAlias directories (Closes: #90601)
+  * make sure to memcpy local_ip_addr in keepalive for virtualhost
+    (Closes: #100102)
+  * add some more missing build deps (Closes: #100803)  
+  * Don't accept fd over FD_SETSIZE in request.c:get_request
+  * use backported documentation from 0.95
+  * make sure POST fd gets closed even on client cancel
+  * use backported index_dir.c from 0.95
+  * support subdirectories in ScriptAlias directories
+  * add SinglePostLimit (int, in Kilobytes) to config system
+  * check for ENOSPC on body write
+  * use environment variable TMP (or "/tmp" if not available),
+    and chdir there when boa exits.
+  * add 1-time-only hack to make a 32kB read at the end of a request
+    on POST or PUT
+  * close unused file descriptors (/dev/null in boa.c, and the 
+    unused part of the pipes call in cgi.c)
+  * made Makefile.in VPATH happy
+  * Fixed problem in HTTP version parsing -- HTTP/{0.9,1.0,1.1} are
+    all that are acceptable.    
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Mon, 25 Jun 2001 22:32:49 -0500
+
+boa (0.94.8.3-6) unstable; urgency=low
+
+  * Add missing boa.info file
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Tue, 20 Mar 2001 19:37:33 -0600
+
+boa (0.94.8.3-5) unstable; urgency=low
+
+  * Backport docs from 0.95 (Closes: #90493)
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Tue, 20 Mar 2001 19:04:10 -0600
+
+boa (0.94.8.3-4) unstable; urgency=low
+
+  * Backport of index_dir.c from 0.95
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Sat, 10 Mar 2001 16:36:36 -0600
+
+boa (0.94.8.3-3) unstable; urgency=low
+
+  * Make /etc/logrotate.d/boa a conffile, and edit README.debian
+    (Closes: #84092)
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Wed, 31 Jan 2001 18:21:11 -0600
+
+boa (0.94.8.3-2) unstable; urgency=low
+
+  * Forcibly removes /var/log/boa and /etc/boa on purges (Closes: #69908)
+  * Add Build-Depends to control file.  (Closes: #70204)
+  * Boa continues to require logrotate in the standard configuration
+    (Closes: #76190)
+  * Boa creates /usr/lib/cgi-bin upon installation if it doesn't exist.
+    (Closes: #69127)
+  * Add 'notifempty' keyword to logrotate configuration to avoid
+    rotating empty logfiles.  (Closes: #74997)
+  * Default boa.conf now uses /usr/share/doc as /doc alias (Closes: #66490)
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Sat, 27 Jan 2001 15:12:25 -0600
+
 boa (0.94.8.3-1) unstable stable; urgency=medium
 
   * Move unescape_uri *before* clean_pathname to prevent

@@ -21,7 +21,7 @@
  *
  */
 
-/* $Id: alias.c,v 1.51 2000/10/03 01:45:43 jon Exp $ */
+/* $Id: alias.c,v 1.55 2001/07/18 03:39:11 jnelson Exp $ */
 
 #include "boa.h"
 
@@ -157,11 +157,11 @@ int translate_uri(request * req)
     static char buffer[MAX_HEADER_LENGTH + 1];
     char *req_urip;
     alias *current;
-    char c, *p;
+    char *p;
     int uri_len;
 
     /* Percent-decode request */
-    if (unescape_uri(req->request_uri) == 0) {
+    if (unescape_uri(req->request_uri, &(req->query_string)) == 0) {
         log_error_doc(req);
         fputs("Problem unescaping uri\n", stderr);
         send_r_bad_request(req);
@@ -176,31 +176,6 @@ int translate_uri(request * req)
         send_r_not_found(req);
         return 0;
     }
-
-
-    /* Rationale note:
-       We have to pull out the query_string stuff *after*
-       we unescape the uri because the uri might be sent as:
-       "/cgi%2Dbin/test%3Ffoo=bar"
-       and decoded as:
-       "/cgi-bin/test?foo=bar"
-     */
-
-    /* Move anything after ? into req->query_string */
-    /* advance to end of path, looking for end or '?' */
-    while ((c = *req_urip) && c != '?')
-        req_urip++;
-
-    /* query_string ?? */
-    if (c == '?') {
-        *req_urip++ = '\0';
-        req->query_string = strdup(req_urip);
-    }
-
-    /*
-       this has to be after the query string search, because
-       we might shorten the request_uri
-     */
 
     uri_len = strlen(req->request_uri);
 
@@ -388,6 +363,7 @@ int init_script_alias(request * req, alias * current1, int uri_len)
 
     int index = 0;
     char c;
+    int err;
 
     /* copies the "real" path + the non-alias portion of the
        uri to pathname.
@@ -419,15 +395,64 @@ int init_script_alias(request * req, alias * current1, int uri_len)
 
 
     /* start at the beginning of the actual uri...
-       (in /cgi-bin/bob, start at the 'b' in bob */
+     (in /cgi-bin/bob, start at the 'b' in bob */
     index = current1->real_len;
 
     do {
         c = pathname[++index];
-    } while (c != '/' && c != '\0');
+        if (c == '/') {
+            pathname[index] = '\0';
+            err = stat(pathname, &statbuf);
+            pathname[index] = '/';
+            if (err == -1) {
+                send_r_not_found(req);
+                return 0;
+            }
+
+            /* is it a dir? */
+            if (!S_ISDIR(statbuf.st_mode)) {
+                /* check access */
+                if (!(statbuf.st_mode &
+                      (S_IFREG | /* regular file */
+                       (S_IRUSR | S_IXUSR) |    /* u+rx */
+                       (S_IRGRP | S_IXGRP) |    /* g+rx */
+                       (S_IROTH | S_IXOTH)))) { /* o+rx */
+                    send_r_forbidden(req);
+                    return 0;
+                }
+                /* stop here */
+                break;
+            }
+        }
+    } while (c != '\0');
+
+    if (c == '\0') {
+        err = stat(pathname, &statbuf);
+        if (err == -1) {
+            send_r_not_found(req);
+            return 0;
+        }
+
+        /* is it a dir? */
+        if (!S_ISDIR(statbuf.st_mode)) {
+            /* check access */
+            if (!(statbuf.st_mode &
+                  (S_IFREG | /* regular file */
+                   (S_IRUSR | S_IXUSR) |    /* u+rx */
+                   (S_IRGRP | S_IXGRP) |    /* g+rx */
+                   (S_IROTH | S_IXOTH)))) { /* o+rx */
+                send_r_forbidden(req);
+                return 0;
+            }
+            /* stop here */
+        } else {
+            send_r_forbidden(req);
+            return 0;
+        }
+    }
 
     /* we have path_info if c == '/'... still have to check for query */
-    if (c == '/') {
+    else if (c == '/') {
         int hash;
         alias *current;
         int path_len;
@@ -530,14 +555,7 @@ int init_script_alias(request * req, alias * current1, int uri_len)
              */
         }
     }
-    if (stat(pathname, &statbuf) == -1) {
-        send_r_not_found(req);
-        return 0;
-    } else if (!S_ISREG(statbuf.st_mode) ||
-               access(pathname, R_OK | X_OK) == -1) {
-        send_r_forbidden(req);
-        return 0;
-    }
+
     req->pathname = strdup(pathname);
 
     /* there used to be some ip stuff in here */

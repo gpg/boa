@@ -18,25 +18,13 @@
  *
  */
 
-/* $Id: compat.h,v 1.9 2000/04/10 19:45:57 jon Exp $*/
+/* $Id: compat.h,v 1.11 2001/10/20 02:52:42 jnelson Exp $*/
 
 #ifndef _COMPAT_H
 #define _COMPAT_H
 
 #include "config.h"
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-#ifdef HAVE_LIMITS_H
-#include <limits.h>             /* OPEN_MAX */
-#endif
 
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#endif
 
 #ifndef HAVE_STRSTR
 char *strstr(char *s1, char *s2);
@@ -50,12 +38,22 @@ char *strdup(char *s);
 #include <sys/time.h>
 #endif
 
-#include <sys/mman.h>
-#include <netdb.h>
-
 #ifndef OPEN_MAX
 #define OPEN_MAX 256
 #endif
+
+#ifndef NI_MAXHOST
+#define NI_MAXHOST 20
+#endif
+
+#ifndef SO_MAXCONN
+#define SO_MAXCONN 250
+#endif
+
+#ifndef PATH_MAX
+#define PATH_MAX 2048
+#endif
+
 
 #ifdef SUNOS
 #define NOBLOCK O_NDELAY
@@ -77,6 +75,23 @@ char *strdup(char *s);
 #define SOCKADDR sockaddr_in
 #define S_FAMILY sin_family
 #define SERVER_AF AF_INET
+#endif
+
+#if HAVE_DIRENT_H
+# include <dirent.h>
+# define NAMLEN(dirent) strlen((dirent)->d_name)
+#else
+# define dirent direct
+# define NAMLEN(dirent) (dirent)->d_namlen
+# if HAVE_SYS_NDIR_H
+#  include <sys/ndir.h>
+# endif
+# if HAVE_SYS_DIR_H
+#  include <sys/dir.h>
+# endif
+# if HAVE_NDIR_H
+#  include <ndir.h>
+# endif
 #endif
 
 #endif

@@ -1,4 +1,4 @@
-/* config.h.in.  Generated automatically from configure.in by autoheader.  */
+/* config.h.in.  Generated automatically from configure.in by autoheader 2.13.  */
 
 /* Define to empty if the keyword does not work.  */
 #undef const
@@ -33,6 +33,8 @@
 #undef uid_t
 
 #undef GUNZIP
+
+#undef NEEDS_ESCAPE_SHIFT
 
 /* Define if you have the getcwd function.  */
 #undef HAVE_GETCWD

@@ -978,7 +978,7 @@ fi
 cat >> confdefs.h <<EOF
 #define GUNZIP "$ac_cv_path_GUNZIP"
 EOF
-    
+
 
 ac_header_dirent=no
 for ac_hdr in dirent.h sys/ndir.h sys/dir.h ndir.h
@@ -1304,7 +1304,7 @@ else
 int main() {
 
 /* Ultrix mips cc rejects this.  */
-typedef int charset[2]; const charset x = {0,0};
+typedef int charset[2]; const charset x;
 /* SunOS 4.1.1 cc rejects this.  */
 char const *const *ccp;
 char **p;
@@ -1504,8 +1504,109 @@ EOF
 fi
 
 
+# Extract the first word of "bc", so it can be a program name with args.
+set dummy bc; ac_word=$2
+echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+echo "configure:1511: checking for $ac_word" >&5
+if eval "test \"`echo '$''{'ac_cv_path_BC'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  case "$BC" in
+  /*)
+  ac_cv_path_BC="$BC" # Let the user override the test with a path.
+  ;;
+  ?:/*)			 
+  ac_cv_path_BC="$BC" # Let the user override the test with a dos path.
+  ;;
+  *)
+  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
+  ac_dummy="$PATH"
+  for ac_dir in $ac_dummy; do 
+    test -z "$ac_dir" && ac_dir=.
+    if test -f $ac_dir/$ac_word; then
+      ac_cv_path_BC="$ac_dir/$ac_word"
+      break
+    fi
+  done
+  IFS="$ac_save_ifs"
+  ;;
+esac
+fi
+BC="$ac_cv_path_BC"
+if test -n "$BC"; then
+  echo "$ac_t""$BC" 1>&6
+else
+  echo "$ac_t""no" 1>&6
+fi
+
+# Extract the first word of "tr", so it can be a program name with args.
+set dummy tr; ac_word=$2
+echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+echo "configure:1546: checking for $ac_word" >&5
+if eval "test \"`echo '$''{'ac_cv_path_TR'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  case "$TR" in
+  /*)
+  ac_cv_path_TR="$TR" # Let the user override the test with a path.
+  ;;
+  ?:/*)			 
+  ac_cv_path_TR="$TR" # Let the user override the test with a dos path.
+  ;;
+  *)
+  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
+  ac_dummy="$PATH"
+  for ac_dir in $ac_dummy; do 
+    test -z "$ac_dir" && ac_dir=.
+    if test -f $ac_dir/$ac_word; then
+      ac_cv_path_TR="$ac_dir/$ac_word"
+      break
+    fi
+  done
+  IFS="$ac_save_ifs"
+  ;;
+esac
+fi
+TR="$ac_cv_path_TR"
+if test -n "$TR"; then
+  echo "$ac_t""$TR" 1>&6
+else
+  echo "$ac_t""no" 1>&6
+fi
+
+
+if test -z "$ac_cv_path_TR" -o -z "$ac_cv_path_BC"; then
+  echo "configure: warning: Unable to find either tr or bc -- assuming 32 bits per unsigned long" 1>&2
+else
+  echo $ac_n "checking number of places to shift for unsigned long""... $ac_c" 1>&6
+echo "configure:1583: checking number of places to shift for unsigned long" >&5
+  cat >conftest.$ac_ext <<_ACEOF
+#include "confdefs.h"
+#include <limits.h>
+
+a = ULONG_MAX;
+for (i=0;a;i++)
+  a=a/2
+for(j=0;i;j++) 
+  i=i/2
+print j-1
+
+_ACEOF
+  
+  needs_escape_shift=`eval "$ac_cpp conftest.$ac_ext" | $ac_cv_path_TR -d 'UL' | $ac_cv_path_BC`
+  rm -f conftest*
+  
+  if test -n "$needs_escape_shift"; then
+    cat >> confdefs.h <<EOF
+#define NEEDS_ESCAPE_SHIFT $needs_escape_shift
+EOF
+
+    echo "$ac_t""$needs_escape_shift" 1>&6
+  fi
+fi
+
 echo $ac_n "checking for 8-bit clean memcmp""... $ac_c" 1>&6
-echo "configure:1509: checking for 8-bit clean memcmp" >&5
+echo "configure:1610: checking for 8-bit clean memcmp" >&5
 if eval "test \"`echo '$''{'ac_cv_func_memcmp_clean'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -1513,7 +1614,7 @@ else
   ac_cv_func_memcmp_clean=no
 else
   cat > conftest.$ac_ext <<EOF
-#line 1517 "configure"
+#line 1618 "configure"
 #include "confdefs.h"
 
 main()
@@ -1523,7 +1624,7 @@ main()
 }
 
 EOF
-if { (eval echo configure:1527: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:1628: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   ac_cv_func_memcmp_clean=yes
 else
@@ -1544,17 +1645,17 @@ for ac_hdr in unistd.h
 do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
-echo "configure:1548: checking for $ac_hdr" >&5
+echo "configure:1649: checking for $ac_hdr" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1553 "configure"
+#line 1654 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:1558: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:1659: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -1583,12 +1684,12 @@ done
 for ac_func in getpagesize
 do
 echo $ac_n "checking for $ac_func""... $ac_c" 1>&6
-echo "configure:1587: checking for $ac_func" >&5
+echo "configure:1688: checking for $ac_func" >&5
 if eval "test \"`echo '$''{'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1592 "configure"
+#line 1693 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char $ac_func(); below.  */
@@ -1611,7 +1712,7 @@ $ac_func();
 
 ; return 0; }
 EOF
-if { (eval echo configure:1615: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:1716: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_func_$ac_func=yes"
 else
@@ -1636,7 +1737,7 @@ fi
 done
 
 echo $ac_n "checking for working mmap""... $ac_c" 1>&6
-echo "configure:1640: checking for working mmap" >&5
+echo "configure:1741: checking for working mmap" >&5
 if eval "test \"`echo '$''{'ac_cv_func_mmap_fixed_mapped'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -1644,7 +1745,7 @@ else
   ac_cv_func_mmap_fixed_mapped=no
 else
   cat > conftest.$ac_ext <<EOF
-#line 1648 "configure"
+#line 1749 "configure"
 #include "confdefs.h"
 
 /* Thanks to Mike Haertel and Jim Avera for this test.
@@ -1671,15 +1772,12 @@ else
 #include <sys/types.h>
 #include <fcntl.h>
 #include <sys/mman.h>
-#include <stdlib.h>
-#include <sys/stat.h>
-
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#endif
 
 /* This mess was copied from the GNU getpagesize.h.  */
 #ifndef HAVE_GETPAGESIZE
+# ifdef HAVE_UNISTD_H
+#  include <unistd.h>
+# endif
 
 /* Assume that all systems that can run configure have sys/param.h.  */
 # ifndef HAVE_SYS_PARAM_H
@@ -1734,7 +1832,7 @@ main()
 	/*
 	 * First, make a file with some known garbage in it.
 	 */
-	data = (char*)malloc(pagesize);
+	data = malloc(pagesize);
 	if (!data)
 		exit(1);
 	for (i = 0; i < pagesize; ++i)
@@ -1755,7 +1853,7 @@ main()
 	fd = open("conftestmmap", O_RDWR);
 	if (fd < 0)
 		exit(1);
-	data2 = (char*)malloc(2 * pagesize);
+	data2 = malloc(2 * pagesize);
 	if (!data2)
 		exit(1);
 	data2 += (pagesize - ((int) data2 & (pagesize - 1))) & (pagesize - 1);
@@ -1773,7 +1871,7 @@ main()
 	 */
 	for (i = 0; i < pagesize; ++i)
 		*(data2 + i) = *(data2 + i) + 1;
-	data3 = (char*)malloc(pagesize);
+	data3 = malloc(pagesize);
 	if (!data3)
 		exit(1);
 	if (read(fd, data3, pagesize) != pagesize)
@@ -1787,7 +1885,7 @@ main()
 }
 
 EOF
-if { (eval echo configure:1791: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:1889: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   ac_cv_func_mmap_fixed_mapped=yes
 else
@@ -1810,7 +1908,7 @@ EOF
 fi
 
 echo $ac_n "checking whether setvbuf arguments are reversed""... $ac_c" 1>&6
-echo "configure:1814: checking whether setvbuf arguments are reversed" >&5
+echo "configure:1912: checking whether setvbuf arguments are reversed" >&5
 if eval "test \"`echo '$''{'ac_cv_func_setvbuf_reversed'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -1818,7 +1916,7 @@ else
     { echo "configure: error: can not run test program while cross compiling" 1>&2; exit 1; }
 else
   cat > conftest.$ac_ext <<EOF
-#line 1822 "configure"
+#line 1920 "configure"
 #include "confdefs.h"
 #include <stdio.h>
 /* If setvbuf has the reversed format, exit 0. */
@@ -1832,7 +1930,7 @@ main () {
   exit(0);			/* Non-reversed systems segv here.  */
 }
 EOF
-if { (eval echo configure:1836: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:1934: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   ac_cv_func_setvbuf_reversed=yes
 else
@@ -1858,12 +1956,12 @@ fi
 for ac_func in getcwd gethostname select socket strdup strstr
 do
 echo $ac_n "checking for $ac_func""... $ac_c" 1>&6
-echo "configure:1862: checking for $ac_func" >&5
+echo "configure:1960: checking for $ac_func" >&5
 if eval "test \"`echo '$''{'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1867 "configure"
+#line 1965 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char $ac_func(); below.  */
@@ -1886,7 +1984,7 @@ $ac_func();
 
 ; return 0; }
 EOF
-if { (eval echo configure:1890: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:1988: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_func_$ac_func=yes"
 else
@@ -1910,6 +2008,8 @@ else
 fi
 done
 
+
+test -n "$GCC" && CFLAGS="$CFLAGS -Wall"
 
 trap '' 1 2 15
 cat > confcache <<\EOF
@@ -2049,6 +2149,8 @@ s%@YACC@%$YACC%g
 s%@CC@%$CC%g
 s%@CPP@%$CPP%g
 s%@GUNZIP@%$GUNZIP%g
+s%@BC@%$BC%g
+s%@TR@%$TR%g
 s%@LIBOBJS@%$LIBOBJS%g
 
 CEOF

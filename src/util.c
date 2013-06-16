@@ -21,7 +21,7 @@
  *
  */
 
-/* $Id: util.c,v 1.44 2000/10/03 01:45:21 jon Exp $ */
+/* $Id: util.c,v 1.46 2001/07/18 03:43:38 jnelson Exp $ */
 
 #include "boa.h"
 
@@ -78,18 +78,15 @@ char *strdup(char *s)
  *  /./ with /
  *  /../ with / (technically not what we want, but browsers should deal
  *   with this, not servers)
- *
- * Stops parsing at '?'
  */
 
 void clean_pathname(char *pathname)
 {
     char *cleanpath, c;
-    int cgiarg = 0;
 
     cleanpath = pathname;
     while ((c = *pathname++)) {
-        if (c == '/' && !cgiarg) {
+        if (c == '/') {
             while (1) {
                 if (*pathname == '/')
                     pathname++;
@@ -101,13 +98,9 @@ void clean_pathname(char *pathname)
                 } else
                     break;
             }
-            *cleanpath++ = '/';
-        } else if (c == '#') {
-            break;
-        } else {
-            *cleanpath++ = c;
-            cgiarg |= (c == '?');
+            c = '/';
         }
+        *cleanpath++ = c;
     }
 
     *cleanpath = '\0';
@@ -323,7 +316,7 @@ char *to_upper(char *str)
  *  0: illegal string
  */
 
-int unescape_uri(char *uri)
+int unescape_uri(char *uri, char ** query_string)
 {
     char c, d;
     char *uri_old;
@@ -337,6 +330,27 @@ int unescape_uri(char *uri)
                 *uri++ = HEX_TO_DECIMAL(c, d);
             else
                 return 0;       /* NULL in chars to be decoded */
+        } else if (c == '?') { /* query string */
+            if (query_string)
+                *query_string = ++uri_old;
+            /* stop here */
+            *uri = '\0';
+            return(1);
+            break;
+        } else if (c == '#') { /* fragment */
+            /* legal part of URL, but we do *not* care.
+             * However, we still have to look for the query string */
+            if (query_string) {
+                ++uri_old;
+                while((c = *uri_old)) {
+                    if (c == '?') {
+                        *query_string = ++uri_old;
+                        break;
+                    }
+                    ++uri_old;
+                }
+            }
+            break;
         } else {
             *uri++ = c;
             uri_old++;

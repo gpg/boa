@@ -20,7 +20,7 @@
  *
  */
 
-/* $Id: pipe.c,v 1.37 2000/02/12 21:52:45 jon Exp $*/
+/* $Id: pipe.c,v 1.38 2001/06/30 03:41:31 jnelson Exp $*/
 
 #include "boa.h"
 
@@ -71,6 +71,7 @@ int read_from_pipe(request * req)
         else if (errno == EWOULDBLOCK || errno == EAGAIN)
             return -1;          /* request blocked at the pipe level, but keep going */
         else {
+	    req->status = DEAD;
             log_error_doc(req);
             perror("pipe read");
             return 0;
@@ -120,12 +121,14 @@ int write_from_pipe(request * req)
         else if (errno == EINTR)
             return 1;
         else {
+            req->status = DEAD;
             send_r_error(req);  /* maybe superfluous */
             log_error_doc(req);
             perror("pipe write");
             return 0;
         }
     }
+
     req->header_line += bytes_written;
     req->filepos += bytes_written;
 

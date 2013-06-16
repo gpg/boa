@@ -20,7 +20,7 @@
  *
  */
 
-/* $Id: get.c,v 1.68 2000/05/26 02:42:41 jon Exp $*/
+/* $Id: get.c,v 1.70 2001/10/20 02:57:05 jnelson Exp $*/
 
 #include "boa.h"
 #include <sys/mman.h>
@@ -209,7 +209,7 @@ int process_get(request * req)
     bytes_written = write(req->fd, req->data_mem + req->filepos,
                           bytes_to_write);
 
-    if (bytes_written == -1) {
+    if (bytes_written < 0) {
         if (errno == EWOULDBLOCK || errno == EAGAIN)
             return -1;
         /* request blocked at the pipe level, but keep going */
@@ -305,9 +305,7 @@ int get_dir(request * req, struct stat *statbuf)
             req_write(req, "HTTP/1.0 200 OK\r\n");
             print_http_headers(req);
             print_last_modified(req);
-            req_write(req, "Content-Type: ");
-            req_write(req, get_mime_type(directory_index));
-            req_write(req, "\r\n\r\n");
+            req_write(req, "Content-Type: text/html\r\n\r\n");
             req_flush(req);
         }
         if (req->method == M_HEAD)

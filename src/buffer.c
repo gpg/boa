@@ -19,7 +19,7 @@
  *
  */
 
-/* $Id: buffer.c,v 1.8 2000/05/26 02:42:41 jon Exp $ */
+/* $Id: buffer.c,v 1.9 2001/10/20 02:56:36 jnelson Exp $ */
 
 #include "boa.h"
 #include "escape.h"
@@ -178,7 +178,7 @@ int req_flush(request * req)
         bytes_written = write(req->fd, req->buffer + req->buffer_start,
                               bytes_to_write);
 
-        if (bytes_written == -1) {
+        if (bytes_written < 0) {
             if (errno == EWOULDBLOCK || errno == EAGAIN)
                 return -1;      /* request blocked at the pipe level, but keep going */
             else {

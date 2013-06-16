@@ -18,7 +18,7 @@
  *
  */
 
-/* $Id: config.c,v 1.23 2000/04/10 19:46:15 jon Exp $*/
+/* $Id: config.c,v 1.24 2001/05/23 00:57:23 jnelson Exp $*/
 
 #include <unistd.h>
 #include <stdio.h>
@@ -56,6 +56,10 @@ char *default_type;
 char *dirmaker;
 char *cachedir;
 char *pidfile;
+
+char *tempdir;
+
+int single_post_limit;
 
 int ka_timeout;
 int ka_max;
@@ -120,7 +124,8 @@ struct ccommand clist[] = {
     {"AddType", S2A, c_add_type, NULL},
     {"ScriptAlias", S2A, c_add_alias, &script_number},
     {"Redirect", S2A, c_add_alias, &redirect_number},
-    {"Alias", S2A, c_add_alias, &alias_number}
+    {"Alias", S2A, c_add_alias, &alias_number},
+    {"SinglePostLimit", S1A, c_set_int, &single_post_limit}
 };
 
 void c_set_user(char *v1, char *v2, void *t)
@@ -279,4 +284,11 @@ void read_config_files(void)
             exit(1);
         }
     }
+    tempdir = getenv("TMP");
+    if (tempdir == NULL)
+        tempdir = "/tmp";
+    if (single_post_limit)
+	    single_post_limit *= 1024;
+    if (single_post_limit < 0)
+	    single_post_limit = 0;
 }

@@ -20,7 +20,7 @@
  *
  */
 
-/* $Id: log.c,v 1.33 2000/08/04 23:47:05 jon Exp $*/
+/* $Id: log.c,v 1.34 2001/06/30 03:41:08 jnelson Exp $*/
 
 #include "boa.h"
 
@@ -37,7 +37,7 @@ FILE *fopen_gen_fd(char *spec, const char *mode)
     if (!spec || *spec == '\0')
         return NULL;
     fd = open_gen_fd(spec);
-    if (!fd)
+    if (fd == -1)
         return NULL;
     return fdopen(fd, mode);
 }
