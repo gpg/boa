@@ -3,7 +3,11 @@
 .B boa \- a single\-tasking high performance http server
 .SH SYNOPSIS
 .B boa
-[ -c server_root ]
+.RB [ -c 
+.IR server_root ] 
+.RB [ -r 
+.IR chroot ] 
+.RB [ -d ]
 .SH DESCRIPTION
 Boa is a single-tasking HTTP server. That means that unlike traditional web
 servers, it does not fork for each incoming connection, nor does it fork many
@@ -20,23 +24,29 @@ that improve its speed, security, robustness, and portability, are eagerly
 sought. Other features may be added if they can be achieved without hurting the
 primary goals. 
 .SH OPTIONS
-The 
-.B -c
-option chooses a server root overriding the default SERVER_ROOT #define in 
+.IP \fB-d\fR 
+instruct Boa not to fork itself (non-daemonize).
+
+.IP "\fB-c \fIserver_root\fR"
+choose a server root overriding the default SERVER_ROOT #define in 
 .I defines.h
 
 The server root must hold your local copy of the configuration file
-.I boa.conf
+
+.IP "\fB-r \fIchroot\fR"
+instruct Boa where to chdir and chroot to.  The chdir/chroot
+is done before the configuration file is read, or any log
+files are opened.
+
 .SH FILES
 .TP
-.I boa.conf
-This file is the sole configuration file for Boa.  The directives in this file
-are defined in the 
+\fBboa.conf\fR \- the sole configuration file for Boa.  
+The directives in this file are defined in the 
 .B DIRECTIVES
 section.
+
 .TP
-.I mime.types
-The 
+\fBmime.types\fR \- the 
 MimeTypes <filename>
 defines what Content-Type Boa will send in an HTTP/1.0
 or better transaction.
@@ -46,7 +56,7 @@ The Boa configuration file is parsed with a lex/yacc or flex/bison generated
 parser.  If it reports an error, the line number will be provided; it should
 be easy to spot.  The syntax of each of these rules is very simple, and they
 can occur in any order.  Where possible, these directives mimic those of NCSA
-httpd 1.3; I (Paul Phillips) saw no reason to introduce gratuitous differences.
+httpd 1.3; We saw no reason to introduce gratuitous differences.
 .PP
 Note: the "ServerRoot" is not in this configuration file.  It can be compiled
 into the server (see 
@@ -75,6 +85,13 @@ ServerAdmin <email address>
 The email address where server problems should be sent.
 Note: this is not currently used. 
 .TP
+PidFile <filename>
+Where to put the pid of the process.
+Comment out to write no pid file.
+Note: Because Boa drops privileges at startup, and the
+pid file is written by the UID/GID before doing so, Boa
+does not attempt removal of the pid file.
+.TP
 ErrorLog <filename>
 The location of the error log file.  If this does not start with
 /, it is considered relative to the server root.
@@ -89,16 +106,47 @@ VerboseCGILogs
 This is a logical switch and does not take any parameters.
 Comment out to disable.
 .TP
+CGILog <filename>
+The location of the CGI error log file.  If this does not start with /, it 
+is considered relative to the server root. If specified, this is the file 
+that the stderr of CGIs is tied to, *instead* of to the ErrorLog.
+.TP
+CGIumask <umask>
+The CGIumask is set immediately before execution of the CGI.
+The default value is 027. The number must be interpretable
+unambiguously by the C function strtol. No base is specified,
+so one may use a hexadecimal, decimal, or octal number if 
+it is prefixed accordingly.
+.TP
 ServerName <server_name>
 The name of this server that should be sent back to
 clients if different than that returned by gethostname.
-.Tp
+.TP
 VirtualHost
 This is a logical switch and does not take any parameters.
 Comment out to disable.
 Given DocumentRoot /var/www, requests on interface 'A' or IP 'IP-A'
 become /var/www/IP-A.
 Example: http://localhost/ becomes /var/www/127.0.0.1 
+.TP
+VHostRoot <directory>
+The root location for all virtually hosted data
+Comment out to disable.
+Incompatible with 'Virtualhost' and 'DocumentRoot'!!
+Given VHostRoot /var/www, requests to host foo.bar.com,
+where foo.bar.com is ip a.b.c.d,
+become /var/www/a.b.c.d/foo.bar.com 
+Hostnames are "cleaned", and must conform to the rules
+specified in rfc1034, which are be summarized here:
+
+Hostnames must start with a letter, end with a letter or digit, 
+and have as interior characters only letters, digits, and hyphen.
+Hostnames must not exceed 63 characters in length.
+.TP
+DefaultVHost <hostname>
+Define this in order to have a default hostname when the client does not
+specify one, if using VirtualHostName. If not specified, the word
+"default" will be used for compatibility with older clients.
 .TP
 DocumentRoot <directory>
 The root directory of the HTML documents. If this does not start with
@@ -173,10 +221,9 @@ Version 0.94 was released 22 Jan 2000.
 .SH BUGS
 There are probably bugs, but we are not aware of any at this time.
 .SH AUTHOR
-Boa was created by Paul Phillips <paulp@go2net.com>. It is now being maintained and
-enhanced by Larry Doolittle
-<ldoolitt@boa.org> and
-Jon Nelson <jnelson@boa.org>.
+Boa was created by Paul Phillips <paulp@go2net.com>. 
+It is now being maintained and enhanced by Larry Doolittle
+<ldoolitt@boa.org> and Jon Nelson <jnelson@boa.org>.
 .PP
 Linux is the development platform at the moment, other
 OS's are known to work. If you'd like to

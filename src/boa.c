@@ -1,9 +1,9 @@
 /*
  *  Boa, an http server
- *  Copyright (C) 1995 Paul Phillips <psp@well.com>
+ *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
  *  Some changes Copyright (C) 1996 Charles F. Randall <crandall@goldsys.com>
- *  Some changes Copyright (C) 1996 Larry Doolittle <ldoolitt@jlab.org>
- *  Some changes Copyright (C) 1996-99 Jon Nelson <jnelson@boa.org>
+ *  Some changes Copyright (C) 1996 Larry Doolittle <ldoolitt@boa.org>
+ *  Some changes Copyright (C) 1996-2002 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,348 +21,258 @@
  *
  */
 
-/* $Id: boa.c,v 1.82 2001/09/19 01:21:19 jnelson Exp $*/
+/* $Id: boa.c,v 1.99.2.21 2004/06/04 02:36:33 jnelson Exp $*/
 
 #include "boa.h"
-#include <sys/resource.h>       /* setrlimit */
-#include <grp.h>
-#include <arpa/inet.h>          /* inet_ntoa */
 
-inline void fdset_update(void);
-void fixup_server_root(void);
-
-int server_s;                   /* boa socket */
+/* globals */
 int backlog = SO_MAXCONN;
-int max_connections = 0;
+time_t start_time;
 
-struct timeval req_timeout;     /* timeval for select */
-
-extern char *optarg;            /* getopt */
-
-fd_set block_read_fdset;
-fd_set block_write_fdset;
-
+int debug_level = 0;
 int sighup_flag = 0;            /* 1 => signal has happened, needs attention */
 int sigchld_flag = 0;           /* 1 => signal has happened, needs attention */
-short lame_duck_mode = 0;
+int sigalrm_flag = 0;           /* 1 => signal has happened, needs attention */
+int sigterm_flag = 0;           /* lame duck mode */
 time_t current_time;
+int pending_requests = 0;
 
-int sock_opt = 1;
-int do_fork = 1;
+extern const char *config_file_name;
 
-int main(int argc, char **argv)
+/* static to boa.c */
+static void usage(const char *programname);
+static void parse_commandline(int argc, char *argv[]);
+static void fixup_server_root(void);
+static int create_server_socket(void);
+static void drop_privs(void);
+
+static int sock_opt = 1;
+static int do_fork = 1;
+
+int main(int argc, char *argv[])
+{
+    int server_s;               /* boa socket */
+    pid_t pid;
+
+    /* set umask to u+rw, u-x, go-rwx */
+    if (umask(077) < 0) {
+        perror("umask");
+        exit(EXIT_FAILURE);
+    }
+
+    /* but first, update timestamp, because log_error_time uses it */
+    (void) time(&current_time);
+
+    /* set timezone right away */
+    tzset();
+
+    {
+        int devnullfd = -1;
+        devnullfd = open("/dev/null", 0);
+
+        /* make STDIN point to /dev/null */
+        if (devnullfd == -1) {
+            DIE("can't open /dev/null");
+        }
+
+        if (dup2(devnullfd, STDIN_FILENO) == -1) {
+            DIE("can't dup2 /dev/null to STDIN_FILENO");
+        }
+
+        (void) close(devnullfd);
+    }
+
+    parse_commandline(argc,argv);
+    fixup_server_root();
+    create_common_env();
+    read_config_files();
+    open_logs();
+    server_s = create_server_socket();
+    init_signals();
+    build_needs_escape();
+
+    /* background ourself */
+    if (do_fork) {
+        pid = fork();
+    } else {
+        pid = getpid();
+    }
+
+    switch (pid) {
+    case -1:
+        /* error */
+        perror("fork/getpid");
+        exit(EXIT_FAILURE);
+    case 0:
+        /* child, success */
+        break;
+    default:
+        /* parent, success */
+        if (pid_file != NULL) {
+            FILE *PID_FILE = fopen(pid_file, "w");
+            if (PID_FILE != NULL) {
+                fprintf(PID_FILE, "%d", pid);
+                fclose(PID_FILE);
+            } else {
+                perror("fopen pid file");
+            }
+        }
+
+        if (do_fork)
+            exit(EXIT_SUCCESS);
+        break;
+    }
+
+    drop_privs();
+    /* main loop */
+    timestamp();
+
+    status.requests = 0;
+    status.errors = 0;
+
+    start_time = current_time;
+    loop(server_s);
+    return 0;
+}
+
+static void usage(const char *programname)
+{
+    fprintf(stderr, "Usage: %s [-c serverroot] [-d] [-f configfile] [-r chroot]%s\n",
+	    programname,
+#ifndef DISABLE_DEBUG
+	    " [-l debug_level]"
+#else
+	    ""
+#endif
+	   );
+#ifndef DISABLE_DEBUG
+    print_debug_usage();
+#endif
+    exit(EXIT_FAILURE);
+
+}
+
+static void parse_commandline(int argc, char *argv[])
 {
     int c;                      /* command line arg */
 
-    while ((c = getopt(argc, argv, "c:d")) != -1) {
-        switch (c) {
-        case 'c':
-            server_root = strdup(optarg);
-            break;
-        case 'd':
-            do_fork = 0;
-            break;
-        default:
-            fprintf(stderr, "Usage: %s [-c serverroot] [-d]\n", argv[0]);
-            exit(1);
-        }
+    while ((c = getopt(argc, argv, "c:dl:f:r:")) != -1) {
+	switch (c) {
+	case 'c':
+	    if (server_root)
+		free(server_root);
+	    server_root = strdup(optarg);
+	    if (!server_root) {
+		perror("strdup (for server_root)");
+		exit(EXIT_FAILURE);
+	    }
+	    break;
+	case 'd':
+	    do_fork = 0;
+	    break;
+	case 'f':
+	    config_file_name = optarg;
+	    break;
+	case 'r':
+	    if (chdir(optarg) == -1) {
+		log_error_time();
+		perror("chdir (to chroot)");
+		exit(EXIT_FAILURE);
+	    }
+	    if (chroot(optarg) == -1) {
+		log_error_time();
+		perror("chroot");
+		exit(EXIT_FAILURE);
+	    }
+	    if (chdir("/") == -1) {
+		log_error_time();
+		perror("chdir (after chroot)");
+		exit(EXIT_FAILURE);
+	    }
+	    break;
+#ifndef DISABLE_DEBUG
+	case 'l':
+	    parse_debug(optarg);
+	    break;
+#endif
+	default:
+	    usage(argv[0]);
+	    exit(EXIT_FAILURE);
+	}
     }
+}
 
-    fixup_server_root();
+static int create_server_socket(void)
+{
+    int server_s;
 
-    /* set umask to u+rw, u-x, go-rwx */
-    umask(~0600);
-
-    /* For when we have done more work with chroot....
-       if (chdir(chroot_path) == -1) {
-       fprintf(stderr, "Could not chdir to ChrootPath.\n");
-       exit(1);
-       }
-
-       if (chroot_path) {
-       puts(chroot_path);
-       if (chroot(chroot_path) == -1) {
-       perror("chroot:");
-       exit(1);
-       }
-       }
-     */
-
-    read_config_files();
-    open_logs();
-    create_common_env();
-
-    if ((server_s = socket(SERVER_AF, SOCK_STREAM, IPPROTO_TCP)) == -1) {
-        log_error_mesg(__FILE__, __LINE__, "unable to create socket");
-        exit(errno);
+    server_s = socket(SERVER_PF, SOCK_STREAM, IPPROTO_TCP);
+    if (server_s == -1) {
+        DIE("unable to create socket");
     }
 
     /* server socket is nonblocking */
-    if (fcntl(server_s, F_SETFL, NOBLOCK) == -1) {
-        log_error_mesg(__FILE__, __LINE__,
-                       "fcntl: unable to set server socket to nonblocking");
-        exit(errno);
+    if (set_nonblock_fd(server_s) == -1) {
+        DIE("fcntl: unable to set server socket to nonblocking");
     }
 
     /* close server socket on exec so cgi's can't write to it */
     if (fcntl(server_s, F_SETFD, 1) == -1) {
-        log_error_mesg(__FILE__, __LINE__,
-                       "can't set close-on-exec on server socket!");
-        exit(errno);
+        DIE("can't set close-on-exec on server socket!");
     }
 
     /* reuse socket addr */
     if ((setsockopt(server_s, SOL_SOCKET, SO_REUSEADDR, (void *) &sock_opt,
                     sizeof (sock_opt))) == -1) {
-        log_error_mesg(__FILE__, __LINE__, "setsockopt");
-        exit(errno);
+        DIE("setsockopt");
     }
 
-    /* internet family-specific code encapsulated in bind_server()  */
-    if (bind_server(server_s, server_ip) == -1) {
-        log_error_mesg(__FILE__, __LINE__, "unable to bind");
-        exit(errno);
+    /* Internet family-specific code encapsulated in bind_server()  */
+    if (bind_server(server_s, server_ip, server_port) == -1) {
+        DIE("unable to bind");
     }
 
     /* listen: large number just in case your kernel is nicely tweaked */
     if (listen(server_s, backlog) == -1) {
-        log_error_mesg(__FILE__, __LINE__, "unable to listen");
-        exit(errno);
+        DIE("unable to listen");
     }
+    return server_s;
+}
 
-    init_signals();
-
-    /* background ourself */
-
-    if (do_fork)
-        if (fork())
-            exit(0);
-
-    /* make STDIN and STDOUT point to /dev/null */
-    {
-        int devnull = open("/dev/null", 0);
-
-        if (devnull == -1) {
-            log_error_mesg(__FILE__, __LINE__, "can't open /dev/null");
-            exit(errno);
-        }
-
-        if (dup2(devnull, STDIN_FILENO) == -1) {
-            log_error_mesg(__FILE__, __LINE__,
-                           "can't dup2 /dev/null to STDIN_FILENO");
-            exit(errno);
-        }
-
-        if (dup2(devnull, STDOUT_FILENO) == -1) {
-            log_error_mesg(__FILE__, __LINE__,
-                           "can't dup2 /dev/null to STDIN_FILENO");
-            exit(errno);
-        }
-        close(devnull);
-    }
-
-    /* write a PID file if we have one */
-    /* do we unlink here and not close (system will unlink when we exit)
-       or do we try to unlink the file at close time in signals.c,
-       which means we might have to unlink a root-owned file
-       Also, "Removing stale pid file..." and so on
-       Do we check for existing boa.pid file?
-       If so, do we see if that process exists?  I mean, sheesh!
-       if (pidfile) {
-       FILE *bob = fopen("w", pidfile);
-       if (bob == NULL) {
-       log_error_mesg(__FILE__, __LINE__, "pidfile - fopen");
-       exit(errno);
-       }
-       fprintf(bob, "%d", getpid());
-       }
-     */
-
+static void drop_privs(void)
+{
     /* give away our privs if we can */
-    /* but first, update timestamp, because log_error_time uses it */
-    time(&current_time);
-
     if (getuid() == 0) {
         struct passwd *passwdbuf;
         passwdbuf = getpwuid(server_uid);
         if (passwdbuf == NULL) {
-            log_error_mesg(__FILE__, __LINE__, "getpwuid");
-            exit(errno);
+            DIE("getpwuid");
         }
         if (initgroups(passwdbuf->pw_name, passwdbuf->pw_gid) == -1) {
-            log_error_mesg(__FILE__, __LINE__, "initgroups");
-            exit(errno);
+            DIE("initgroups");
         }
         if (setgid(server_gid) == -1) {
-            log_error_mesg(__FILE__, __LINE__, "setgid");
-            exit(errno);
+            DIE("setgid");
         }
         if (setuid(server_uid) == -1) {
-            log_error_mesg(__FILE__, __LINE__, "setuid");
-            exit(errno);
+            DIE("setuid");
+        }
+        /* test for failed-but-return-was-successful setuid
+         * http://www.securityportal.com/list-archive/bugtraq/2000/Jun/0101.html
+         */
+        if (server_uid != 0 && setuid(0) != -1) {
+            DIE("icky Linux kernel bug!");
         }
     } else {
         if (server_gid || server_uid) {
             log_error_time();
             fprintf(stderr, "Warning: "
                     "Not running as root: no attempt to change"
-                    " to uid %d gid %d\n", server_uid, server_gid);
+                    " to uid %u gid %u\n", server_uid, server_gid);
         }
         server_gid = getgid();
         server_uid = getuid();
     }
-
-    {
-        struct rlimit rl;
-
-        getrlimit(RLIMIT_NOFILE, &rl);
-        max_connections = rl.rlim_cur;
-    }
-
-    /* main loop */
-    timestamp();
-    build_needs_escape();
-
-    FD_ZERO(&block_read_fdset);
-    FD_ZERO(&block_write_fdset);
-
-    status.requests = 0;
-    status.errors = 0;
-
-    /* set server_s and req_timeout */
-    FD_SET(server_s, &block_read_fdset); /* server always set */
-    req_timeout.tv_sec = (ka_timeout ? ka_timeout : REQUEST_TIMEOUT);
-    req_timeout.tv_usec = 0l;   /* reset timeout */
-
-    while (1) {
-        if (sighup_flag)
-            sighup_run();
-        if (sigchld_flag)
-            sigchld_run();
-
-        if (lame_duck_mode) {
-            if (lame_duck_mode == 1)
-                lame_duck_mode_run(server_s);
-            if (!request_ready && !request_block) {
-                log_error_time();
-                fprintf(stderr, "exiting Boa normally\n");
-                chdir(tempdir);
-                exit(0);
-            }
-        }
-
-        if (!request_ready) {
-            if (select(OPEN_MAX, &block_read_fdset,
-                       &block_write_fdset, NULL,
-                       (request_block ? &req_timeout : NULL)) == -1) {
-                /* what is the appropriate thing to do here on EBADF */
-                if (errno == EINTR)
-                    continue;   /* while(1) */
-                else if (errno != EBADF) {
-                    log_error_mesg(__FILE__, __LINE__, "select");
-                    exit(errno);
-                }
-
-            }
-            time(&current_time);
-            if (FD_ISSET(server_s, &block_read_fdset))
-                get_request(server_s);
-
-            if (request_block)
-                fdset_update();
-            /* move selected req's from request_block to request_ready */
-        }
-        process_requests();
-        /* any blocked req's move from request_ready to request_block */
-    }
-}
-
-/*
- * Name: fdset_update
- *
- * Description: iterate through the blocked requests, checking whether
- * that file descriptor has been set by select.  Update the fd_set to
- * reflect current status.
- *
- * Here, we need to do some things:
- *  - keepalive timeouts simply close
- *    (this is special:: a keepalive timeout is a timeout where
-       keepalive is active but nothing has been read yet)
- *  - regular timeouts close + error
- *  - stuff in buffer and fd ready?  write it out
- *  - fd ready for other actions?  do them
- */
-
-inline void fdset_update(void)
-{
-    request *current = request_block, *next;
-
-    while (current) {
-        time_t time_since = current_time - current->time_last;
-        next = current->next;
-
-        /* hmm, what if we are in "the middle" of a request and not
-         * just waiting for a new one... perhaps check to see if anything
-         * has been read via header position, etc... */
-        if (current->kacount < ka_max && /* we *are* in a keepalive */
-            (time_since >= ka_timeout) && /* ka timeout */
-            !current->logline)  /* haven't read anything yet */
-            current->status = DEAD; /* connection keepalive timed out */
-        else if (time_since > REQUEST_TIMEOUT) {
-            log_error_doc(current);
-            fputs("connection timed out\n", stderr);
-            current->status = DEAD;
-        }
-        if (current->buffer_end) {
-            if (FD_ISSET(current->fd, &block_write_fdset))
-                ready_request(current);
-            else
-                FD_SET(current->fd, &block_write_fdset);
-        } else {
-            switch (current->status) {
-            case WRITE:
-            case PIPE_WRITE:
-                if (FD_ISSET(current->fd, &block_write_fdset))
-                    ready_request(current);
-                else
-                    FD_SET(current->fd, &block_write_fdset);
-                break;
-            case BODY_WRITE:
-                if (FD_ISSET(current->post_data_fd, &block_write_fdset))
-                    ready_request(current);
-                else
-                    FD_SET(current->post_data_fd, &block_write_fdset);
-                break;
-            case PIPE_READ:
-                if (FD_ISSET(current->data_fd, &block_read_fdset))
-                    ready_request(current);
-                else
-                    FD_SET(current->data_fd, &block_read_fdset);
-                break;
-            case DONE:
-                if (FD_ISSET(current->fd, &block_write_fdset))
-                    ready_request(current);
-                else
-                    FD_SET(current->fd, &block_write_fdset);
-                break;
-            case DEAD:
-                ready_request(current);
-                break;
-            default:
-                if (FD_ISSET(current->fd, &block_read_fdset))
-                    ready_request(current);
-                else
-                    FD_SET(current->fd, &block_read_fdset);
-                break;
-            }
-        }
-        current = next;
-    }
-
-    if (!lame_duck_mode && total_connections < (max_connections - 10))
-        FD_SET(server_s, &block_read_fdset); /* server always set */
-    req_timeout.tv_sec = (ka_timeout ? ka_timeout : REQUEST_TIMEOUT);
-    req_timeout.tv_usec = 0l;   /* reset timeout */
 }
 
 /*
@@ -372,67 +282,27 @@ inline void fdset_update(void)
  *
  */
 
-void fixup_server_root()
+static void fixup_server_root()
 {
-    char *dirbuf;
-    int dirbuf_size;
-
     if (!server_root) {
 #ifdef SERVER_ROOT
         server_root = strdup(SERVER_ROOT);
+        if (!server_root) {
+            perror("strdup (SERVER_ROOT)");
+            exit(EXIT_FAILURE);
+        }
 #else
         fputs("boa: don't know where server root is.  Please #define "
               "SERVER_ROOT in boa.h\n"
               "and recompile, or use the -c command line option to "
               "specify it.\n", stderr);
-        exit(1);
+        exit(EXIT_FAILURE);
 #endif
     }
 
     if (chdir(server_root) == -1) {
         fprintf(stderr, "Could not chdir to \"%s\": aborting\n",
                 server_root);
-        exit(1);
+        exit(EXIT_FAILURE);
     }
-
-    if (server_root[0] == '/')
-        return;
-
-    /* if here, server_root (as specified on the command line) is
-     * a relative path name. CGI programs require SERVER_ROOT
-     * to be absolute.
-     */
-
-    dirbuf_size = MAX_PATH_LENGTH * 2 + 1;
-    if ((dirbuf = (char *) malloc(dirbuf_size)) == NULL) {
-        fprintf(stderr,
-                "boa: Cannot malloc %d bytes of memory. Aborting.\n",
-                dirbuf_size);
-        exit(1);
-    }
-#ifndef HAVE_GETCWD
-    perror("boa: getcwd() not defined. Aborting.");
-    exit(1);
-#endif
-    if (getcwd(dirbuf, dirbuf_size) == NULL) {
-        if (errno == ERANGE)
-            perror
-                ("boa: getcwd() failed - unable to get working directory. "
-                 "Aborting.");
-        else if (errno == EACCES)
-            perror("boa: getcwd() failed - No read access in current "
-                   "directory. Aborting.");
-        else
-            perror("boa: getcwd() failed - unknown error. Aborting.");
-        exit(1);
-    }
-    fprintf(stderr,
-            "Warning, the server_root directory specified"
-            " on the command line - "
-            "\"%s\" - is relative.  CGI programs expect the environment "
-            "variable SERVER_ROOT to be an absolute path.  "
-            "Setting SERVER_ROOT to \"%s\" to conform.\n", server_root,
-            dirbuf);
-    free(server_root);
-    server_root = dirbuf;
 }

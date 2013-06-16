@@ -18,7 +18,7 @@
  *
  */
 
-/* $Id: timestamp.c,v 1.8 2000/02/12 21:52:46 jon Exp $*/
+/* $Id: timestamp.c,v 1.9 2001/11/06 03:38:50 jnelson Exp $*/
 
 #include "boa.h"
 
@@ -30,5 +30,5 @@ void timestamp(void)
     fprintf(stderr, "boa: server built " __DATE__ " at " __TIME__ ".\n");
     log_error_time();
     fprintf(stderr, "boa: starting server pid=%d, port %d\n",
-            getpid(), server_port);
+            (int) getpid(), server_port);
 }

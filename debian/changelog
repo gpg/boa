@@ -1,3 +1,123 @@
+boa (0.94.14rc20-1) unstable; urgency=high
+
+  * 0.94.14 version into unstable for reaching sarge before release.
+  * This upload also fix a lot of bugs.
+
+ -- Teófilo Ruiz Suárez <teo@debian.org>  Sun, 13 Feb 2005 11:12:36 +0100
+
+boa (0.94.13+0.94.14rc20-2) experimental; urgency=low
+
+  * Fix rules so Makefiles are not used unless they exist (Closes: #271927)
+    + Thanks to Javier Fernández-Sanguino Peña (jfs@computer.org) for the patch
+
+ -- Teófilo Ruiz Suárez <teo@debian.org>  Sat,  6 Nov 2004 17:07:39 +0100
+
+boa (0.94.13+0.94.14rc20-1) experimental; urgency=low
+
+  * Development version upload
+  * Added po-debconf support (closes: #208445)
+
+ -- Teófilo Ruiz Suárez <teo@debian.org>  Mon,  9 Aug 2004 15:55:05 +0100
+
+boa (0.94.13-8) unstable; urgency=low
+
+  * Added debconf as a Dependency and not as a build-dep (closes: #263355)
+
+ -- Teófilo Ruiz Suárez <teo@debian.org>  Wed,  4 Aug 2004 10:53:05 +0200
+
+boa (0.94.13-7) unstable; urgency=low
+
+  * The 'Sorry for the buggy upload' upload
+  * Just fixed IPv4 support unapplying fabbione's patch (closes: #261956)
+  * Added debconf templates taken from thttpd. They ask for an alternate port
+    if port 80 is in use (closes: #208445)
+
+ -- Teófilo Ruiz Suárez <teo@debian.org>  Fri, 30 Jul 2004 18:00:25 +0200
+
+boa (0.94.13-6) unstable; urgency=low
+
+  * The 'Sorry for the delay' upload
+  * IPv6 enabled, thanks to Fabio M. Di Nitto (closes: #175165)
+  * Large file support enabled, thanks to Eduard Bloch (closes: #154939)
+  * init script is now policy compliant (closes: #220285)
+  * Postinst didn't check if boa was running before, now it stop itself in preinst (closes: #213918)
+
+ -- Teófilo Ruiz Suárez <teo@debian.org>  Mon, 26 Jul 2004 16:25:00 +0200
+
+boa (0.94.13-5) unstable; urgency=low
+
+  * src/compat.h:120 fixed some bugs with GCC 3.2 (closes: #195800)
+
+ -- Teófilo Ruiz Suárez <teo@debian.org>  Sun,  8 Jun 2003 15:29:44 +0200
+
+boa (0.94.13-4) unstable; urgency=low
+
+  * New maintainer.
+  * src/boa.c: Don't die if getpwuid fails (closes: #175151).
+  * debian/rules: Don't dh_testroot in clean (closes: #175152).
+
+ -- Teófilo Ruiz Suárez <teo@debian.org>  Thu, 17 Apr 2003 01:07:33 +0200
+
+boa (0.94.13-3) unstable; urgency=low
+
+  * New maintainer (closes: #151847)
+
+ -- Steve Kemp <skx@debian.org>  Mon,  3 Feb 2003 09:57:30 +0000
+
+boa (0.94.13-2) unstable; urgency=low
+
+  * Debian QA upload, during Sarge's BSP #2.
+  * debian/boa.init: install a new init file based on one by Bill Allombert
+    which makes "restart" not fail if boa wasn't previously running
+    (closes: #160517).
+  * debian/rules:
+    + use dh_installlogrotate to install the logrotate stuff.
+    + remove arguments to dh_installexamples.
+    + disable DH_VERBOSE.
+    + remove docs/boa.info and docs/boa.html on clean (bashisms in Makefile).
+  * debian/dirs: add usr/lib/cgi-lib.
+  * debian/boa.examples: added.
+  * debian/boa.conf: add "ScriptAlias /cgi-lib/ /usr/lib/cgi-bin/" for the
+    upcoming "cgi-bin" policy (closes: #167511).
+  * src/boa_grammar.y: patch from H. S. Teoh; adds a space after "$Id: $" so
+    m4 doesn't try to expand "$*".
+
+ -- Jordi Mallach <jordi@debian.org>  Sun, 24 Nov 2002 19:23:35 +0100
+
+boa (0.94.13-1) unstable; urgency=low
+
+  * Debian QA upload.
+  * New upstream version.
+
+ -- Peter Palfrader <weasel@debian.org>  Sun, 11 Aug 2002 06:02:04 +0200
+
+boa (0.94.12-1) unstable; urgency=low
+
+  * Debian QA upload.
+  * Boa has been orphaned (Debian Bug #151847).
+    Thanks to Jonathon D Nelson for all the hard work he put into
+    Boa and its Debian package.
+  * Maintainer changed to Debian QA Group <packages@qa.debian.org>.
+  * New upstream release:
+    All changes from the privious Debian diff to code seems to have
+    propagated into the upstream tarball.
+  * Removed emacs stuff from debian/changelog.
+  * Upstream changelog was moved from src/ to . -> Adapted in debian/rules.
+
+ -- Peter Palfrader <weasel@debian.org>  Thu,  4 Jul 2002 00:42:27 +0200
+
+boa (0.94.11-3) unstable; urgency=medium
+
+  * Fix bug in hash routines (Closes: #134012) 
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Fri, 15 Feb 2002 21:03:23 -0600
+
+boa (0.94.11-2) unstable; urgency=low
+
+  * Fix bug in src/Makefile.in - (Closes: #118934)
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Thu, 22 Nov 2001 10:22:19 -0600
+
 boa (0.94.11-1) unstable; urgency=low
 
   * New upstream version 
@@ -490,7 +610,3 @@ boa (0.92-1) unstable; urgency=low
   * Initial Release.
 
  -- Christoph Lameter <clameter@debian.org>  Mon, 23 Dec 1996 20:27:43 -0800
-
-Local variables:
-mode: debian-changelog
-End:

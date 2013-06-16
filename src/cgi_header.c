@@ -28,6 +28,26 @@
 * leaves req->cgi_status as WRITE
 */
 
+/*
+ The server MUST also resolve any conflicts between header fields returned by
+ the script and header fields that it would otherwise send itself.
+
+ ...
+
+ At least one CGI-Field MUST be supplied, but no CGI field name may be used
+ more than once in a response. If a body is supplied, then a
+ "Content-type" header field MUST be supplied by the script,
+ otherwise the script MUST send a "Location" or "Status" header
+ field. If a Location CGI-Field is returned, then the script
+ MUST NOT supply any HTTP-Fields.
+ */
+
+/* TODO:
+ We still need to cycle through the data before the end of the headers,
+ line-by-line, and check for any problems with the CGI
+ outputting overriding http responses, etc...
+ */
+
 int process_cgi_header(request * req)
 {
     char *buf;
@@ -42,17 +62,17 @@ int process_cgi_header(request * req)
     if (c == NULL) {
         c = strstr(buf, "\n\n");
         if (c == NULL) {
-            log_error_time();
+            log_error_doc(req);
             fputs("cgi_header: unable to find LFLF\n", stderr);
 #ifdef FASCIST_LOGGING
             log_error_time();
             fprintf(stderr, "\"%s\"\n", buf);
 #endif
-            send_r_error(req);
+            send_r_bad_gateway(req);
             return 0;
         }
     }
-    if (req->simple) {
+    if (req->http_version == HTTP09) {
         if (*(c + 1) == '\r')
             req->header_line = c + 2;
         else
@@ -72,9 +92,9 @@ int process_cgi_header(request * req)
 
 
         if (buf[10] == '/') {   /* virtual path */
-            log_error_time();
+            log_error_doc(req);
             fprintf(stderr,
-                    "server does not support internal redirection: " \
+                    "server does not support internal redirection: "
                     "\"%s\"\n", buf + 10);
             send_r_bad_request(req);
 
@@ -107,15 +127,15 @@ int process_cgi_header(request * req)
             while ((*c2 == '\n' || *c2 == '\r') && c2 < req->header_end)
                 ++c2;
             if (c2 == req->header_end)
-                send_redirect_temp(req, buf + 10, "");
+                send_r_moved_temp(req, buf + 10, "");
             else
-                send_redirect_temp(req, buf + 10, c2);
+                send_r_moved_temp(req, buf + 10, c2);
         }
         req->status = DONE;
         return 1;
     } else {                    /* not location and not status */
         char *dest;
-        int howmuch;
+        unsigned int howmuch;
         send_r_request_ok(req); /* does not terminate */
         /* got to do special things because
            a) we have a single buffer divided into 2 pieces
@@ -135,7 +155,7 @@ int process_cgi_header(request * req)
 
         if (dest + howmuch > req->buffer + BUFFER_SIZE) {
             /* big problem */
-            log_error_time();
+            log_error_doc(req);
             fprintf(stderr, "Too much data to move! Aborting! %s %d\n",
                     __FILE__, __LINE__);
             /* reset buffer pointers because we already called

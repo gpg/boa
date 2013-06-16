@@ -1,58 +1,53 @@
 #! /bin/sh
 #
-# /etc/init.d/boa -- start/stop Boa HTTP server
-#
-# This file was automatically customized by debmake on Mon, 23 Dec 1996 20:27:43 -0800
-#
-# Written by Miquel van Smoorenburg <miquels@drinkel.ow.org>.
-# Modified for Debian GNU/Linux by Ian Murdock <imurdock@gnu.ai.mit.edu>.
-# Modified for Debian by Christoph Lameter <clameter@debian.org>
-# Modified for Debian GNU/Linux by Jonathon Nelson <jnelson@boa.org>
+#		Written by Miquel van Smoorenburg <miquels@cistron.nl>.
+#		Modified for Debian GNU/Linux
+#		by Ian Murdock <imurdock@gnu.ai.mit.edu>.
+#               Modified for boa by Bill Allombert <ballombe@debian.org>.
 
-PATH=/bin:/usr/bin:/sbin:/usr/sbin
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON=/usr/sbin/boa
-# update-rc.d option extracted by debstd to generate postinst on package build
-FLAGS="defaults 50"
+NAME=boa
+DESC="HTTP server"
 
-test -f $DAEMON || exit 0
-ALIVE=`ps axw | grep "/usr/sbin/boa *\$" | awk '{print $1}'`
-#ALIVE=`pidof $DAEMON`
-WAIT=30
+test -x $DAEMON || exit 0
+
+set -e
 
 case "$1" in
   start)
-    echo -n "Starting HTTP server: Boa"
-    start-stop-daemon --start --quiet --exec $DAEMON
-    echo "."
-    ;;
+	echo -n "Starting $DESC: $NAME"
+	start-stop-daemon --start --quiet --exec $DAEMON
+	echo "."
+	;;
   stop)
-    echo -n "Stopping HTTP server: Boa"
-    start-stop-daemon --stop --quiet --exec $DAEMON
-    sleep 1
-    start-stop-daemon --stop --quiet --signal INT --exec $DAEMON
-    echo "."
-    ;;
-  force-reload)
-    echo -n "Forcing reload of HTTP server: Boa"
-    start-stop-daemon --stop --quiet --signal HUP --exec $DAEMON
-    echo "."
-    ;;
+	echo -n "Stopping $DESC: $NAME"
+	start-stop-daemon --stop --quiet --oknodo --exec $DAEMON
+	echo "."
+	;;
   restart)
-    echo -n "Restarting HTTP server: Boa"
-    if [ -n "$ALIVE" ];
-    then
-      start-stop-daemon --stop --quiet --exec $DAEMON
-      $DAEMON
-#      start-stop-daemon --start --quiet --exec $DAEMON
-      echo "."
-    else
-      echo ". Boa not running!  Not attempting restart."
-    fi
-    ;;
+	echo -n "Restarting $DESC: $NAME"
+	start-stop-daemon --stop --signal HUP --quiet --oknodo --exec $DAEMON
+	echo "done."
+        ;;
+  reload)
+	#
+	#	If the daemon can reload its config files on the fly
+	#	for example by sending it SIGHUP, do it here.
+	#
+	#	If the daemon responds to changes in its config file
+	#	directly anyway, make this a do-nothing entry.
+	#
+	echo -n "Reloading $DESC configuration..."
+	start-stop-daemon --stop --signal 1 --quiet --oknodo --exec $DAEMON
+	echo "done."
+        ;;
   *)
-    echo "Usage: /etc/init.d/boa {start|stop|restart|force-reload}"
-    exit 1
-    ;;
+	N=/etc/init.d/$NAME
+	# echo "Usage: $N {start|stop|restart|reload|force-reload}" >&2
+	echo "Usage: $N {start|stop|restart|reload}" >&2
+	exit 1
+	;;
 esac
 
 exit 0

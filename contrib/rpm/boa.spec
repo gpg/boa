@@ -1,13 +1,21 @@
+%define is_suse %(test -e /etc/SuSE-release && echo 1 || echo 0)
+
 Summary: a single-tasking high performance http server
 Name: boa
-Version: 0.94.9
+Version: 0.94.14rc20
 Release: 1
 Group: System Environment/Daemons
 Source: http://www.boa.org/boa-%{version}.tar.gz
 Copyright: GNU general public license
 Requires: /etc/mime.types
-Prereq: /sbin/chkconfig, man, gzip
-Provides: setup webserver
+%if is_suse
+Prereq: insserv
+%else
+Prereq: /sbin/chkconfig
+Provides: setup
+%endif
+Prereq: man, gzip
+Provides: webserver
 Buildroot: /usr/tmp/boa
 
 %description
@@ -38,8 +46,8 @@ or visit the Boa homepage at
 %prep
 %setup -T -b 0
 %build
-(cd src && CFLAGS=$RPM_OPT_FLAGS ./configure --prefix=$RPM_BUILD_ROOT)
-(cd src && make)
+%configure
+make
 (cd docs && gzip -c boa.8 > boa.8.gz)
 (cd docs && make boa.html)
 
@@ -49,41 +57,62 @@ rm -rf $RPM_BUILD_ROOT
 %install
 rm -rf $RPM_BUILD_ROOT
 
-mkdir -p $RPM_BUILD_ROOT/etc/{boa,logrotate.d}
 mkdir -p $RPM_BUILD_ROOT/usr/sbin
 mkdir -p $RPM_BUILD_ROOT/home/httpd/{html,cgi-bin}
 mkdir -p $RPM_BUILD_ROOT/var/log/boa
 mkdir -p $RPM_BUILD_ROOT/usr/lib/boa
-mkdir -p $RPM_BUILD_ROOT/usr/man/man8
-mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
+mkdir -p $RPM_BUILD_ROOT/%{_mandir}/man8
+mkdir -p $RPM_BUILD_ROOT/etc/init.d
+mkdir -p $RPM_BUILD_ROOT/etc/boa
 
 install -m755 src/boa $RPM_BUILD_ROOT/usr/sbin/
 install -m755 src/boa_indexer $RPM_BUILD_ROOT/usr/lib/boa/
-install -m644 redhat/boa.conf $RPM_BUILD_ROOT/etc/boa/
-install -m755 redhat/boa.init $RPM_BUILD_ROOT/etc/rc.d/init.d/boa
-mv docs/boa.8.gz $RPM_BUILD_ROOT/usr/man/man8/
-install -m644 redhat/boa.logrotate $RPM_BUILD_ROOT/etc/logrotate.d/boa
+install -m644 contrib/rpm/boa.conf $RPM_BUILD_ROOT/etc/boa/
+
+%if is_suse
+install -m755 contrib/rpm/boa.init-suse $RPM_BUILD_ROOT/etc/init.d/boa
+%else
+install -m755 contrib/rpm/boa.init-redhat $RPM_BUILD_ROOT/etc/init.d/boa
+mkdir -p $RPM_BUILD_ROOT/etc/{boa,logrotate.d}
+install -m644 contrib/rpm/boa.logrotate $RPM_BUILD_ROOT/etc/logrotate.d/boa
+%endif
+
+mv docs/boa.8.gz $RPM_BUILD_ROOT/%{_mandir}/man8/
 
 touch $RPM_BUILD_ROOT/var/log/boa/{error,access}_log
 
 %post
+%if is_suse
+/sbin/insserv --default /etc/init.d/boa
+%else
 /sbin/chkconfig boa reset
+%endif
 
 %preun
-/etc/rc.d/init.d/boa stop
+/etc/init.d/boa stop
+%if is_suse
+/sbin/insserv --remove  /etc/init.d/boa
+%else
 /sbin/chkconfig --del boa
+%endif
 
 %files
 %defattr(-,root,root)
 %dir /home/httpd/html
 %dir /home/httpd/cgi-bin
 %dir /var/log/boa
-%doc Gnu_License README docs/* 
-%doc /usr/man/man8/*
+%doc COPYING CREDITS CHANGES README docs/boa.html docs/boa_banner.png docs/boa.texi
+%doc /%{_mandir}/man8/*
+%dir /etc/boa
 %config /etc/boa/boa.conf
-%config /etc/rc.d/init.d/boa
+%config /etc/init.d/boa
+%if is_suse
+%else
 %config /etc/logrotate.d/boa
-%attr(600,nobody,nobody)/var/log/boa/error_log
-%attr(600,nobody,nobody)/var/log/boa/access_log
+%endif
+%ghost %attr(600,nobody,nobody)/var/log/boa/error_log
+%ghost %attr(600,nobody,nobody)/var/log/boa/access_log
+
 /usr/sbin/boa
 /usr/lib/boa/boa_indexer
+

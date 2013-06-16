@@ -1,7 +1,7 @@
 /*
  *  Boa, an http server
- *  Copyright (C) 1995 Paul Phillips <psp@well.com>
- *  Some changes Copyright (C) 1999 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
+ *  Some changes Copyright (C) 1999-2003 Jon Nelson <jnelson@boa.org>
 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,13 +19,10 @@
  *
  */
 
-/* $Id: buffer.c,v 1.9 2001/10/20 02:56:36 jnelson Exp $ */
+/* $Id: buffer.c,v 1.10.2.12 2004/06/10 01:41:09 jnelson Exp $ */
 
 #include "boa.h"
 #include "escape.h"
-
-#define INT_TO_HEX(x) \
-    ((((x)-10)>=0)?('A'+((x)-10)):('0'+(x)))
 
 /*
  * Name: req_write
@@ -34,24 +31,37 @@
  * Returns: -1 for error, otherwise how much is stored
  */
 
-int req_write(request * req, char *msg)
+int req_write(request * req, const char *msg)
 {
-    int msg_len;
+    unsigned int msg_len;
 
     msg_len = strlen(msg);
 
-    if (!msg_len || req->status == DEAD)
+    if (!msg_len || req->status > DONE)
         return req->buffer_end;
 
     if (req->buffer_end + msg_len > BUFFER_SIZE) {
-        log_error_time();
-        fprintf(stderr, "Ran out of Buffer space!\n");
+        log_error_doc(req);
+        fprintf(stderr, "There is not enough room in the buffer to"
+                " copy %u bytes (%d available). Shutting down connection.\n",
+                msg_len,
+                BUFFER_SIZE - req->buffer_end);
+#ifdef FACSIST_LOGGING
+        *(req->buffer + req->buffer_end) = '\0';
+        fprintf(stderr, "The request looks like this:\n%s\n",
+                req->buffer);
+#endif
         req->status = DEAD;
         return -1;
     }
     memcpy(req->buffer + req->buffer_end, msg, msg_len);
     req->buffer_end += msg_len;
     return req->buffer_end;
+}
+
+void reset_output_buffer(request * req)
+{
+    req->buffer_end = 0;
 }
 
 /*
@@ -61,30 +71,43 @@ int req_write(request * req, char *msg)
  *  encoded for URLs in HTTP headers.
  * Returns: -1 for error, otherwise how much is stored
  */
-int req_write_escape_http(request * req, char *msg)
+int req_write_escape_http(request * req, const char *msg)
 {
-    char c, *inp, *dest;
+    char c, *dest;
+    const char *inp;
+
     int left;
     inp = msg;
     dest = req->buffer + req->buffer_end;
     /* 3 is a guard band, since we don't check the destination pointer
      * in the middle of a transfer of up to 3 bytes */
-    left = BUFFER_SIZE - req->buffer_end - 3;
-    while ((c = *inp++) && left > 0) {
+    left = BUFFER_SIZE - req->buffer_end;
+    while ((c = *inp++) && left >= 3) {
         if (needs_escape((unsigned int) c)) {
             *dest++ = '%';
-            *dest++ = INT_TO_HEX(c >> 4);
-            *dest++ = INT_TO_HEX(c & 15);
+            *dest++ = INT_TO_HEX((c >> 4) & 0xf);
+            *dest++ = INT_TO_HEX(c & 0xf);
             left -= 3;
         } else {
             *dest++ = c;
             left--;
         }
     }
+    --inp;
     req->buffer_end = dest - req->buffer;
-    if (left == 0) {
-        log_error_time();
-        fprintf(stderr, "Ran out of Buffer space!\n");
+
+#ifdef TESTING
+    if (left < 0) {
+        log_error_time(); /* don't use log_error_doc here */
+        fprintf(stderr, "Overflowed buffer space!\n");
+        chdir("/tmp");
+        abort();
+    }
+#endif
+
+    if (*inp != '\0') {
+        log_error_doc(req);
+        fprintf(stderr, "Ran out of Buffer space! [req_write_escape_http]\n");
         req->status = DEAD;
         return -1;
     }
@@ -98,16 +121,19 @@ int req_write_escape_http(request * req, char *msg)
  *  encoded for HTML bodies.
  * Returns: -1 for error, otherwise how much is stored
  */
-int req_write_escape_html(request * req, char *msg)
+int req_write_escape_html(request * req, const char *msg)
 {
-    char c, *inp, *dest;
+    char c, *dest;
+    const char *inp;
     int left;
+
     inp = msg;
     dest = req->buffer + req->buffer_end;
-    /* 5 is a guard band, since we don't check the destination pointer
-     * in the middle of a transfer of up to 5 bytes */
-    left = BUFFER_SIZE - req->buffer_end - 5;
-    while ((c = *inp++) && left > 0) {
+    /* 6 is a guard band, since we don't check the destination pointer
+     * in the middle of a transfer of up to 6 bytes
+     */
+    left = BUFFER_SIZE - req->buffer_end;
+    while ((c = *inp++) && left >= 6) {
         switch (c) {
         case '>':
             *dest++ = '&';
@@ -145,10 +171,22 @@ int req_write_escape_html(request * req, char *msg)
             left--;
         }
     }
+    --inp;
     req->buffer_end = dest - req->buffer;
-    if (left == 0) {
-        log_error_time();
-        fprintf(stderr, "Ran out of Buffer space!\n");
+
+#ifdef TESTING
+    if (left < 0) {
+        log_error_time(); /* don't use log_error_doc here */
+        fprintf(stderr, "Overflowed buffer space! [req_write_escape_html]\n");
+        chdir("/tmp");
+        abort();
+    }
+#endif
+
+    if (*inp != '\0') {
+        log_error_doc(req);
+        fprintf(stderr, "Ran out of Buffer space (%d chars left)! "
+                "[req_write_escape_html]\n", left);
         req->status = DEAD;
         return -1;
     }
@@ -166,10 +204,10 @@ int req_write_escape_html(request * req, char *msg)
 
 int req_flush(request * req)
 {
-    int bytes_to_write;
+    unsigned bytes_to_write;
 
     bytes_to_write = req->buffer_end - req->buffer_start;
-    if (req->status == DEAD)
+    if (req->status > DONE)
         return -2;
 
     if (bytes_to_write) {
@@ -183,8 +221,14 @@ int req_flush(request * req)
                 return -1;      /* request blocked at the pipe level, but keep going */
             else {
                 req->buffer_start = req->buffer_end = 0;
-                if (errno != EPIPE)
-                    perror("buffer flush"); /* OK to disable if your logs get too big */
+                /* OK to disable if your logs get too big */
+#ifdef QUIET_DISCONNECT
+                if (errno != ECONNRESET && errno != EPIPE)
+#endif
+                {
+                    log_error_doc(req);
+                    perror("buffer flush");
+                }
                 req->status = DEAD;
                 req->buffer_end = 0;
                 return -2;
@@ -216,36 +260,39 @@ int req_flush(request * req)
  * Returns: NULL on error, pointer to string otherwise.
  * Note: this function doesn't really belong here, I plopped it here to
  *  work around a "bug" in escape.h (it defines a global, so can't be
- *  used in multiple source files).  Actually, this routine shouldn't 
+ *  used in multiple source files).  Actually, this routine shouldn't
  *  exist anywhere, it's only usage is in get.c's handling of on-the-fly
  *  directory generation, which would be better configured to use a combination
  *  of req_write_escape_http and req_write_escape_html.  That would involve
  *  more work than I'm willing to put in right now, though, so here we are.
  */
 
-char *escape_string(char *inp, char *buf)
+char *escape_string(const char *inp, char *buf)
 {
     int max;
-    char *index;
+    char *ix;
     unsigned char c;
 
     max = strlen(inp) * 3;
 
     if (buf == NULL && max)
-        buf = malloc(sizeof (char) * max + 1);
+        buf = malloc(sizeof (char) * (max + 1));
 
-    if (buf == NULL)
+    if (buf == NULL) {
+        log_error_time();
+        perror("malloc");
         return NULL;
+    }
 
-    index = buf;
+    ix = buf;
     while ((c = *inp++) && max > 0) {
         if (needs_escape((unsigned int) c)) {
-            *index++ = '%';
-            *index++ = INT_TO_HEX(c >> 4);
-            *index++ = INT_TO_HEX(c & 15);
+            *ix++ = '%';
+            *ix++ = INT_TO_HEX((c >> 4) & 0xf);
+            *ix++ = INT_TO_HEX(c & 0xf);
         } else
-            *index++ = c;
+            *ix++ = c;
     }
-    *index = '\0';
+    *ix = '\0';
     return buf;
 }

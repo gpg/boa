@@ -1,6 +1,6 @@
 /*
  *  Boa, an http server
- *  Copyright (C) 1995 Paul Phillips <psp@well.com>
+ *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
  *  Copyright (C) 2001 Jon Nelson <jnelson@boa.org>
  *  Copyright (C) 2001 Larry Doolittle <ldoolitt@boa.org>
 
@@ -20,7 +20,7 @@
  *
  */
 
-/* $Id: escape.h,v 1.17 2001/11/05 00:38:08 jnelson Exp $ */
+/* $Id: escape.h,v 1.18.2.1 2002/10/26 14:42:31 jnelson Exp $ */
 
 #include "config.h"
 
@@ -28,7 +28,7 @@
 #define NEEDS_ESCAPE_BITS 128
 
 #ifndef NEEDS_ESCAPE_SHIFT
-#define NEEDS_ESCAPE_SHIFT 5     /* 1 << 5 is 32 bits */
+#define NEEDS_ESCAPE_SHIFT 5    /* 1 << 5 is 32 bits */
 #endif
 
 #define NEEDS_ESCAPE_WORD_LENGTH (1<<NEEDS_ESCAPE_SHIFT)
@@ -43,5 +43,7 @@
  */
 #define needs_escape(c) ((c)>=NEEDS_ESCAPE_BITS || _needs_escape[NEEDS_ESCAPE_INDEX(c)]&NEEDS_ESCAPE_MASK(c))
 
-extern unsigned long _needs_escape[(NEEDS_ESCAPE_BITS+NEEDS_ESCAPE_WORD_LENGTH-1)/NEEDS_ESCAPE_WORD_LENGTH];
+extern unsigned long
+    _needs_escape[(NEEDS_ESCAPE_BITS + NEEDS_ESCAPE_WORD_LENGTH -
+                   1) / NEEDS_ESCAPE_WORD_LENGTH];
 void build_needs_escape(void);

@@ -1,7 +1,7 @@
 
 /*
  *  Boa, an http server
- *  Based on code Copyright (C) 1995 Paul Phillips <psp@well.com>
+ *  Based on code Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
  *  Some changes Copyright (C) 1997-99 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  *
  */
 
-/* $Id: pipe.c,v 1.38 2001/06/30 03:41:31 jnelson Exp $*/
+/* $Id: pipe.c,v 1.39.2.15 2004/06/10 01:58:29 jnelson Exp $*/
 
 #include "boa.h"
 
@@ -36,8 +36,10 @@
 
 int read_from_pipe(request * req)
 {
-    int bytes_read, bytes_to_read =
-        BUFFER_SIZE - (req->header_end - req->buffer);
+    int bytes_read; /* signed */
+    unsigned int bytes_to_read; /* unsigned */
+
+    bytes_to_read = BUFFER_SIZE - (req->header_end - req->buffer - 1);
 
     if (bytes_to_read == 0) {   /* buffer full */
         if (req->cgi_status == CGI_PARSE) { /* got+parsed header */
@@ -71,12 +73,15 @@ int read_from_pipe(request * req)
         else if (errno == EWOULDBLOCK || errno == EAGAIN)
             return -1;          /* request blocked at the pipe level, but keep going */
         else {
-	    req->status = DEAD;
+            req->status = DEAD;
             log_error_doc(req);
             perror("pipe read");
             return 0;
         }
-    } else if (bytes_read == 0) { /* eof, write rest of buffer */
+    }
+    *(req->header_end + bytes_read) = '\0';
+
+    if (bytes_read == 0) {      /* eof, write rest of buffer */
         req->status = PIPE_WRITE;
         if (req->cgi_status == CGI_PARSE) { /* hasn't processed header yet */
             req->cgi_status = CGI_DONE;
@@ -86,7 +91,27 @@ int read_from_pipe(request * req)
         req->cgi_status = CGI_DONE;
         return 1;
     }
+
     req->header_end += bytes_read;
+
+    if (req->cgi_status != CGI_PARSE)
+        return write_from_pipe(req); /* why not try and flush the buffer now? */
+    else {
+        char *c, *buf;
+
+        buf = req->header_line;
+
+        c = strstr(buf, "\n\r\n");
+        if (c == NULL) {
+            c = strstr(buf, "\n\n");
+            if (c == NULL) {
+                return 1;
+            }
+        }
+        req->cgi_status = CGI_DONE;
+        *req->header_end = '\0'; /* points to end of read data */
+        return process_cgi_header(req); /* cgi_status will change */
+    }
     return 1;
 }
 
@@ -102,7 +127,8 @@ int read_from_pipe(request * req)
 
 int write_from_pipe(request * req)
 {
-    int bytes_written, bytes_to_write = req->header_end - req->header_line;
+    int bytes_written;
+    unsigned int bytes_to_write = req->header_end - req->header_line;
 
     if (bytes_to_write == 0) {
         if (req->cgi_status == CGI_DONE)
@@ -122,7 +148,6 @@ int write_from_pipe(request * req)
             return 1;
         else {
             req->status = DEAD;
-            send_r_error(req);  /* maybe superfluous */
             log_error_doc(req);
             perror("pipe write");
             return 0;
@@ -130,7 +155,187 @@ int write_from_pipe(request * req)
     }
 
     req->header_line += bytes_written;
-    req->filepos += bytes_written;
+    req->bytes_written += bytes_written;
+
+    /* if there won't be anything to write next time, switch state */
+    if ((unsigned) bytes_written == bytes_to_write) {
+        req->status = PIPE_READ;
+        req->header_end = req->header_line = req->buffer;
+    }
+
+    return 1;
+}
+
+#ifdef HAVE_SENDFILE
+int io_shuffle_sendfile(request * req)
+{
+    int bytes_written;
+    unsigned int bytes_to_write;
+
+    if (req->method == M_HEAD) {
+        return complete_response(req);
+    }
+
+    bytes_to_write = (req->ranges->stop - req->ranges->start) + 1;
+
+    if (bytes_to_write > system_bufsize)
+        bytes_to_write = system_bufsize;
+
+retrysendfile:
+    if (bytes_to_write == 0) {
+        /* shouldn't get here, but... */
+        bytes_written = 0;
+    } else {
+        bytes_written = sendfile(req->fd, req->data_fd,
+                                 &(req->ranges->start),
+                                 bytes_to_write);
+        if (bytes_written < 0) {
+            if (errno == EWOULDBLOCK || errno == EAGAIN) {
+                return -1;          /* request blocked at the pipe level, but keep going */
+            } else if (errno == EINTR) {
+                goto retrysendfile;
+            } else {
+                req->status = DEAD;
+#ifdef QUIET_DISCONNECT
+                if (0)
+#else
+                if (errno != EPIPE && errno != ECONNRESET)
+#endif
+                {
+                    log_error_doc(req);
+                    perror("sendfile write");
+                }
+            }
+            return 0;
+        } else if (bytes_written == 0) {
+            /* not sure how to handle this.
+             * For now, treat it like it is blocked.
+             */
+            return -1;
+        }/* bytes_written */
+    } /* bytes_to_write */
+
+    /* sendfile automatically updates req->ranges->start
+     * don't touch!
+     * req->ranges->start += bytes_written;
+     */
+    req->bytes_written += bytes_written;
+
+    if (req->ranges->stop + 1 <= req->ranges->start) {
+        return complete_response(req);
+    }
+    return 1;
+}
+#endif
+
+/* always try to read unless data_fs is 0 (and there is space)
+ * then try to write
+ *
+ * Return values:
+ *  -1: request blocked, move to blocked queue
+ *   0: EOF or error, close it down
+ *   1: successful read, recycle in ready queue
+ */
+
+int io_shuffle(request * req)
+{
+    int bytes_to_read;
+    int bytes_written, bytes_to_write;
+
+    if (req->method == M_HEAD) {
+        return complete_response(req);
+    }
+
+    /* FIXME: This function doesn't take into account req->filesize
+     * when *reading* into the buffer. Grr.
+     * June 09, 2004: jdn, I don't think it's a problem anymore,
+     * because the ranges are verified against the filesize,
+     * and we cap bytes_to_read at bytes_to_write.
+     */
+    bytes_to_read = BUFFER_SIZE - req->buffer_end - 256;
+
+    bytes_to_write = (req->ranges->stop - req->ranges->start) + 1;
+
+    if (bytes_to_read > bytes_to_write)
+        bytes_to_read = bytes_to_write;
+
+    if (bytes_to_read > 0 && req->data_fd) {
+        int bytes_read;
+        off_t temp;
+
+        temp = lseek(req->data_fd, req->ranges->start, SEEK_SET);
+        if (temp < 0) {
+            req->status = DEAD;
+            log_error_doc(req);
+            perror("ioshuffle lseek");
+            return 0;
+        }
+
+      restartread:
+        bytes_read =
+            read(req->data_fd, req->buffer + req->buffer_end,
+                 bytes_to_read);
+
+        if (bytes_read == -1) {
+            if (errno == EINTR)
+                goto restartread;
+            else if (errno == EWOULDBLOCK || errno == EAGAIN) {
+                /* not a fatal error, don't worry about it */
+                /* buffer is empty, we're blocking on read! */
+                if (req->buffer_end - req->buffer_start == 0)
+                    return -1;
+            } else {
+                req->status = DEAD;
+                log_error_doc(req);
+                perror("ioshuffle read");
+                return 0;
+            }
+        } else if (bytes_read == 0) { /* eof, write rest of buffer */
+            close(req->data_fd);
+            req->data_fd = 0;
+        } else {
+            req->buffer_end += bytes_read;
+
+            req->ranges->start += bytes_read;
+
+            if ((req->ranges->stop + 1 - req->ranges->start) == 0) {
+                return complete_response(req);
+            }
+        }
+    }
+
+    bytes_to_write = req->buffer_end - req->buffer_start;
+    if (bytes_to_write == 0) {
+        if (req->data_fd == 0)
+            return 0;           /* done */
+        req->buffer_end = req->buffer_start = 0;
+        return 1;
+    }
+
+  restartwrite:
+    bytes_written =
+        write(req->fd, req->buffer + req->buffer_start, bytes_to_write);
+
+    if (bytes_written == -1) {
+        if (errno == EWOULDBLOCK || errno == EAGAIN)
+            return -1;          /* request blocked at the pipe level, but keep going */
+        else if (errno == EINTR)
+            goto restartwrite;
+        else {
+            req->status = DEAD;
+            log_error_doc(req);
+            perror("ioshuffle write");
+            return 0;
+        }
+    } else if (bytes_written == 0) {
+    }
+
+    req->buffer_start += bytes_written;
+    req->bytes_written += bytes_written;
+
+    if (bytes_to_write == bytes_written) {
+        req->buffer_end = req->buffer_start = 0;
+    }
 
     return 1;
 }

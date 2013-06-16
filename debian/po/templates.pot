@@ -1,0 +1,105 @@
+#
+#    Translators, if you are not familiar with the PO format, gettext
+#    documentation is worth reading, especially sections dedicated to
+#    this format, e.g. by running:
+#         info -n '(gettext)PO Files'
+#         info -n '(gettext)Header Entry'
+#
+#    Some information specific to po-debconf are available at
+#            /usr/share/doc/po-debconf/README-trans
+#         or http://www.debian.org/intl/l10n/po-debconf/README-trans
+#
+#    Developers do not need to manually edit POT or PO files.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2004-08-15 16:07+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: select
+#. Choices
+#: templates:3
+msgid "Do nothing, Specify an alternative port"
+msgstr ""
+
+#. Type: select
+#. Description
+#: templates:5
+msgid "Select a method to resolve the problem."
+msgstr ""
+
+#. Type: select
+#. Description
+#: templates:5
+msgid ""
+"In order for the installation to proceed properly, you must select an "
+"appropriate method to resolve the problem mentioned before. Choosing 'Do "
+"nothing' will prevent boa from being started upon boot up, and you will be "
+"required to resolve the problem manually."
+msgstr ""
+
+#. Type: note
+#. Description
+#: templates:13
+msgid "The port you specified is already in use."
+msgstr ""
+
+#. Type: note
+#. Description
+#: templates:13
+msgid ""
+"The installation script has detected that that port you specified is already "
+"bound to a service other than boa and is therefore not valid."
+msgstr ""
+
+#. Type: note
+#. Description
+#: templates:19
+msgid "Port 80 is already in use."
+msgstr ""
+
+#. Type: note
+#. Description
+#: templates:19
+msgid ""
+"The installation script has detected that port 80 is already bound to a "
+"service other than boa. By default, boa uses this port to serve requests for "
+"clients. This problem prevents boa from being started properly."
+msgstr ""
+
+#. Type: note
+#. Description
+#: templates:27
+msgid "Port 80 was in use previously, but is now available."
+msgstr ""
+
+#. Type: note
+#. Description
+#: templates:27
+msgid ""
+"The installation script has detected that port 80 was at one time in use by "
+"another process. Because of this, boa was configured to either ignore the "
+"problem, or use a different port. Currently, port 80 is available again."
+msgstr ""
+
+#. Type: string
+#. Description
+#: templates:35
+msgid "Select an alternative port for boa."
+msgstr ""
+
+#. Type: string
+#. Description
+#: templates:35
+msgid ""
+"The port number you enter will be used by boa in order to serve client "
+"requests."
+msgstr ""
