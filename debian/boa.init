@@ -36,9 +36,8 @@ case "$1" in
 	echo "."
 	;;
   restart|force-reload)
-	echo -n "Restarting $DESC: $NAME... "
-	start-stop-daemon --stop --signal HUP --quiet --oknodo --exec $DAEMON
-	echo "done."
+	$0 stop
+	$0 start
         ;;
   reload)
 	#
@@ -49,7 +48,7 @@ case "$1" in
 	#	directly anyway, make this a do-nothing entry.
 	#
 	echo -n "Reloading $DESC configuration... "
-	start-stop-daemon --stop --signal 1 --quiet --oknodo --exec $DAEMON
+	start-stop-daemon --stop --signal HUP --quiet --oknodo --exec $DAEMON
 	echo "done."
         ;;
   *)
