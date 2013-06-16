@@ -35,6 +35,7 @@ boa (0.94.14rc21-4) UNRELEASED; urgency=low
   * Change section to httpd
   * Bump Standards-Version to 3.9.4 (no further changes)
   * Apply wrap-and-sort
+  * Remove trailing blank line in debian/boa.conf
 
  -- Axel Beckert <abe@debian.org>  Sun, 16 Jun 2013 02:21:37 +0200
 
