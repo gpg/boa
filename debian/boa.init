@@ -40,13 +40,6 @@ case "$1" in
 	$0 start
         ;;
   reload)
-	#
-	#	If the daemon can reload its config files on the fly
-	#	for example by sending it SIGHUP, do it here.
-	#
-	#	If the daemon responds to changes in its config file
-	#	directly anyway, make this a do-nothing entry.
-	#
 	echo -n "Reloading $DESC configuration... "
 	start-stop-daemon --stop --signal HUP --quiet --oknodo --exec $DAEMON
 	echo "done."
