@@ -16,8 +16,8 @@ package=boa
 build: build-stamp
 build-stamp: 
 	dh_testdir
-	./configure
-	make
+	dh_auto_configure
+	dh_auto_build
 	cd docs;make boa.html boa.info
 	touch build-stamp
 
