@@ -22,6 +22,8 @@ boa (0.94.14rc21-4) UNRELEASED; urgency=low
     + Use debian/clean instead of calling rm
     + Don't ignore "make clean" failures
     + Finally switch to a dh7 style debian/rules file
+  * Fix the following lintian warnings:
+    + maintainer-script-ignores-errors
   * Apply wrap-and-sort
 
  -- Axel Beckert <abe@debian.org>  Sun, 16 Jun 2013 02:21:37 +0200
