@@ -4,6 +4,9 @@ boa (0.94.14rc21-4) UNRELEASED; urgency=low
   * Set maintainer to Debian QA Group
   * Switch to source format "3.0 (quilt)"
     + Drop quilt traces from debian/rules and build-dependency on quilt
+  * Fix CVE-2009-4496 (Closes: #578035; missing sanitization of
+    non-printable characters in boa's error log) Thanks to Devin Carraway
+    for the patch.
   * Apply wrap-and-sort
 
  -- Axel Beckert <abe@debian.org>  Sun, 16 Jun 2013 02:21:37 +0200
