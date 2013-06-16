@@ -7,6 +7,8 @@ boa (0.94.14rc21-5) UNRELEASED; urgency=low
     + Remove init.d template script help text
     + Support status option (fixes lintian warning
       init.d-script-does-not-implement-optional-option)
+  * Rename debian/boa.{examples,init,logrotate} to
+    debian/{examples,init,logrotate} for consistency
 
  -- Axel Beckert <abe@debian.org>  Sun, 16 Jun 2013 13:41:54 +0200
 
