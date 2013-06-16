@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 1997-2002 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1997-2005 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  *
  */
 
-/* $Id: index_dir.c,v 1.32.2.5 2004/03/05 04:19:00 jnelson Exp $*/
+/* $Id: index_dir.c,v 1.32.2.7 2005/02/22 03:00:24 jnelson Exp $*/
 
 #include <stdio.h>
 #include <sys/stat.h>
@@ -37,8 +37,10 @@
 
 #include "escape.h"
 
-char *html_escape_string(const char *inp, char *dest, const unsigned int len);
-char *http_escape_string(const char *inp, char *buf, const unsigned int len);
+char *html_escape_string(const char *inp, char *dest,
+                         const unsigned int len);
+char *http_escape_string(const char *inp, char *buf,
+                         const unsigned int len);
 
 int select_files(const struct dirent *d);
 int index_directory(char *dir, char *title);
@@ -47,7 +49,8 @@ void send_error(int error);
 /*
  * Name: html_escape_string
  */
-char *html_escape_string(const char *inp, char *dest, const unsigned int len)
+char *html_escape_string(const char *inp, char *dest,
+                         const unsigned int len)
 {
     int max;
     char *buf;
@@ -112,7 +115,8 @@ char *html_escape_string(const char *inp, char *dest, const unsigned int len)
  * Returns: NULL on error, pointer to string otherwise.
  */
 
-char *http_escape_string(const char *inp, char *buf, const unsigned int len)
+char *http_escape_string(const char *inp, char *buf,
+                         const unsigned int len)
 {
     int max;
     char *index_c;
@@ -292,17 +296,17 @@ int index_directory(char *dir, char *title)
             send_error(4);
             return -1;
         }
-        if (html_escape_string(http_filename, escaped_filename,
-                               strlen(http_filename)) == NULL) {
-            send_error(4);
-            return -1;
-        }
 
         len = strlen(http_filename);
 #ifdef GUNZIP
         if (len > 3 && !memcmp(http_filename + len - 3, ".gz", 3)) {
             http_filename[len - 3] = '\0';
             html_filename[strlen(html_filename) - 3] = '\0';
+            if (html_escape_string(http_filename, escaped_filename,
+                                   strlen(http_filename)) == NULL) {
+                send_error(4);
+                return -1;
+            }
 
             printf("<tr>"
                    "<td width=\"40%%\"><a href=\"%s\">%s</a> "
@@ -314,6 +318,11 @@ int index_directory(char *dir, char *title)
                    ctime(&statbuf.st_mtime), (long) statbuf.st_size);
         } else {
 #endif
+            if (html_escape_string(http_filename, escaped_filename,
+                                   strlen(http_filename)) == NULL) {
+                send_error(4);
+                return -1;
+            }
             printf("<tr>"
                    "<td width=\"40%%\"><a href=\"%s\">%s</a></td>"
                    "<td align=right>%s</td>"

@@ -1,6 +1,7 @@
 /*
  *  Boa, an http server
- *  Copyright (C) 1999 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 1999-2005 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 2000-2004 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,7 +19,7 @@
  *
  */
 
-/* $Id: mmap_cache.c,v 1.9.2.7 2004/06/04 02:44:59 jnelson Exp $*/
+/* $Id: mmap_cache.c,v 1.9.2.9 2005/02/22 14:11:29 jnelson Exp $*/
 
 #include "boa.h"
 
@@ -79,7 +80,7 @@ struct mmap_entry *find_mmap(int data_fd, struct stat *s)
 
     m = mmap(0, s->st_size, PROT_READ, MAP_OPTIONS, data_fd, 0);
 
-    if ((int) m == -1) {
+    if ((long) m == -1) {
         int saved_errno = errno;
         log_error_time();
         fprintf(stderr, "Unable to mmap file: ");
@@ -123,7 +124,7 @@ void release_mmap(struct mmap_entry *e)
         return;
     if (!e->use_count) {
         DEBUG(DEBUG_MMAP_CACHE) {
-            fprintf(stderr, "mmap_list(%p)->use_count already zero!\n", e);
+            fprintf(stderr, "mmap_list(%p)->use_count already zero!\n", (void *) e);
         }
         return;
     }

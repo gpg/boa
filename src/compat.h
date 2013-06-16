@@ -1,8 +1,8 @@
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
- *  Some changes Copyright (C) 1999-2000 Jon Nelson <jnelson@boa.org>
- *   and Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 1999 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 1999-2005 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
  *
  */
 
-/* $Id: compat.h,v 1.18.2.9 2003/01/23 03:59:07 jnelson Exp $*/
+/* $Id: compat.h,v 1.18.2.12 2005/02/22 14:11:29 jnelson Exp $*/
 
 #ifndef _COMPAT_H
 #define _COMPAT_H
@@ -138,7 +138,7 @@ char *strdup(char *s);
 #endif
 
 #ifdef HAVE_TM_ZONE
-#define TIMEZONE(foo) foo##->tm_zone
+#define TIMEZONE(foo) foo->tm_zone
 #else
 #define TIMEZONE(foo) *tzname
 #endif

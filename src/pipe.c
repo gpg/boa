@@ -2,7 +2,8 @@
 /*
  *  Boa, an http server
  *  Based on code Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
- *  Some changes Copyright (C) 1997-99 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1997-2004 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1997-2005 Larry Doolittle <ldoolitt@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,7 +21,7 @@
  *
  */
 
-/* $Id: pipe.c,v 1.39.2.15 2004/06/10 01:58:29 jnelson Exp $*/
+/* $Id: pipe.c,v 1.39.2.16 2005/02/22 14:13:03 jnelson Exp $*/
 
 #include "boa.h"
 
@@ -128,7 +129,7 @@ int read_from_pipe(request * req)
 int write_from_pipe(request * req)
 {
     int bytes_written;
-    unsigned int bytes_to_write = req->header_end - req->header_line;
+    size_t bytes_to_write = req->header_end - req->header_line;
 
     if (bytes_to_write == 0) {
         if (req->cgi_status == CGI_DONE)
@@ -170,12 +171,14 @@ int write_from_pipe(request * req)
 int io_shuffle_sendfile(request * req)
 {
     int bytes_written;
-    unsigned int bytes_to_write;
+    size_t bytes_to_write;
+    off_t sendfile_offset;
 
     if (req->method == M_HEAD) {
         return complete_response(req);
     }
 
+    /* XXX trouble if range is exactly 4G on a 32-bit machine? */
     bytes_to_write = (req->ranges->stop - req->ranges->start) + 1;
 
     if (bytes_to_write > system_bufsize)
@@ -186,9 +189,31 @@ retrysendfile:
         /* shouldn't get here, but... */
         bytes_written = 0;
     } else {
+	/* arg 3 of sendfile should have type "off_t *"
+	 * struct range element start has type "unsigned long"
+	 * Where POSIX got the idea that an offset into a file
+	 * should be signed, I'll never know.
+	 */
+	sendfile_offset = req->ranges->start;
+	if (sendfile_offset < 0) {
+		req->status = DEAD;
+		log_error_doc(req);
+		fprintf(stderr, "impossible offset (%lu) requested of sendfile\n",
+				 req->ranges->start);
+		return 0;
+	}
         bytes_written = sendfile(req->fd, req->data_fd,
-                                 &(req->ranges->start),
+                                 &sendfile_offset,
                                  bytes_to_write);
+	if (sendfile_offset < 0) {
+		req->status = DEAD;
+		log_error_doc(req);
+		fprintf(stderr,
+			"bad craziness in sendfile offset, returned %ld\n",
+			(long) sendfile_offset);
+		return 0;
+	}
+	req->ranges->start = sendfile_offset;
         if (bytes_written < 0) {
             if (errno == EWOULDBLOCK || errno == EAGAIN) {
                 return -1;          /* request blocked at the pipe level, but keep going */

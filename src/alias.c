@@ -1,9 +1,9 @@
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
- *  Some changes Copyright (C) 1996 Larry Doolittle <ldoolitt@boa.org>
- *  Some changes Copyright (C) 1996 Russ Nelson <nelson@crynwr.com>
- *  Some changes Copyright (C) 1996-2003 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1996 Russ Nelson <nelson@crynwr.com>
+ *  Copyright (C) 1996-2005 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 1996-2004 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
  *
  */
 
-/* $Id: alias.c,v 1.70.2.18 2004/06/10 01:53:42 jnelson Exp $ */
+/* $Id: alias.c,v 1.70.2.20 2005/02/22 14:11:29 jnelson Exp $ */
 
 #include "boa.h"
 
@@ -40,7 +40,7 @@ static alias *alias_hashtable[ALIAS_HASHTABLE_SIZE];
 static alias *find_alias(char *uri, unsigned int urilen);
 static int init_script_alias(request * req, alias * current1, unsigned int uri_len);
 
-static unsigned int get_alias_hash_value(const unsigned char *file);
+static unsigned int get_alias_hash_value(const char *file);
 
 /*
  * Name: get_alias_hash_value
@@ -50,11 +50,11 @@ static unsigned int get_alias_hash_value(const unsigned char *file);
  * Note: stops at first '/' (or '\0')
  */
 
-static unsigned int get_alias_hash_value(const unsigned char *file)
+static unsigned int get_alias_hash_value(const char *file)
 {
     unsigned int hash = 0;
     unsigned int i = 0;
-    unsigned char c;
+    char c;
 
     if (file == NULL) {
         WARN("file sent to get_alias_hash_value is NULL");
@@ -542,7 +542,7 @@ static int init_script_alias(request * req, alias * current1, unsigned int uri_l
             /* is it a dir? */
             if (!S_ISDIR(statbuf.st_mode)) {
                 /* check access */
-                /* the file must be readble+executable by at least
+                /* the file must be readable+executable by at least
                  * u,g,or o 
                  */
                 if (!S_ISREG(statbuf.st_mode) || access(pathname, R_OK|X_OK)) {
@@ -574,7 +574,7 @@ static int init_script_alias(request * req, alias * current1, unsigned int uri_l
         /* is it a dir? */
         if (!S_ISDIR(statbuf.st_mode)) {
             /* check access */
-            /* the file must be readble+executable by at least
+            /* the file must be readable+executable by at least
              * u,g,or o 
              */
             if (!S_ISREG(statbuf.st_mode) || access(pathname, R_OK|X_OK)) {

@@ -1,8 +1,8 @@
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
- *  Some changes Copyright (C) 1996 Larry Doolittle <ldoolitt@boa.org>
- *  Some changes Copyright (C) 1997 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1996-1999 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 1997-2004 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
  *
  */
 
-/* $Id: hash.c,v 1.14.4.13 2004/06/10 02:04:50 jnelson Exp $*/
+/* $Id: hash.c,v 1.14.4.15 2005/02/22 14:11:29 jnelson Exp $*/
 
 #include "boa.h"
 
@@ -368,7 +368,7 @@ void hash_show_stats(void)
 
 /*******************************************************************/
 /*******************************************************************/
-/******* Generic Hash Functions Above, Specfic Below ***************/
+/******* Generic Hash Functions Above, Specific Below **************/
 /*******************************************************************/
 /*******************************************************************/
 

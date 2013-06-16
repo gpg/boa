@@ -2,8 +2,8 @@
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
  *  Some changes Copyright (C) 1996 Charles F. Randall <crandall@goldsys.com>
- *  Some changes Copyright (C) 1996 Larry Doolittle <ldoolitt@boa.org>
- *  Some changes Copyright (C) 1996-2002 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1996-1999 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 1996-2003 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
  *
  */
 
-/* $Id: select.c,v 1.1.2.16 2003/12/09 04:17:22 jnelson Exp $*/
+/* $Id: select.c,v 1.1.2.17 2005/02/22 14:11:29 jnelson Exp $*/
 
 /* algorithm:
  * handle any signals

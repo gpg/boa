@@ -1,6 +1,7 @@
 /*
  *  Boa, an http server
- *  Copyright (C) 1999 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 1999-2005 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 2000-2005 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,7 +19,7 @@
  *
  */
 
-/* $Id: config.c,v 1.31.2.27 2004/06/04 02:49:13 jnelson Exp $*/
+/* $Id: config.c,v 1.31.2.30 2005/02/22 14:11:29 jnelson Exp $*/
 
 #include "boa.h"
 #include "access.h"
@@ -55,7 +56,7 @@ char *cgi_path;
 int single_post_limit = SINGLE_POST_LIMIT_DEFAULT;
 int conceal_server_identity = 0;
 
-unsigned int ka_timeout;
+int ka_timeout;
 unsigned int default_timeout;
 unsigned int ka_max;
 
@@ -586,10 +587,14 @@ void read_config_files(void)
     if (max_connections > FD_SETSIZE - 20)
         max_connections = FD_SETSIZE - 20;
 
+    if (ka_timeout < 0) ka_timeout=0;  /* not worth a message */
     /* save some time */
     default_timeout = (ka_timeout ? ka_timeout : REQUEST_TIMEOUT);
 #ifdef HAVE_POLL
     default_timeout *= 1000;
 #endif
 
+    if (default_type == NULL) {
+        DIE("DefaultType *must* be set!");
+    }
 }

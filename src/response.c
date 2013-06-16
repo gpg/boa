@@ -1,8 +1,8 @@
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
- *  Some changes Copyright (C) 1996 Larry Doolittle <ldoolitt@boa.org>
- *  Some changes Copyright (C) 1996-99 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1996-1999 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 1996-2004 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
  *
  */
 
-/* $Id: response.c,v 1.41.2.16 2004/03/05 03:41:33 jnelson Exp $*/
+/* $Id: response.c,v 1.41.2.17 2005/02/22 14:11:29 jnelson Exp $*/
 
 #include "boa.h"
 

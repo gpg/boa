@@ -1,7 +1,7 @@
 /*
  *  Boa, an http server
- *  This file Copyright (C) 2000,2003 by:
- *   Jon Nelson <jnelson@boa.org> and Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 2000 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 2000-2004 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -153,7 +153,7 @@ int ranges_fixup(request * req)
         /* no stop range specified or stop is too big.
          * RFC says it gets req->filesize - 1
          */
-        if (r->stop == -1 || r->stop >= req->filesize) {
+        if (r->stop == (unsigned) -1 || r->stop >= req->filesize) {
             /* r->start is *not* -1 */
             r->stop = req->filesize - 1;
         }
@@ -355,7 +355,7 @@ int range_parse(request * req, const char *str)
                 range_abort(req);
                 return 0;
             } else if ((fcode & ACTMASK2) == SR) {
-                if ((start == stop) && (start == -1)) {
+                if ((start == stop) && (start == (unsigned) -1)) {
                     /* neither was specified, or they were very big. */
                     log_error_doc(req);
                     log_error_time();

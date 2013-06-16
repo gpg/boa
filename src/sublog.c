@@ -1,6 +1,7 @@
 /*
  *  Boa, an http server
  *  Copyright (C) 1999 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 2000-2005 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,7 +19,7 @@
  *
  */
 
-/* $Id: sublog.c,v 1.6.2.4 2004/06/04 02:49:13 jnelson Exp $*/
+/* $Id: sublog.c,v 1.6.2.6 2005/02/22 14:11:29 jnelson Exp $*/
 
 #include <errno.h>
 #include <stdio.h>
@@ -34,12 +35,12 @@
 #include <arpa/inet.h>
 #include "compat.h"
 
-int open_pipe_fd(char *command);
-int open_net_fd(char *spec);
-int open_gen_fd(char *spec);
+int open_pipe_fd(const char *command);
+int open_net_fd(const char *spec);
+int open_gen_fd(const char *spec);
 
 /* Like popen, but gives fd instead of FILE * */
-int open_pipe_fd(char *command)
+int open_pipe_fd(const char *command)
 {
     int pipe_fds[2];
     int pid;
@@ -65,7 +66,7 @@ int open_pipe_fd(char *command)
     return pipe_fds[1];
 }
 
-int open_net_fd(char *spec)
+int open_net_fd(const char *spec)
 {
     char *p;
     int fd, port;
@@ -96,7 +97,7 @@ int open_net_fd(char *spec)
     return fd;
 }
 
-int open_gen_fd(char *spec)
+int open_gen_fd(const char *spec)
 {
     int fd;
     if (*spec == '|') {

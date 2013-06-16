@@ -253,6 +253,26 @@
  * fix potential memory access bug in hashing
  * update config.sub and config.guess to the latest available
  * use CHANGES not ChangeLog
+ * as of 0.94.14rc21:
+ * shift from GNU Autoconf 2.58 to GNU Autoconf 2.59
+ * increase warning level in GCC_FLAGS another notch
+ * skip superfluous unsigned qualifier for char in get_alias_hash_value
+ * skip check for error in umask(), since it doesn't happen
+ * reorder read_config_files() and create_common_env()
+ * drop incorrect preprocessor usage in TIMEZONE macro
+ * make very sure default_type is set
+ * correct error message in index_dir for .gz files
+ * make mmap_cache 64-bit clean
+ * try to deal with signed file offsets when using sendfile()
+ * clean up signed/unsigned char issues in read_header()
+ * use socklen_t where appropriate in request.c
+ * call range_pool_empty() in response to SIGHUP
+ * add more const qualifiers
+ * eliminate signed/unsigned comparison warnings: change ka_timeout to signed
+ * spelling fixes
+ * miscellaneous whitespace changes
+ * update Copyright dates
+ * drop webindex.pl
 
 ** Changes from 0.94.12 to 0.94.13
  * Change many instances of log_error_mesg + exit to DIE macro

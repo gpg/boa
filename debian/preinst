@@ -1,7 +1,0 @@
-#! /bin/sh
-
-if [ -x "/etc/init.d/boa" ]; then
-	/etc/init.d/boa stop
-fi
-
-#DEBHELPER#

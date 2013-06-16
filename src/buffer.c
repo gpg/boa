@@ -1,7 +1,8 @@
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
- *  Some changes Copyright (C) 1999-2003 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1999-2004 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1999-2000 Larry Doolittle <ldoolitt@boa.org>
 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,7 +20,7 @@
  *
  */
 
-/* $Id: buffer.c,v 1.10.2.12 2004/06/10 01:41:09 jnelson Exp $ */
+/* $Id: buffer.c,v 1.10.2.14 2005/02/22 14:11:29 jnelson Exp $ */
 
 #include "boa.h"
 #include "escape.h"
@@ -46,7 +47,7 @@ int req_write(request * req, const char *msg)
                 " copy %u bytes (%d available). Shutting down connection.\n",
                 msg_len,
                 BUFFER_SIZE - req->buffer_end);
-#ifdef FACSIST_LOGGING
+#ifdef FASCIST_LOGGING
         *(req->buffer + req->buffer_end) = '\0';
         fprintf(stderr, "The request looks like this:\n%s\n",
                 req->buffer);

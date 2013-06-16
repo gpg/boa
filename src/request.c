@@ -1,8 +1,8 @@
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
- *  Some changes Copyright (C) 1996,97 Larry Doolittle <ldoolitt@boa.org>
- *  Some changes Copyright (C) 1996-2003 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1996-2005 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 1996-2004 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
  *
  */
 
-/* $Id: request.c,v 1.112.2.49 2004/06/10 01:45:13 jnelson Exp $*/
+/* $Id: request.c,v 1.112.2.51 2005/02/22 14:11:29 jnelson Exp $*/
 
 #include "boa.h"
 #include <stddef.h>             /* for offsetof */
@@ -85,7 +85,7 @@ void get_request(int server_sock)
     struct SOCKADDR salocal;
     unsigned int remote_addrlen = sizeof (struct SOCKADDR);
     request *conn;              /* connection */
-    size_t len;
+    socklen_t len;
 
 #ifndef INET6
     remote_addr.S_FAMILY = (sa_family_t) 0xdead;
@@ -97,9 +97,9 @@ void get_request(int server_sock)
         if (errno != EAGAIN && errno != EWOULDBLOCK) {
             /* abnormal error */
             WARN("accept");
-        } else
+        } else {
             /* no requests */
-            ;
+        }
         pending_requests = 0;
         return;
     }
@@ -450,7 +450,7 @@ static void free_request(request * req)
  * to the appropriate handler for processing.  It monitors the
  * return value from handler functions, all of which return -1
  * to indicate a block, 0 on completion and 1 to remain on the
- * ready list for more procesing.
+ * ready list for more processing.
  */
 
 void process_requests(int server_sock)

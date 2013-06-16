@@ -2,8 +2,8 @@
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
  *  Some changes Copyright (C) 1996 Charles F. Randall <crandall@goldsys.com>
- *  Some changes Copyright (C) 1996 Larry Doolittle <ldoolitt@boa.org>
- *  Some changes Copyright (C) 1996-2002 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1996-1999 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 1996-2005 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
  *
  */
 
-/* $Id: boa.c,v 1.99.2.21 2004/06/04 02:36:33 jnelson Exp $*/
+/* $Id: boa.c,v 1.99.2.26 2005/02/22 14:11:29 jnelson Exp $*/
 
 #include "boa.h"
 
@@ -55,10 +55,8 @@ int main(int argc, char *argv[])
     pid_t pid;
 
     /* set umask to u+rw, u-x, go-rwx */
-    if (umask(077) < 0) {
-        perror("umask");
-        exit(EXIT_FAILURE);
-    }
+    /* according to the man page, umask always succeeds */
+    umask(077);
 
     /* but first, update timestamp, because log_error_time uses it */
     (void) time(&current_time);
@@ -82,10 +80,10 @@ int main(int argc, char *argv[])
         (void) close(devnullfd);
     }
 
-    parse_commandline(argc,argv);
+    parse_commandline(argc, argv);
     fixup_server_root();
-    create_common_env();
     read_config_files();
+    create_common_env();
     open_logs();
     server_s = create_server_socket();
     init_signals();
@@ -137,14 +135,15 @@ int main(int argc, char *argv[])
 
 static void usage(const char *programname)
 {
-    fprintf(stderr, "Usage: %s [-c serverroot] [-d] [-f configfile] [-r chroot]%s\n",
-	    programname,
+    fprintf(stderr,
+            "Usage: %s [-c serverroot] [-d] [-f configfile] [-r chroot]%s\n",
+            programname,
 #ifndef DISABLE_DEBUG
-	    " [-l debug_level]"
+            " [-l debug_level]"
 #else
-	    ""
+            ""
 #endif
-	   );
+        );
 #ifndef DISABLE_DEBUG
     print_debug_usage();
 #endif
@@ -157,48 +156,48 @@ static void parse_commandline(int argc, char *argv[])
     int c;                      /* command line arg */
 
     while ((c = getopt(argc, argv, "c:dl:f:r:")) != -1) {
-	switch (c) {
-	case 'c':
-	    if (server_root)
-		free(server_root);
-	    server_root = strdup(optarg);
-	    if (!server_root) {
-		perror("strdup (for server_root)");
-		exit(EXIT_FAILURE);
-	    }
-	    break;
-	case 'd':
-	    do_fork = 0;
-	    break;
-	case 'f':
-	    config_file_name = optarg;
-	    break;
-	case 'r':
-	    if (chdir(optarg) == -1) {
-		log_error_time();
-		perror("chdir (to chroot)");
-		exit(EXIT_FAILURE);
-	    }
-	    if (chroot(optarg) == -1) {
-		log_error_time();
-		perror("chroot");
-		exit(EXIT_FAILURE);
-	    }
-	    if (chdir("/") == -1) {
-		log_error_time();
-		perror("chdir (after chroot)");
-		exit(EXIT_FAILURE);
-	    }
-	    break;
+        switch (c) {
+        case 'c':
+            if (server_root)
+                free(server_root);
+            server_root = strdup(optarg);
+            if (!server_root) {
+                perror("strdup (for server_root)");
+                exit(EXIT_FAILURE);
+            }
+            break;
+        case 'd':
+            do_fork = 0;
+            break;
+        case 'f':
+            config_file_name = optarg;
+            break;
+        case 'r':
+            if (chdir(optarg) == -1) {
+                log_error_time();
+                perror("chdir (to chroot)");
+                exit(EXIT_FAILURE);
+            }
+            if (chroot(optarg) == -1) {
+                log_error_time();
+                perror("chroot");
+                exit(EXIT_FAILURE);
+            }
+            if (chdir("/") == -1) {
+                log_error_time();
+                perror("chdir (after chroot)");
+                exit(EXIT_FAILURE);
+            }
+            break;
 #ifndef DISABLE_DEBUG
-	case 'l':
-	    parse_debug(optarg);
-	    break;
+        case 'l':
+            parse_debug(optarg);
+            break;
 #endif
-	default:
-	    usage(argv[0]);
-	    exit(EXIT_FAILURE);
-	}
+        default:
+            usage(argv[0]);
+            exit(EXIT_FAILURE);
+        }
     }
 }
 
@@ -216,7 +215,7 @@ static int create_server_socket(void)
         DIE("fcntl: unable to set server socket to nonblocking");
     }
 
-    /* close server socket on exec so cgi's can't write to it */
+    /* close server socket on exec so CGIs can't write to it */
     if (fcntl(server_s, F_SETFD, 1) == -1) {
         DIE("can't set close-on-exec on server socket!");
     }

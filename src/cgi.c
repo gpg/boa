@@ -1,9 +1,9 @@
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
- *  Some changes Copyright (C) 1996,97 Larry Doolittle <ldoolitt@boa.org>
  *  Some changes Copyright (C) 1996 Charles F. Randall <crandall@goldsys.com>
- *  Some changes Copyright (C) 1997-2003 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1996-1999 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 1997-2004 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
  *
  */
 
-/* $Id: cgi.c,v 1.83.2.26 2004/06/04 02:39:50 jnelson Exp $ */
+/* $Id: cgi.c,v 1.83.2.28 2005/02/22 14:11:29 jnelson Exp $ */
 
 #include "boa.h"
 
@@ -517,7 +517,7 @@ int init_cgi(request * req)
         if (use_pipes) {
             /* close the 'read' end of the pipes[] */
             close(pipes[0]);
-            /* tie cgi's STDOUT to our write end of pipe */
+            /* tie CGI's STDOUT to our write end of pipe */
             if (dup2(pipes[1], STDOUT_FILENO) == -1) {
                 log_error_doc(req);
                 perror("dup2 - pipes");

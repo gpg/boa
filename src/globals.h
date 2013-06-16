@@ -1,8 +1,8 @@
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
- *  Some changes Copyright (C) 1996,97 Larry Doolittle <ldoolitt@jlab.org>
- *  Some changes Copyright (C) 1997 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1996-2005 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 1997-2004 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
  *
  */
 
-/* $Id: globals.h,v 1.65.2.27 2004/03/05 03:41:33 jnelson Exp $*/
+/* $Id: globals.h,v 1.65.2.29 2005/02/22 14:11:29 jnelson Exp $*/
 
 #ifndef _GLOBALS_H
 #define _GLOBALS_H
@@ -254,7 +254,7 @@ extern short common_cgi_env_count;
 extern int single_post_limit;
 extern int conceal_server_identity;
 
-extern int unsigned ka_timeout;
+extern int ka_timeout;
 extern int unsigned default_timeout;
 extern int unsigned ka_max;
 

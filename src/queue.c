@@ -1,7 +1,7 @@
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
- *  Some changes Copyright (C) 1997 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1997-2002 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
  *
  */
 
-/* $Id: queue.c,v 1.21.2.3 2002/10/20 19:54:29 jnelson Exp $*/
+/* $Id: queue.c,v 1.21.2.4 2005/02/22 14:11:29 jnelson Exp $*/
 
 #include "boa.h"
 

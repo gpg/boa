@@ -1,9 +1,9 @@
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
- *  Some changes Copyright (C) 1996,97 Larry Doolittle <ldoolitt@boa.org>
  *  Some changes Copyright (C) 1996 Charles F. Randall <crandall@goldsys.com>
- *  Some changes Copyright (C) 1996-99,2003 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1996-1999 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 1996-2005 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
  *
  */
 
-/* $Id: util.c,v 1.61.2.19 2004/06/10 01:43:09 jnelson Exp $ */
+/* $Id: util.c,v 1.61.2.22 2005/02/22 14:11:29 jnelson Exp $ */
 
 #include "boa.h"
 
@@ -698,7 +698,7 @@ void strlower(char *s)
 #ifndef DISABLE_DEBUG
 struct dbg {
     int level;
-    char *mesg;
+    const char *mesg;
 };
 
 static struct dbg debug_level_table[] = {

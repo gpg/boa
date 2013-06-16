@@ -1,7 +1,7 @@
 /*
  *  Boa, an http server
  *  cgi_header.c - cgi header parsing and control
- *  Copyright (C) 1997-99 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1997-2003 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

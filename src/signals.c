@@ -1,8 +1,8 @@
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
- *  Some changes Copyright (C) 1996 Larry Doolittle <ldoolitt@boa.org>
- *  Some changes Copyright (C) 1996-99 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1996-1999 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 1996-2005 Jon Nelson <jnelson@boa.org>
  *  Some changes Copyright (C) 1997 Alain Magloire <alain.magloire@rcsm.ee.mcgill.ca>
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
  *
  */
 
-/* $Id: signals.c,v 1.37.2.11 2004/06/04 02:49:13 jnelson Exp $*/
+/* $Id: signals.c,v 1.37.2.14 2005/02/22 14:11:29 jnelson Exp $*/
 
 #include "boa.h"
 #ifdef HAVE_SYS_WAIT_H
@@ -209,6 +209,7 @@ void sighup_run(void)
     dump_passwd();
     dump_alias();
     free_requests();
+    range_pool_empty();
 
     log_error_time();
     fputs("re-reading configuration files\n", stderr);

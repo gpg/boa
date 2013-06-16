@@ -1,8 +1,8 @@
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
- *  Some changes Copyright (C) 1996,97 Larry Doolittle <ldoolitt@boa.org>
- *  Some changes Copyright (C) 1997,99,2000-2003 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1996-2005 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 1997-2004 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
  *
  */
 
-/* $Id: read.c,v 1.49.2.13 2004/06/10 02:00:32 jnelson Exp $*/
+/* $Id: read.c,v 1.49.2.14 2005/02/23 15:41:55 jnelson Exp $*/
 
 #include "boa.h"
 
@@ -39,7 +39,8 @@
 int read_header(request * req)
 {
     int bytes;
-    unsigned char *check, *buffer;
+    char *check, *buffer;
+    unsigned char uc;
 
     check = req->client_stream + req->parse_pos;
     buffer = req->client_stream;
@@ -58,45 +59,46 @@ int read_header(request * req)
          * Anything except CR, LF, and US-ASCII - control is legal
          * We accept tab but don't do anything special with it.
          */
-        if (*check != '\r' && *check != '\n' && *check != '\t' &&
-            (*check < 32 || *check > 127)) {
+        uc = *check;
+	if (uc != '\r' && uc != '\n' && uc != '\t' &&
+	    (uc < 32 || uc > 127)) {
             log_error_doc(req);
-            fprintf(stderr, "Illegal character (%d) in stream.\n", (unsigned int) *check);
+            fprintf(stderr, "Illegal character (%d) in stream.\n", (unsigned int) uc);
             send_r_bad_request(req);
             return 0;
         }
         switch (req->status) {
         case READ_HEADER:
-            if (*check == '\r') {
+            if (uc == '\r') {
                 req->status = ONE_CR;
                 req->header_end = check;
-            } else if (*check == '\n') {
+            } else if (uc == '\n') {
                 req->status = ONE_LF;
                 req->header_end = check;
             }
             break;
 
         case ONE_CR:
-            if (*check == '\n')
+            if (uc == '\n')
                 req->status = ONE_LF;
-            else if (*check != '\r')
+            else if (uc != '\r')
                 req->status = READ_HEADER;
             break;
 
         case ONE_LF:
             /* if here, we've found the end (for sure) of a header */
-            if (*check == '\r') /* could be end o headers */
+            if (uc == '\r') /* could be end o headers */
                 req->status = TWO_CR;
-            else if (*check == '\n')
+            else if (uc == '\n')
                 req->status = BODY_READ;
             else
                 req->status = READ_HEADER;
             break;
 
         case TWO_CR:
-            if (*check == '\n')
+            if (uc == '\n')
                 req->status = BODY_READ;
-            else if (*check != '\r')
+            else if (uc != '\r')
                 req->status = READ_HEADER;
             break;
 
@@ -106,7 +108,7 @@ int read_header(request * req)
 
 #ifdef VERY_FASCIST_LOGGING
         log_error_time();
-        fprintf(stderr, "status, check: %d, %d\n", req->status, *check);
+        fprintf(stderr, "status, check (unsigned): %d, %d\n", req->status, uc);
 #endif
 
         req->parse_pos++;       /* update parse position */
@@ -117,8 +119,8 @@ int read_header(request * req)
 
             if (req->header_end - req->header_line >= MAX_HEADER_LENGTH) {
                 log_error_doc(req);
-                fprintf(stderr, "Header too long at %d bytes: \"%s\"\n",
-                        req->header_end - req->header_line,
+                fprintf(stderr, "Header too long at %lu bytes: \"%s\"\n",
+                        (unsigned long) (req->header_end - req->header_line),
                         req->header_line);
                 send_r_bad_request(req);
                 return 0;
@@ -150,7 +152,7 @@ int read_header(request * req)
 #else
             int retval = process_header_end(req);
 #endif
-            /* process_header_end inits non-POST cgi's */
+            /* process_header_end inits non-POST CGIs */
 
             if (retval && req->method == M_POST) {
                 /* for body_{read,write}, set header_line to start of data,
@@ -200,7 +202,7 @@ int read_header(request * req)
                     }
                     req->filesize = content_length;
                     req->filepos = 0;
-                    if (req->header_end - req->header_line > req->filesize) {
+                    if ((unsigned) (req->header_end - req->header_line) > req->filesize) {
                         req->header_end = req->header_line + req->filesize;
                     }
                 } else {

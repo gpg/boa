@@ -1,8 +1,8 @@
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
- *  Some changes Copyright (C) 1996 Larry Doolittle <ldoolitt@boa.org>
- *  Some changes Copyright (C) 1999 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1996-1999 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 1999-2004 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
  *
  */
 
-/* $Id: log.c,v 1.36.2.25 2004/06/10 01:46:37 jnelson Exp $*/
+/* $Id: log.c,v 1.36.2.27 2005/02/22 14:11:29 jnelson Exp $*/
 
 #include "boa.h"
 
@@ -29,9 +29,9 @@ int cgi_log_fd;
 /*
  * Name: open_logs
  *
- * Description: Opens access log, error log, and if specified, cgi log
- * Ties stderr to error log, except during cgi execution, at which
- * time cgi log is the stderr for cgis.
+ * Description: Opens access log, error log, and if specified, CGI log
+ * Ties stderr to error log, except during CGI execution, at which
+ * time CGI log is the stderr for CGIs.
  *
  * Access log is line buffered, error log is not buffered.
  *

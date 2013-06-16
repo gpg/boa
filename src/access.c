@@ -1,6 +1,7 @@
 /*
  *  Boa, an http server
  *  This file Copyright (C) 2002 Peter Korsgaard <jacmet@sunsite.dk>
+ *  Some changes Copyright (C) 2003-2004 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,7 +18,7 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-/* $Id: access.c,v 1.1.2.5 2004/06/04 02:50:53 jnelson Exp $ */
+/* $Id: access.c,v 1.1.2.6 2005/02/22 14:11:29 jnelson Exp $ */
 
 #include <string.h>
 #include <stdlib.h>

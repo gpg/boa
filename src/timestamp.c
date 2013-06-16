@@ -1,6 +1,6 @@
 /*
  *  Boa, an http server
- *  Copyright (C) 1998 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1998-2002 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  *
  */
 
-/* $Id: timestamp.c,v 1.9 2001/11/06 03:38:50 jnelson Exp $*/
+/* $Id: timestamp.c,v 1.9.2.1 2005/02/22 14:11:29 jnelson Exp $*/
 
 #include "boa.h"
 

@@ -1,7 +1,8 @@
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
- *  Some changes Copyright (C) 1997 Jon Nelson <jnelson@boa.org>
+ *  Copyright (C) 1996-1999 Larry Doolittle <ldoolitt@boa.org>
+ *  Copyright (C) 1997-2004 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,7 +20,7 @@
  *
  */
 
-/* $Id: defines.h,v 1.107.2.40 2004/06/10 02:10:35 jnelson Exp $*/
+/* $Id: defines.h,v 1.107.2.42 2005/02/22 14:11:29 jnelson Exp $*/
 
 #ifndef _DEFINES_H
 #define _DEFINES_H
@@ -76,7 +77,7 @@
 #endif
 
 #ifndef SERVER_VERSION
-#define SERVER_VERSION 				"Boa/0.94.14rc20"
+#define SERVER_VERSION 				"Boa/0.94.14rc21"
 #endif
 
 #define CGI_VERSION				"CGI/1.1"
