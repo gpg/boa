@@ -1,3 +1,7 @@
+Description: Fix nonprintable character escaping in error.log
+Debian-Bug: 578035
+CVE: CVE-2009-4496
+
 diff -aruN boa-0.94.14rc21.orig/src/log.c boa-0.94.14rc21.fixed/src/log.c
 --- boa-0.94.14rc21.orig/src/log.c	2005-02-22 06:11:29.000000000 -0800
 +++ boa-0.94.14rc21.fixed/src/log.c	2009-12-31 01:27:01.000000000 -0800
