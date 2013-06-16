@@ -7,6 +7,8 @@ boa (0.94.14rc21-4) UNRELEASED; urgency=low
   * Fix CVE-2009-4496 (Closes: #578035; missing sanitization of
     non-printable characters in boa's error log) Thanks to Devin Carraway
     for the patch.
+  * Bump debhelper compatibility to 9
+    + Update versioned debhelper build-dependency
   * Apply wrap-and-sort
 
  -- Axel Beckert <abe@debian.org>  Sun, 16 Jun 2013 02:21:37 +0200
