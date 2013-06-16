@@ -11,6 +11,7 @@ Build-Depends: autotools-dev,
                texi2html,
                texinfo,
                texlive-base-bin
+Homepage: http://www.boa.org/
 
 Package: boa
 Architecture: any

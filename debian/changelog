@@ -24,6 +24,7 @@ boa (0.94.14rc21-4) UNRELEASED; urgency=low
     + Finally switch to a dh7 style debian/rules file
   * Fix the following lintian warnings:
     + maintainer-script-ignores-errors
+    + no-homepage-field
   * Apply wrap-and-sort
 
  -- Axel Beckert <abe@debian.org>  Sun, 16 Jun 2013 02:21:37 +0200
