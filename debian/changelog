@@ -1,4 +1,4 @@
-boa (0.94.14rc21-4) UNRELEASED; urgency=low
+boa (0.94.14rc21-4) unstable; urgency=low
 
   * QA upload
   * Set maintainer to Debian QA Group (c.f. #711481)
@@ -40,7 +40,7 @@ boa (0.94.14rc21-4) UNRELEASED; urgency=low
   * Remove trailing blank line in debian/boa.conf
   * Remove config.log in clean target
 
- -- Axel Beckert <abe@debian.org>  Sun, 16 Jun 2013 02:21:37 +0200
+ -- Axel Beckert <abe@debian.org>  Sun, 16 Jun 2013 04:13:51 +0200
 
 boa (0.94.14rc21-3.1) unstable; urgency=low
 
