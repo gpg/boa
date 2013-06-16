@@ -35,6 +35,10 @@ case "$1" in
 	start-stop-daemon --stop --quiet --oknodo --exec $DAEMON
 	echo "."
 	;;
+  status)
+	start-stop-daemon --status --exec $DAEMON
+        exit $?
+	;;
   restart|force-reload)
 	$0 stop
 	$0 start

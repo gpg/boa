@@ -1,10 +1,12 @@
 boa (0.94.14rc21-5) UNRELEASED; urgency=low
 
-  * Fix restart handling
+  * Revamp init.d script
     + SIGHUP and signal 1 are actually same
     + Do stop and start on restart and force-reload (LP: #46908)
-  * Fix help text of init.d script.
-  * Remove init.d template script help text
+    + Fix help text
+    + Remove init.d template script help text
+    + Support status option (fixes lintian warning
+      init.d-script-does-not-implement-optional-option)
 
  -- Axel Beckert <abe@debian.org>  Sun, 16 Jun 2013 13:41:54 +0200
 
