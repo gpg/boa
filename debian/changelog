@@ -34,6 +34,7 @@ boa (0.94.14rc21-4) UNRELEASED; urgency=low
     + package-contains-empty-directory (2x)
   * Change section to httpd
   * Bump Standards-Version to 3.9.4 (no further changes)
+  * Add Vcs-* headers
   * Enable --enable-access-control (Closes: #509121)
   * Apply wrap-and-sort
   * Remove trailing blank line in debian/boa.conf

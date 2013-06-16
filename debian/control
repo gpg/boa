@@ -12,6 +12,8 @@ Build-Depends: autotools-dev,
                texinfo,
                texlive-base-bin
 Homepage: http://www.boa.org/
+Vcs-Git: git://anonscm.debian.org/collab-maint/boa.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/boa.git
 
 Package: boa
 Architecture: any
