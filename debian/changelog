@@ -37,6 +37,7 @@ boa (0.94.14rc21-4) UNRELEASED; urgency=low
   * Enable --enable-access-control (Closes: #509121)
   * Apply wrap-and-sort
   * Remove trailing blank line in debian/boa.conf
+  * Remove config.log in clean target
 
  -- Axel Beckert <abe@debian.org>  Sun, 16 Jun 2013 02:21:37 +0200
 
