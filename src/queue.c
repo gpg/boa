@@ -1,7 +1,7 @@
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <psp@well.com>
- *  Some changes Copyright (C) 1997 Jon Nelson <nels0988@tc.umn.edu>
+ *  Some changes Copyright (C) 1997 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,13 +19,13 @@
  *
  */
 
-/* boa: queue.c */
+/* $Id: queue.c,v 1.18 2000/02/12 21:52:45 jon Exp $*/
 
 #include "boa.h"
 
-request *request_ready = NULL;	/* ready list head */
-request *request_block = NULL;	/* blocked list head */
-request *request_free = NULL;	/* free list head */
+request *request_ready = NULL;  /* ready list head */
+request *request_block = NULL;  /* blocked list head */
+request *request_free = NULL;   /* free list head */
 
 /*
  * Name: block_request
@@ -35,27 +35,28 @@ request *request_free = NULL;	/* free list head */
 
 void block_request(request * req)
 {
-	dequeue(&request_ready, req);
-	enqueue(&request_block, req);
+    dequeue(&request_ready, req);
+    enqueue(&request_block, req);
 
-	if (req->buffer_end) {
-		FD_SET(req->fd, &block_write_fdset);
-	} else {
-		switch (req->status) {
-		case PIPE_WRITE:
-		case WRITE:
-			FD_SET(req->fd, &block_write_fdset);
-			break;
-		case PIPE_READ:
-			FD_SET(req->data_fd, &block_read_fdset);
-			break;
-		case BODY_WRITE:
-			FD_SET(req->post_data_fd, &block_write_fdset);
-			break;
-		default:
-			FD_SET(req->fd, &block_read_fdset);
-		}
-	}
+    if (req->buffer_end) {
+        FD_SET(req->fd, &block_write_fdset);
+    } else {
+        switch (req->status) {
+        case WRITE:
+        case PIPE_WRITE:
+        case DONE:
+            FD_SET(req->fd, &block_write_fdset);
+            break;
+        case PIPE_READ:
+            FD_SET(req->data_fd, &block_read_fdset);
+            break;
+        case BODY_WRITE:
+            FD_SET(req->post_data_fd, &block_write_fdset);
+            break;
+        default:
+            FD_SET(req->fd, &block_read_fdset);
+        }
+    }
 }
 
 /*
@@ -66,27 +67,28 @@ void block_request(request * req)
 
 void ready_request(request * req)
 {
-	dequeue(&request_block, req);
-	enqueue(&request_ready, req);
+    dequeue(&request_block, req);
+    enqueue(&request_ready, req);
 
-	if (req->buffer_end) {
-		FD_CLR(req->fd, &block_write_fdset);
-	} else {
-		switch (req->status) {
-		case PIPE_WRITE:
-		case WRITE:
-			FD_CLR(req->fd, &block_write_fdset);
-			break;
-		case PIPE_READ:
-			FD_CLR(req->data_fd, &block_read_fdset);
-			break;
-		case BODY_WRITE:
-			FD_CLR(req->post_data_fd, &block_write_fdset);
-			break;
-		default:
-			FD_CLR(req->fd, &block_read_fdset);
-		}
-	}
+    if (req->buffer_end) {
+        FD_CLR(req->fd, &block_write_fdset);
+    } else {
+        switch (req->status) {
+        case WRITE:
+        case PIPE_WRITE:
+        case DONE:
+            FD_CLR(req->fd, &block_write_fdset);
+            break;
+        case PIPE_READ:
+            FD_CLR(req->data_fd, &block_read_fdset);
+            break;
+        case BODY_WRITE:
+            FD_CLR(req->post_data_fd, &block_write_fdset);
+            break;
+        default:
+            FD_CLR(req->fd, &block_read_fdset);
+        }
+    }
 }
 
 
@@ -98,16 +100,16 @@ void ready_request(request * req)
 
 void dequeue(request ** head, request * req)
 {
-	if (*head == req)
-		*head = req->next;
+    if (*head == req)
+        *head = req->next;
 
-	if (req->prev)
-		req->prev->next = req->next;
-	if (req->next)
-		req->next->prev = req->prev;
+    if (req->prev)
+        req->prev->next = req->next;
+    if (req->next)
+        req->next->prev = req->prev;
 
-	req->next = NULL;
-	req->prev = NULL;
+    req->next = NULL;
+    req->prev = NULL;
 }
 
 /*
@@ -118,11 +120,11 @@ void dequeue(request ** head, request * req)
 
 void enqueue(request ** head, request * req)
 {
-	if (*head)
-		(*head)->prev = req;	/* previous head's prev is us */
+    if (*head)
+        (*head)->prev = req;    /* previous head's prev is us */
 
-	req->next = *head;			/* our next is previous head */
-	req->prev = NULL;			/* first in list */
+    req->next = *head;          /* our next is previous head */
+    req->prev = NULL;           /* first in list */
 
-	*head = req;				/* now we are head */
+    *head = req;                /* now we are head */
 }

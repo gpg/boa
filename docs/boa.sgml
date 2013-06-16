@@ -1,20 +1,23 @@
 <!doctype linuxdoc system>
 
-<report>
+<book>
 
+<titlepag>
 <TITLE>Boa Webserver</TITLE>
-<img src="boa_banner.gif">
+<img src="boa_banner.png">
 <author>Larry Doolittle and Jon Nelson</author>
-<date>02 February 1998</date>
+<date>03 Feb 2000</date>
 <abstract>
 Welcome to your personal documentation for Boa, a high performance
 web server for Unix-alike computers, covered by the
-<htmlurl url="Gnu&lowbar;License" name="Gnu General Public License">.  
-The current release is boa-0.93.
-The on-line, updated copy of this documentation lives at 
+<url url="http://www.gnu.org/copyleft/gpl.html" 
+     name="GNU General Public License">.
+The current release is boa-0.94.
+The on-line, updated copy of this documentation lives at
 <url url="http://www.boa.org/">.
 
 </abstract>
+</titlepag>
 
 <toc>
 <chapt>Introduction
@@ -30,8 +33,8 @@ connections.  It internally multiplexes all of the ongoing HTTP
 connections, and forks only for CGI programs (which must be separate
 processes), automatic directory generation, and automatic file
 gunzipping.  Preliminary tests show Boa is capable of
-handling several hundred hits per second on a 100 MHz Pentium,
-and dozens of hits per second on a lowly 20 MHz 386/SX.
+handling several thousand hits per second on a 300 MHz Pentium and
+dozens of hits per second on a lowly 20 MHz 386/SX.
 
 The primary design goals of Boa are speed and security.  Security,
 in the sense of <sq>can't be subverted by a malicious user,</sq> not
@@ -43,43 +46,44 @@ Modifications to Boa that improve its speed, security, robustness, and
 portability, are eagerly sought.  Other features may be added if they
 can be achieved without hurting the primary goals.
 
-Boa was created by Paul Phillips <tt>&lt;psp@well.com&gt;</tt>.
+Boa was created in 1991 by Paul Phillips
+<tt>&lt;psp@well.com&gt;</tt>.
 It is now being maintained and enhanced by Larry Doolittle
-<tt>&lt;ldoolitt@jlab.org&gt;</tt> and 
-Jon Nelson <tt>&lt;nels0988@tc.umn.edu&gt;</tt>.
-Please see the acknowledgement section for further details.
+<tt>&lt;ldoolitt@boa.org&gt;</tt> and Jon Nelson
+<tt>&lt;jnelson@boa.org&gt;</tt>.
+Please see the acknowledgement section for further
+details.
 
-Linux is the development platform at the moment, other OS's are
-known to work.  If you'd like to contribute to this effort, contact
-Larry or Jon via e-mail.
+GNU/Linux is the development platform at the moment, other OS's are known to work.
+If you'd like to contribute to this effort, contact Larry or Jon via e-mail.
 
 <chapt>Installation and Usage
 <P>
 
-Boa is currently being developed and tested on Linux/i386.
+Boa is currently being developed and tested on GNU/Linux/i386.
 The code is straightforward (more so than most other servers),
 so it should run easily on most modern Unix-alike platforms.  Recent
-versions of Boa worked fine on FreeBSD, SunOS 4.1.4, Linux/SPARC, and
-HP-UX 9.0.  Pre-1.2.0 Linux kernels may not work because of deficient
-mmap() implementations.
+versions of Boa worked fine on FreeBSD, SunOS 4.1.4, GNU/Linux-SPARC,
+and HP-UX 9.0.  Pre-1.2.0 GNU/Linux kernels may not work because of
+deficient mmap() implementations.
 
 It should be very simple to install and use Boa:
 <descrip>
   <tag>Unpack</tag>
   <enum>
     <item>Choose, and cd into, a convenient directory for the package.
-    <item><tt>tar -xvzf boa-0.93.tar.gz</tt>, or for those of you with
-    an archaic non-GNU tar, <newline>
-    <tt>gzip -cd &lt; boa-0.93.tar.gz | tar -xvf -</tt>
-    <item>Read the documentation.  Really.
+<item><tt>tar -xvzf boa-0.94.tar.gz</tt>, or for those of you with an archaic
+(non-GNU) tar, <newline>
+<tt>gzip -cd &lt; boa-0.94.tar.gz | tar -xvf -</tt>
+<item>Read the documentation.  Really.
   </enum>
   <tag>Build</tag>
   <enum>
     <item>cd into the <tt>src</tt> directory.
     <item>(optional) Change the default SERVER&lowbar;ROOT by setting the #define
     at the top of src/defines.h
-    <item>Type <tt>./configure; touch .depend; make depend; make</tt>
-    <item>Report any errors to the maintainers for resolution, or strike
+<item>Type <tt>./configure; make</tt>
+<item>Report any errors to the maintainers for resolution, or strike
     out on your own.
   </enum>
   <tag>Configure</tag>
@@ -160,7 +164,27 @@ but not all, are required.
 <descrip>
 <tag>Port &lt;integer&gt;</tag>
 This is the port that Boa runs on. The default port for http servers is 80.
-If it is less than 1024, the server must be started as root. 
+If it is less than 1024, the server must be started as root.
+
+<tag>Listen &lt;IP&gt;</tag>
+Listen: the Internet address to bind(2) to.  If you leave it out,
+it takes the behavior before 0.93.17.2, which is to bind to all  addresses
+(INADDR_ANY).
+You only get one "Listen" directive,  if you want service on multiple
+IP addresses, you have three choices:
+<enum>
+<item>Run boa without a "Listen" directive
+<enum>
+<item>All addresses are treated the same; makes sense if the addresses  are
+localhost, ppp, and eth0.
+<item>Use the VirtualHost directive below to point requests to different files.
+Should be good for a very large number of addresses (web hosting clients).
+</enum>
+<item>Run one copy of boa per IP address, each has its own configuration  with a
+"Listen" directive.  No big deal up to a few tens of addresses.      Nice separation
+between clients.  The name you provide gets run through inet_aton(3), so you have to
+use dotted  quad notation.  This configuration is too important to trust some DNS.
+</enum>
 
 <tag>User &lt;user name or UID&gt;</tag>
 The name or UID the server should run as. For Boa to attempt this, the
@@ -172,7 +196,7 @@ the server must be started as root.
 
 <tag>ServerAdmin &lt;email address&gt;</tag>
 The email address where server problems should be sent. Note: this is not
-currently used. 
+currently used.
 
 <tag>ErrorLog &lt;filename&gt;</tag>
 The location of the error log file. If this does not start with /, it is
@@ -186,14 +210,22 @@ considered relative to the server root. Comment out or set to /dev/null
 
 <tag>VerboseCGILogs</tag>
 This is a logical switch and does not take any parameters. Comment out to
-disable. 
+disable. All it does is switch on or off logging of when CGIs are launched and when
+the children return.
+
+<tag>CgiLog &lt;filename&gt;</tag>
+The location of the CGI error log file.  If
+specified, this is the file that the stderr of CGIs is tied to.  Otherwise, writes
+to stderr meet the bit bucket.
 
 <tag>ServerName &lt;server_name&gt;</tag>
 The name of this server that should be sent back to clients if different
-than that returned by gethostname. VirtualHost This is a logical
-switch and does not take any parameters. Comment out to disable. Given 
-DocumentRoot /var/www, requests on interface `A' or IP
-`IP-A' become /var/www/IP-A. Example: http://localhost/ becomes 
+than that returned by gethostname.
+
+<tag>VirtualHost</tag>
+This is a logical switch and does not take any parameters.
+Comment out to disable. Given  DocumentRoot /var/www, requests on interface `A' or
+IP `IP-A' become /var/www/IP-A. Example: http://localhost/ becomes 
 /var/www/127.0.0.1 
 
 <tag>DocumentRoot &lt;directory&gt;</tag>
@@ -209,13 +241,21 @@ Name of the file to use as a pre-written HTML directory index. Please
 make and use these files. On the fly creation of directory indexes
 can be slow. 
 
-<tag>DirectoryMaker &lt;directory&gt;</tag>
-Name of the program used to generate on-the-fly directory listings. 
-The program must take one or two command-line arguments, the
-first being the directory to index (absolute), and the second, which is 
-optional, should be the "title" of the document be. Comment out if you don't 
-want on the fly directory listings. If this 
-does not start with /, it is considered relative to the server root. 
+<tag>DirectoryMaker &lt;full pathname to program&gt;</tag>
+Name of the program used
+to generate on-the-fly directory listings.  The program must take one or two
+command-line arguments, the first being the directory to index (absolute), and the
+second, which is  optional, should be the "title" of the document be. Comment out if
+you don't  want on the fly directory listings. If this  does not start with /, it is
+considered relative to the server root. 
+
+
+<tag>DirectoryCache &lt;directory&gt;</tag>
+DirectoryCache: If DirectoryIndex doesn't exist, and DirectoryMaker has been
+commented out, the the on-the-fly indexing of Boa can be used  to generate indexes
+of directories. Be warned that the output is extremely minimal and can cause
+delays when slow disks are used.  Note: The DirectoryCache must be writable by the
+same user/group that Boa runs as.
 
 <tag>KeepAliveMax &lt;integer&gt;</tag>
 Number of KeepAlive requests to allow per connection. Comment out, or set 
@@ -226,7 +266,8 @@ Number of seconds to wait before keepalive connections time out.
 
 <tag>MimeTypes &lt;file&gt;</tag>
 The location of the mime.types file. If this does not start with /, it is 
-considered relative to the server root. 
+considered relative to the server root.
+Comment out to avoid loading mime.types (better use AddType!)
 
 <tag>DefaultType &lt;mime type&gt;</tag>
 MIME type used if the file extension is unknown, or there is no file 
@@ -270,6 +311,19 @@ If the user that Boa runs as is &quot;boa&quot; and the groups that
 then files/directories accessible by users with group 
 &quot;web-stuff&quot; will also be accessible to Boa.
 
+<p>
+
+The February 2000 hoo-rah from CERT
+<url url="http://www.cert.org/advisories/CA-2000-02.html" name="advisory CA-2000-02">
+has little to do with Boa.  As of version 0.94.4, Boa's escaping rules have been
+cleaned up a little, but they weren't that bad before.  The example CGI
+programs have been updated to show what effort is needed there.  If you
+write, maintain, or use CGI programs under Boa (or any other server) it's
+worth your while to read and understand this advisory.  The real problem,
+however, boils down to browser and web page designers emphasizing frills
+over content and security.  The market leading browsers assume (incorrectly)
+that all web pages are trustworthy.
+
 <chapt>Relative Performance, Limits, and Design Philosophy
 <p>
 
@@ -280,20 +334,20 @@ list -- there are probably many that haven't encountered yet.
 <sect>Relative Performance
 <p>
 
-Performance is a very difficult thing to quantitively measure.
+Performance is a very difficult thing to quantitatively measure.
 Due to the fact that there are very few good and accessible 
 performance benchmarks, our benchmarking is limited to
 very simple means.  We use the Benchmark ZeusBench, which may no longer
 be available.  ZeusBench takes only a few commandline parameters, which
 makes it easy to use.  It is also useful as a diagnostic tool.
 
-ZeusBench has the capacity to make its requests over ethernet as well
+ZeusBench has the capacity to make its requests over Ethernet as well
 as localhost.  However, as bad as using localhost for anything might
 well be, it *does* eliminate to a great deal the bottleneck that is
-ethernet.  As a standard rule, we use options that have ZeusBench attempt
-to make either 10,000 or 20,000 successfull requests
+Ethernet.  As a standard rule, we use options that have ZeusBench attempt
+to make either 10,000 or 20,000 successful requests.
 
-The following benchmarks were run on a Linux 2.0.33 egcs 1.0.1 compiled
+The following benchmarks were run on a GNU/Linux 2.0.33 egcs 1.0.1 compiled
 kernel, on an Intel Pentium 200 MMX, over localhost, and with 
 a file size of 2448 bytes.  Each server was tuned with the following options:
 access logging turned off, 100 keepalive, and no DNS lookups 
@@ -392,7 +446,7 @@ descriptors.  The symptoms of this conditions may vary with
 your particular unix variant, but you will probably see log
 entries giving an error message for <tt>accept</tt>.
 Try to build your kernel to give an adequate number for
-your usage - Linux provides 256 out of the box, more than
+your usage - GNU/Linux provides 256 out of the box, more than
 enough for most people.
 </descrip>
 
@@ -402,29 +456,29 @@ enough for most people.
 In the pursuit of speed and simplicity, some aspects of Boa differ
 from the popular web servers.  In no particular order:
 
-<descrip
+<descrip>
   <tag>REMOTE&lowbar;HOST environment variable not set for CGI programs</tag>
   The REMOTE&lowbar;HOST environment variable is not set for CGI programs,
   for reasons already described.  This is easily worked around because the
-  IP address is provided in the REMOTE&lowbar;ADDR variable, so (if the CGI program
-  actually cares) gethostbyaddr or a variant can be used.
+  IP address is provided in the REMOTE&lowbar;ADDR variable, so (if the CGI
+  program actually cares) gethostbyaddr or a variant can be used.
   
   <tag>There are no server side includes in Boa</tag> 
   We don't like them, and they are too slow to parse.  We will consider
   more efficient alternatives, see the 
-  <htmlurl url="todo.txt"> to-do list.
+  <url url="todo.txt"> to-do list.
   
   <tag>There are no access control features</tag>
   Boa will follow symbolic links, and serve any file that it can
   read.  The expectation is that you will configure Boa to run as user
   <sq>nobody</sq>, and only files configured world readable will come
   out.  See the 
-  <htmlurl url="todo.txt"> to-do list.
+  <url url="todo.txt"> to-do list.
   
   <tag>No chroot option</tag>
   There is no option to run chrooted.  If anybody wants this, and is
   willing to try out experimental code, contact the maintainers.
-</descrip
+</descrip>
 
 <sect>Unexpected behavior
 <p>
@@ -443,7 +497,6 @@ cover up for this browser bug, and will typically report 404 Not Found
 for URL's containing odd combinations of <sq>../</sq>'s.
 </descrip>
 
-<appendix>
 <chapt>Appendix
 <p>
 
@@ -451,7 +504,8 @@ for URL's containing odd combinations of <sq>../</sq>'s.
 <p>
 
 This program is distributed under the
-<htmlurl url="Gnu&lowbar;License" name="GNU General Public License">,
+<url url="http://www.gnu.org/copyleft/gpl.html" 
+     name="GNU General Public License">.
 as noted in each source file:
 
 <verb>
@@ -479,9 +533,14 @@ as noted in each source file:
 <sect>Acknowledgments
 <p>
 
-The Boa Webserver is currently maintained and enhanced by 
-Larry Doolittle <tt>&lt;doolitt@jlab.org&gt;</tt>
-and Jon Nelson <tt>&lt;nels0988@tc.umn.edu&gt;</tt>.
+Paul Phillips wrote the first versions of Boa, up to and including
+version 0.91.  Version 0.92 of Boa was officially released December 1996
+by Larry Doolittle.  Version 0.93 was the development version of 0.94,
+which was released in February 2000.
+
+The Boa Webserver is currently (Feb 2000) maintained and enhanced by 
+Larry Doolittle <tt>&lt;ldoolitt@boa.org&gt;</tt>
+and Jon Nelson <tt>&lt;jnelson@boa.org&gt;</tt>.
 
 We would like to thank Russ Nelson <tt>&lt;nelson@crynwr.com&gt;</tt>
 for hosting the <url url="http://www.boa.org"> web site.
@@ -489,15 +548,12 @@ for hosting the <url url="http://www.boa.org"> web site.
 We would also like to thank Paul for writing code that is
 worth maintaining and supporting.
 
-Paul Phillips wrote the first versions of Boa, up to and including
-version 0.91.  Version 0.92 of Boa was officially release December 1996
-by Larry Doolittle.  Version 0.93 is a development version of 0.94.
-
 Many people have contributed to Boa, including (but not
 limited to) Charles F. Randall <tt>&lt;randall@goldsys.com&gt;</tt>,
 Christoph Lameter <tt>&lt;chris@waterf.org&gt;</tt>, 
-Russ Nelson <tt>&lt;nelson@crynwr.com&gt;</tt>, and 
-Alain Magloire <tt>&lt;alain.magloire@rcsm.ee.mcgill.ca&gt;</tt>.
+Russ Nelson <tt>&lt;nelson@crynwr.com&gt;</tt>, Alain Magloire
+<tt>&lt;alain.magloire@rcsm.ee.mcgill.ca&gt;</tt>,
+and more recently, M. Drew Streib <tt>&lt;dtype@linux.com&gt;</tt>.
 
 Paul Phillips records his acknowledgments as follows: 
 <quote>
@@ -513,14 +569,13 @@ writing what I believe is the best webserver out there.
 <p>
 
 Links to documents relevant to 
-<htmlurl url="http://www.boa.org/" name="Boa">
+<url url="http://www.boa.org/" name="Boa">
 development and usage.  Incomplete, we're still working on this.
 NCSA has a decent
 <url url="http://hoohoo.ncsa.uiuc.edu/docs/Library.html"> page along
 these lines, too.
 
-Also see
-Yahoo's list<newline>
+Also see Yahoo's list<newline>
 <url url="http://www.yahoo.com/Computers&lowbar;and&lowbar;Internet/Software/Internet/World&lowbar;Wide&lowbar;Web/Servers/">
 
 <itemize>
@@ -534,7 +589,7 @@ Yahoo's list<newline>
 <url url="http://www.w3.org/pub/WWW/Protocols/HTTP/HTTP2.html">
 <item>The Common Gateway Interface (CGI)<newline>
 <url url="http://hoohoo.ncsa.uiuc.edu/cgi/overview.html">
-<item>commonlog format?
+<item>commonlog format?<newline>
 <item>RFC 1738 URL syntax and semantics<newline>
 <url url="http://ds.internic.net/rfc/rfc1738.txt">
 <item>RFC 1808 Relative URL syntax and semantics<newline>
@@ -549,7 +604,7 @@ For unix-alike platforms, with published source code.
 <itemize>
 <item>tiny/turbo/throttling httpd very similar to Boa, with a throttling
 feature<newline>
-<htmlurl url="http://www.acme.com/software/thttpd/">
+<url url="http://www.acme.com/software/thttpd/">
 <item>Roxen: based on ulpc interpreter, non-forking (interpreter implements
 threading), GPL'd<newline>
 <url url="http://www.roxen.com/">
@@ -582,7 +637,7 @@ but with more bells and whistles.<newline>
 <url url="http://www.zeus.co.uk/products/server/intro/bench2/zeusbench.shtml">
 <item>WebBench (binary-ware)<newline>
 <url url="http://web1.zdnet.com/zdbop/webbench/webbench.html">
-<item>Route 66?
+<item>Route 66?<newline>
 <item>WebStone<newline>
 <url url="http://www.sgi.com/Products/WebFORCE/WebStone/"> 
 <item>SpecWeb96<newline>
@@ -614,9 +669,14 @@ but with more bells and whistles.<newline>
 </itemize>
 
 <p>
-References last checked: 06 October 1997<newline>
-Conversion to SGML by Jon Nelson<newline>
-Original html documentation by Larry Doolittle<newline>
-Copyright (c) 1996, 1997, 1998
+<em>Note:</em> References last checked: 06 October 1997<newline>
 
-</report>
+
+<sect>Authors
+<p>
+
+Conversion to SGML by Jon Nelson<newline>
+Original HTML documentation by Larry Doolittle<newline>
+Copyright (c) 1996-2000 Jon Nelson and Larry Doolittle
+
+</book>

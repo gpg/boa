@@ -2,7 +2,7 @@
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <psp@well.com>
  *  Some changes Copyright (C) 1996 Larry Doolittle <ldoolitt@jlab.org>
- *  Some changes Copyright (C) 1996,97 Jon Nelson <nels0988@tc.umn.edu>
+ *  Some changes Copyright (C) 1996-99 Jon Nelson <jnelson@boa.org>
  *  Some changes Copyright (C) 1997 Alain Magloire <alain.magloire@rcsm.ee.mcgill.ca>
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,11 +21,13 @@
  *
  */
 
-/* boa: signals.c */
+/* $Id: signals.c,v 1.26 2000/04/10 19:48:17 jon Exp $*/
 
 #include "boa.h"
-#include <sys/wait.h>			/* wait */
-#include <signal.h>				/* signal */
+#ifdef HAVE_SYS_WAIT_H
+#include <sys/wait.h>           /* wait */
+#endif
+#include <signal.h>             /* signal */
 
 void sigsegv(int);
 void sigbus(int);
@@ -33,7 +35,7 @@ void sigterm(int);
 void sighup(int);
 void sigint(int);
 void sigchld(int);
-void sigusr1(int);
+void sigalrm(int);
 
 /*
  * Name: init_signals
@@ -42,136 +44,137 @@ void sigusr1(int);
 
 void init_signals(void)
 {
-	struct sigaction sa;
+    struct sigaction sa;
 
-	sa.sa_flags = 0;
+    sa.sa_flags = 0;
 
-	sigemptyset(&sa.sa_mask);
-	sigaddset(&sa.sa_mask, SIGSEGV);
-	sigaddset(&sa.sa_mask, SIGBUS);
-	sigaddset(&sa.sa_mask, SIGTERM);
-	sigaddset(&sa.sa_mask, SIGHUP);
-	sigaddset(&sa.sa_mask, SIGINT);
-	sigaddset(&sa.sa_mask, SIGPIPE);
-	sigaddset(&sa.sa_mask, SIGCHLD);
-	sigaddset(&sa.sa_mask, SIGUSR1);
+    sigemptyset(&sa.sa_mask);
+    sigaddset(&sa.sa_mask, SIGSEGV);
+    sigaddset(&sa.sa_mask, SIGBUS);
+    sigaddset(&sa.sa_mask, SIGTERM);
+    sigaddset(&sa.sa_mask, SIGHUP);
+    sigaddset(&sa.sa_mask, SIGINT);
+    sigaddset(&sa.sa_mask, SIGPIPE);
+    sigaddset(&sa.sa_mask, SIGCHLD);
+    sigaddset(&sa.sa_mask, SIGALRM);
 
-	sa.sa_handler = sigsegv;
-	sigaction(SIGSEGV, &sa, NULL);
+    sa.sa_handler = sigsegv;
+    sigaction(SIGSEGV, &sa, NULL);
 
-	sa.sa_handler = sigbus;
-	sigaction(SIGBUS, &sa, NULL);
+    sa.sa_handler = sigbus;
+    sigaction(SIGBUS, &sa, NULL);
 
-	sa.sa_handler = sigterm;
-	sigaction(SIGTERM, &sa, NULL);
+    sa.sa_handler = sigterm;
+    sigaction(SIGTERM, &sa, NULL);
 
-	sa.sa_handler = sighup;
-	sigaction(SIGHUP, &sa, NULL);
+    sa.sa_handler = sighup;
+    sigaction(SIGHUP, &sa, NULL);
 
-	sa.sa_handler = sigint;
-	sigaction(SIGINT, &sa, NULL);
+    sa.sa_handler = sigint;
+    sigaction(SIGINT, &sa, NULL);
 
-	sa.sa_handler = SIG_IGN;
-	sigaction(SIGPIPE, &sa, NULL);
+    sa.sa_handler = SIG_IGN;
+    sigaction(SIGPIPE, &sa, NULL);
 
-	sa.sa_handler = sigchld;
-	sigaction(SIGCHLD, &sa, NULL);
+    sa.sa_handler = sigchld;
+    sigaction(SIGCHLD, &sa, NULL);
 
-	sa.sa_handler = sigusr1;
-	sigaction(SIGUSR1, &sa, NULL);
+    sa.sa_handler = sigalrm;
+    sigaction(SIGALRM, &sa, NULL);
 }
 
 void sigsegv(int dummy)
 {
-	log_error_time();
-	fputs("caught SIGSEGV, dumping core\n", stderr);
-	fclose(stderr);
-	abort();
+    log_error_time();
+    fputs("caught SIGSEGV, dumping core in /tmp\n", stderr);
+    fclose(stderr);
+    chdir("/tmp");
+    abort();
 }
 
 void sigbus(int dummy)
 {
-	log_error_time();
-	fputs("caught SIGBUS, dumping core\n", stderr);
-	fclose(stderr);
-	abort();
+    log_error_time();
+    fputs("caught SIGBUS, dumping core in /tmp\n", stderr);
+    fclose(stderr);
+    chdir("/tmp");
+    abort();
 }
 
 void sigterm(int dummy)
 {
-	lame_duck_mode = 1;
+    lame_duck_mode = 1;
 }
 
-void lame_duck_mode_run(int server_s2)
+void lame_duck_mode_run(int server_s)
 {
-	log_error_time();
-	fputs("caught SIGTERM, starting shutdown\n", stderr);
-	FD_CLR(server_s, &block_read_fdset);
-	close(server_s);
-	lame_duck_mode = 2;
+    log_error_time();
+    fputs("caught SIGTERM, starting shutdown\n", stderr);
+    FD_CLR(server_s, &block_read_fdset);
+    close(server_s);
+    lame_duck_mode = 2;
 }
-
-
 
 void sighup(int dummy)
 {
-	sighup_flag = 1;
+    sighup_flag = 1;
 }
 
 void sighup_run(void)
 {
-	sighup_flag = 0;
-	log_error_time();
-	fputs("caught SIGHUP, restarting\n", stderr);
+    sighup_flag = 0;
+    log_error_time();
+    fputs("caught SIGHUP, restarting\n", stderr);
 
-	/* Philosophy change for 0.92: don't close and attempt reopen of logfiles,
-	 * since usual permission structure prevents such reopening.
-	 */
+    /* Philosophy change for 0.92: don't close and attempt reopen of logfiles,
+     * since usual permission structure prevents such reopening.
+     */
 
-	dump_mime();
-	dump_passwd();
-	dump_alias();
-	free_requests();
+    dump_mime();
+    dump_passwd();
+    dump_alias();
+    free_requests();
 
-	log_error_time();
-	fputs("re-reading configuration files\n", stderr);
-	read_config_files();
+    log_error_time();
+    fputs("re-reading configuration files\n", stderr);
+    read_config_files();
 
-	log_error_time();
-	fputs("successful restart\n", stderr);
+    log_error_time();
+    fputs("successful restart\n", stderr);
 }
 
 void sigint(int dummy)
 {
-	log_error_time();
-	fputs("caught SIGINT: shutting down\n", stderr);
-	fclose(stderr);
-	exit(1);
+    log_error_time();
+    fputs("caught SIGINT: shutting down\n", stderr);
+    fclose(stderr);
+    exit(1);
 }
 
 void sigchld(int dummy)
 {
-	sigchld_flag = 1;
+    sigchld_flag = 1;
 }
 
 void sigchld_run(void)
 {
-	int status;
-	pid_t pid;
+    int status;
+    pid_t pid;
 
-	sigchld_flag = 0;
+    sigchld_flag = 0;
 
-	while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
-		if (verbose_cgi_logs) {
-			log_error_time();
-			fprintf(stderr, "reaping child %d: status %d\n", pid, status);
-		}
-	return;
+    while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
+        if (verbose_cgi_logs) {
+            log_error_time();
+            fprintf(stderr, "reaping child %d: status %d\n", pid, status);
+        }
+    return;
 }
 
-void sigusr1(int dummy)
+void sigalrm(int dummy)
 {
-	log_error_time();
-	fprintf(stderr, "%ld requests, %ld errors\n",
-			status.requests, status.errors);
+    log_error_time();
+    fprintf(stderr, "%ld requests, %ld errors\n",
+            status.requests, status.errors);
+    alarm(60 * 60);
 }

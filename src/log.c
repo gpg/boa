@@ -1,8 +1,8 @@
-
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <psp@well.com>
  *  Some changes Copyright (C) 1996 Larry Doolittle <ldoolitt@jlab.org>
+ *  Some changes Copyright (C) 1999 Jon Nelson <jnelson@boa.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
  *
  */
 
-/* boa: log.c */
+/* $Id: log.c,v 1.33 2000/08/04 23:47:05 jon Exp $*/
 
 #include "boa.h"
 
@@ -31,122 +31,133 @@ char *access_log_name;
 char *cgi_log_name;
 int cgi_log_fd;
 
+FILE *fopen_gen_fd(char *spec, const char *mode)
+{
+    int fd;
+    if (!spec || *spec == '\0')
+        return NULL;
+    fd = open_gen_fd(spec);
+    if (!fd)
+        return NULL;
+    return fdopen(fd, mode);
+}
+
 /*
  * Name: open_logs
- * 
- * Description: Opens up the error log, ties it to stderr, and line 
+ *
+ * Description: Opens up the error log, ties it to stderr, and line
  * buffers it.
  */
 
 void open_logs(void)
 {
-	FILE *error_log;
+    int error_log;
 
-	if (access_log_name) {
-		if (!(access_log = fopen(access_log_name, "a"))) {
-			int errno_save = errno;
-			fprintf(stderr, "Cannot open %s for logging: ", access_log_name);
-			errno = errno_save;
-			perror("logfile open");
-			exit(1);
-		}
-		/* line buffer the access log */
-		setvbuf(access_log, (char *) NULL, _IOLBF, 0);
-	} else
-		access_log = NULL;
+    if (access_log_name) {
+        /* Used the "a" flag with fopen, but fopen_gen_fd builds that in
+         * implicitly when used as a file, and "a" is incompatible with
+         * pipes and network sockets. */
+        if (!(access_log = fopen_gen_fd(access_log_name, "w"))) {
+            int errno_save = errno;
+            fprintf(stderr, "Cannot open %s for logging: ",
+                    access_log_name);
+            errno = errno_save;
+            perror("logfile open");
+            exit(errno);
+        }
+        /* line buffer the access log */
+#ifdef SETVBUF_REVERSED
+        setvbuf(access_log, _IOLBF, (char *) NULL, 0);
+#else
+        setvbuf(access_log, (char *) NULL, _IOLBF, 0);
+#endif
+    } else
+        access_log = NULL;
 
-	if (!cgi_log_name)
-		cgi_log_name = strdup("/dev/null");
+    if (cgi_log_name) {
+        cgi_log_fd = open_gen_fd(cgi_log_name);
+        if (cgi_log_fd == -1) {
+            log_error_mesg(__FILE__, __LINE__, "open cgi_log");
+            free(cgi_log_name);
+            cgi_log_name = NULL;
+            cgi_log_fd = 0;
+        } else {
+            if (fcntl(cgi_log_fd, F_SETFD, 1) == -1) {
+                log_error_mesg(__FILE__, __LINE__,
+                               "unable to set close-on-exec flag for cgi_log");
+                close(cgi_log_fd);
+                cgi_log_fd = 0;
+                free(cgi_log_name);
+                cgi_log_name = NULL;
+            }
+        }
+    }
 
-	{
-		cgi_log_fd = open(cgi_log_name,
-						  O_WRONLY | O_CREAT | O_APPEND,
-						  S_IRUSR | S_IWUSR | S_IROTH | S_IRGRP);
-		if (cgi_log_fd == -1) {
-			log_error_time();
-			perror("open cgi_log");
-			free(cgi_log_name);
-			cgi_log_name = NULL;
-			cgi_log_fd = 0;
-		} else {
-			if (fcntl(cgi_log_fd, F_SETFD, 1) == -1) {
-				perror("unable to set close-on-exec flag for cgi_log!");
-				close(cgi_log_fd);
-				cgi_log_fd = 0;
-				free(cgi_log_name);
-				cgi_log_name = NULL;
-			}
-		}
-	}
+    /* if error_log_name is set, dup2 stderr to it */
+    /* otherwise, leave stderr alone */
+    if (error_log_name) {
+        /* open the log file */
+        if (!(error_log = open_gen_fd(error_log_name))) {
+            log_error_mesg(__FILE__, __LINE__, "unable to open error log");
+            exit(errno);
+        }
 
-	if (!error_log_name) {
-		fputs("No ErrorLog directive specified in boa.conf.\n", stderr);
-		exit(1);
-	}
-	if (!(error_log = fopen(error_log_name, "a")))
-		die(NO_OPEN_LOG);
+        /* redirect stderr to error_log */
+        if (dup2(error_log, STDERR_FILENO) == -1) {
+            log_error_mesg(__FILE__, __LINE__,
+                           "unable to dup2 the error log");
+            exit(errno);
+        }
+        close(error_log);
+    }
 
-	/* redirect stderr to error_log */
-	if (dup2(fileno(error_log), STDERR_FILENO) == -1) {
-		perror("unable to dup2 the error log");
-		exit(1);
-	}
-	/* set the close-on-exec to true */
-	if (fcntl(STDERR_FILENO, F_SETFD, 1) == -1) {
-		perror("unable to fcntl the error log");
-		exit(1);
-	}
-	fclose(error_log);
+    /* set the close-on-exec to true */
+    if (fcntl(STDERR_FILENO, F_SETFD, 1) == -1) {
+        log_error_mesg(__FILE__, __LINE__,
+                       "unable to fcntl the error log");
+        exit(errno);
+    }
 }
 
 /*
  * Name: close_access_log
- * 
+ *
  * Description: closes access_log file
  */
 void close_access_log(void)
 {
-	if (access_log)
-		fclose(access_log);
+    if (access_log)
+        fclose(access_log);
 }
 
 /*
  * Name: log_access
- * 
+ *
  * Description: Writes log data to access_log.
  */
 
 void log_access(request * req)
 {
-	if (access_log) {
-		fprintf(access_log, "%s - - %s\"%s\" %d %ld\n",
-				req->remote_ip_addr,
-				get_commonlog_time(),
-				req->logline,
-				req->response_status,
-				req->filepos);
-	}
-}
+    if (access_log) {
+        if (virtualhost)
+            fprintf(access_log, "%s ", req->local_ip_addr);
+        fprintf(access_log, "%s - - %s\"%s\" %d %ld \"%s\" \"%s\"\n",
+                req->remote_ip_addr,
+                get_commonlog_time(),
+                req->logline,
+                req->response_status,
+                req->filepos,
+                (req->header_referer ? req->header_referer : "-"),
+                (req->header_user_agent ? req->header_user_agent : "-"));
 
-/*
- * Name: log_error_time
- *
- * Description: Logs the current time to the stderr (the error log): 
- * should always be followed by an fprintf to stderr
- */
-
-void log_error_time()
-{
-	int errno_save = errno;
-	fputs(get_commonlog_time(), stderr);
-	errno = errno_save;
+    }
 }
 
 /*
  * Name: log_error_doc
  *
  * Description: Logs the current time and transaction identification
- * to the stderr (the error log): 
+ * to the stderr (the error log):
  * should always be followed by an fprintf to stderr
  *
  * This function used to be implemented with a big fprintf, but not
@@ -155,22 +166,21 @@ void log_error_time()
  * null pointers, I changed from fprintf to fputs.
  *
  * Example output:
- [08/Nov/1997:01:05:03] request from 192.228.331.232 "GET /~joeblow/dir/ HTTP/1.0" ("/usr/user1/joeblow/public_html/dir/"): write: Broken pipe
+ [08/Nov/1997:01:05:03 -0600] request from 192.228.331.232 "GET /~joeblow/dir/ HTTP/1.0" ("/usr/user1/joeblow/public_html/dir/"): write: Broken pipe
  */
 
 void log_error_doc(request * req)
 {
-	int errno_save = errno;
+    int errno_save = errno;
 
-	fprintf(stderr, "%srequest from %s \"%s\" (\"%s\"): ",
-			get_commonlog_time(),
-			req->remote_ip_addr,
-			(req->logline != NULL ?
-			 req->logline : "(null)"),
-			(req->pathname != NULL ?
-			 req->pathname : "(null)"));
+    fprintf(stderr, "%srequest from %s \"%s\" (\"%s\"): ",
+            get_commonlog_time(),
+            req->remote_ip_addr,
+            (req->logline != NULL ?
+             req->logline : "(null)"),
+            (req->pathname != NULL ? req->pathname : "(null)"));
 
-	errno = errno_save;
+    errno = errno_save;
 }
 
 /*
@@ -181,7 +191,38 @@ void log_error_doc(request * req)
  */
 void boa_perror(request * req, char *message)
 {
-	log_error_doc(req);
-	perror(message);			/* don't need to save errno because log_error_doc does */
-	send_r_error(req);
+    log_error_doc(req);
+    perror(message);            /* don't need to save errno because log_error_doc does */
+    send_r_error(req);
+}
+
+/*
+ * Name: log_error_time
+ *
+ * Description: Logs the current time to the stderr (the error log):
+ * should always be followed by an fprintf to stderr
+ */
+
+void log_error_time()
+{
+    int errno_save = errno;
+    fputs(get_commonlog_time(), stderr);
+    errno = errno_save;
+}
+
+/*
+ * Name: log_error_mesg
+ *
+ * Description: performs a log_error_time, writes the file and lineno
+ * to stderr (saving errno), and then a perror with message
+ *
+ */
+
+void log_error_mesg(char *file, int line, char *mesg)
+{
+    int errno_save = errno;
+    fprintf(stderr, "%s%s:%d - ", get_commonlog_time(), file, line);
+    errno = errno_save;
+    perror(mesg);
+    errno = errno_save;
 }

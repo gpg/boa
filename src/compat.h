@@ -18,12 +18,40 @@
  *
  */
 
+/* $Id: compat.h,v 1.9 2000/04/10 19:45:57 jon Exp $*/
+
 #ifndef _COMPAT_H
 #define _COMPAT_H
 
 #include "config.h"
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+#ifdef HAVE_LIMITS_H
+#include <limits.h>             /* OPEN_MAX */
+#endif
+
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
+
+#ifndef HAVE_STRSTR
+char *strstr(char *s1, char *s2);
+#endif
+#ifndef HAVE_STRDUP
+char *strdup(char *s);
+#endif
+
+#ifdef TIME_WITH_SYS_TIME
+/* maybe-defined in config.h */
+#include <sys/time.h>
+#endif
+
 #include <sys/mman.h>
+#include <netdb.h>
 
 #ifndef OPEN_MAX
 #define OPEN_MAX 256
@@ -36,13 +64,19 @@
 #endif
 
 #ifndef MAP_FILE
-#define MAP_OPTIONS MAP_PRIVATE	/* Sun */
+#define MAP_OPTIONS MAP_PRIVATE /* Sun */
 #else
-#define MAP_OPTIONS MAP_FILE|MAP_PRIVATE	/* Linux */
+#define MAP_OPTIONS MAP_FILE|MAP_PRIVATE /* Linux */
 #endif
 
-#ifdef AIX
-#include <sys/select.h>
+#ifdef INET6
+#define SOCKADDR sockaddr_storage
+#define S_FAMILY __s_family
+#define SERVER_AF AF_INET6
+#else
+#define SOCKADDR sockaddr_in
+#define S_FAMILY sin_family
+#define SERVER_AF AF_INET
 #endif
 
 #endif

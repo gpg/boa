@@ -1,3 +1,184 @@
+boa (0.94.8.3-1) unstable stable; urgency=medium
+
+  * Move unescape_uri *before* clean_pathname to prevent
+    encoding of / and .. in pathname
+  * wrap execution of GUNZIP in cgi.c with #ifdef GUNZIP
+  * stop parsing when fragment found in URL ('#')
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Mon,  2 Oct 2000 20:53:59 -0500
+
+boa (0.94.8.2-2) unstable frozen; urgency=low
+
+  * Add '/usr/lib/cgi-bin' to debian/dirs. Closes #69127.
+  * Change /doc Alias from /usr/doc to /usr/share/doc
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Sat, 19 Aug 2000 19:52:55 -0500
+
+boa (0.94.8.2-1) unstable frozen; urgency=low
+
+  * Move 'old' /etc/cron.daily/boa to /etc/cron.daily/boa.obsolete if modified, otherwise remove (closes #64813)
+  * 1-line fix to close bug #64812
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Fri,  4 Aug 2000 18:35:33 -0500
+
+boa (0.94.8.1-1) unstable frozen; urgency=low
+
+  * Include 1-line upstream fix for bad umask call (security issue)
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Sun, 28 May 2000 10:28:22 -0500
+
+boa (0.94.8-1) unstable frozen; urgency=low
+
+  * Fix major thinko in temp file permissions
+  * unlink temporary file immediately following creation
+  * implement maximum # of active connections at 10 less than RLIMIT_NOFILE
+    to avoid or eliminate crashes resulting from running out of 
+    file descriptors
+  * Fix thinko in POST
+  * Change /doc alias *back* to /usr/doc as requested
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Thu, 25 May 2000 21:25:24 -0500
+
+boa (0.94.7-2) unstable frozen; urgency=low
+
+  * /etc/logrotate.d/boa no longer a conffile
+  * /etc/logrotate.d/boa now also contains 'missingok' (closes #63905)
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Wed, 10 May 2000 21:13:54 -0500
+
+boa (0.94.7-1) unstable frozen; urgency=low
+
+  * Upstream bugfixes.  No new functionality.  Now uses logrotate.
+  * /usr/doc -> /usr/share/doc alias change
+  * STDIN and STDOUT are now tied to /dev/null (closes #61093 and #62660)
+  * some minor (non-function related) changes to /etc/init.d/boa
+  * now uses logrotate for log file rotation
+  * some very minor upstream bug fixes, none of which are Linux related
+  * core dumps now located in /tmp
+  * upon purge also removes log files (closes #24130)
+  * sets PATH_MAX to 2048 if not defined (closes #45508)
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Mon,  1 May 2000 15:33:47 -0500
+
+boa (0.94.6-1) unstable frozen; urgency=low
+
+  * Removed doc++ formatting
+  * Removed extraneous debugging statements
+  * Fixed bug in automatic gunzip
+  * /etc/init.d/boa changes ala Joy (Josip Rodin) <joy@gkvk.hr>
+  * boa.sgml documentation changes, also ala Joy
+  * Addes stubs for chroot. (*not* working yet)
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Sat, 19 Feb 2000 06:50:14 -0600
+
+boa (0.94.5-1) unstable frozen; urgency=low
+
+  * Fixed a buffer overflow 
+  * Fixed a buffer underflow
+  * Formatted code for doc++
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Wed,  9 Feb 2000 20:23:03 -0600
+
+boa (0.94.4-1) unstable frozen; urgency=low
+
+  * Updated Boa with respect to CERT advisory CA-2000-02
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Sat,  5 Feb 2000 23:38:10 -0600
+
+boa (0.94.3-1) unstable frozen; urgency=low
+
+  * Fixed keepalive(pipeline)/error message interaction
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Mon, 31 Jan 2000 22:58:23 -0600
+
+boa (0.94.2-2) unstable frozen; urgency=medium
+
+  * Fixed boa cron job file
+  * changed user.group to www-data.www-data
+  * use customized boa.conf file
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Sun, 30 Jan 2000 11:27:05 -0600
+
+boa (0.94.2-1) unstable frozen; urgency=medium
+
+  * Fixed bug in 0.94.0 -- required for use with apt!
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Fri, 28 Jan 2000 22:42:57 -0600
+
+boa (0.94.0-1) unstable; urgency=low
+
+  * New upstream version
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Mon, 17 Jan 2000 14:09:16 -0600
+
+boa (0.93.19.2-1) unstable; urgency=low
+
+  * New upstream source
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Tue, 11 Jan 2000 20:45:21 -0600
+
+boa (0.93.19.1-1) unstable; urgency=low
+
+  * New upstream source
+
+ -- Jonathon D Nelson <jnelson@boa.org>  Sat,  1 Jan 2000 11:47:24 -0600
+
+boa (0.93.18.2-1) unstable; urgency=low
+
+  * New upstream source.
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Thu,  2 Dec 1999 22:04:17 -0600
+
+boa (0.93.17.3-1) unstable; urgency=low
+
+  * New upstream source
+  * Also closes (#30603, #35594, #32419, #33521, #36307, #40879, #40953, #29664)
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Sun, 12 Sep 1999 22:36:23 -0500
+
+boa (0.93.16.1-1) unstable; urgency=low
+
+  * New upstream source
+  * Reporting that IMS bug fixed (#30603)
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Fri, 25 Dec 1998 22:37:49 -0600
+
+boa (0.93.16-5) unstable; urgency=low
+
+  * Fixes CGI HEAD and fixes some problems with -4
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Thu, 24 Dec 1998 02:25:46 -0600
+
+boa (0.93.16-4) frozen unstable; urgency=low
+
+  * Yet more fixes for the upstream version. This should fix nasty logic.
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Wed, 16 Dec 1998 01:28:06 -0600
+
+boa (0.93.16-3) frozen unstable; urgency=low
+
+  * Even more fixes for the upstream version. This fixes CGIs.
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Tue, 15 Dec 1998 15:13:22 -0600
+
+boa (0.93.16-2) frozen unstable; urgency=low
+
+  * Minor fixes for the upstream version.
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Tue, 15 Dec 1998 12:49:31 -0600
+
+boa (0.93.16-1) unstable; urgency=low
+
+  * New upstream version should fix minor bugs in internal logic
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Tue, 15 Dec 1998 00:52:54 -0600
+
+boa (0.93.15-2) frozen unstable; urgency=low
+
+  * Fixes IMS bug (thanks Culus, o-o)
+
+ -- Jonathon D. Nelson <nels0988@tc.umn.edu>  Sat, 12 Dec 1998 23:26:01 -0600
+
 boa (0.93.15-1) unstable frozen; urgency=low
 
   * New upstream version

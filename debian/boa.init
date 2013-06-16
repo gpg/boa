@@ -1,39 +1,56 @@
 #! /bin/sh
 #
+# /etc/init.d/boa -- start/stop Boa HTTP server
+#
 # This file was automatically customized by debmake on Mon, 23 Dec 1996 20:27:43 -0800
 #
 # Written by Miquel van Smoorenburg <miquels@drinkel.ow.org>.
 # Modified for Debian GNU/Linux by Ian Murdock <imurdock@gnu.ai.mit.edu>.
 # Modified for Debian by Christoph Lameter <clameter@debian.org>
+# Modified for Debian GNU/Linux by Jonathon Nelson <jnelson@boa.org>
 
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
 DAEMON=/usr/sbin/boa
-# The following value is extracted by debstd to figure out how to generate
-# the postinst script. Edit the field to change the way the script is
-# registered through update-rc.d (see the manpage for update-rc.d!)
+# update-rc.d option extracted by debstd to generate postinst on package build
 FLAGS="defaults 50"
 
 test -f $DAEMON || exit 0
+ALIVE=`ps axw | grep "/usr/sbin/boa *\$" | awk '{print $1}'`
+#ALIVE=`pidof $DAEMON`
+WAIT=30
 
 case "$1" in
   start)
-    echo "Starting boa..."
+    echo -n "Starting HTTP server: Boa"
     start-stop-daemon --start --quiet --exec $DAEMON
+    echo "."
     ;;
   stop)
-    start-stop-daemon --stop --verbose --exec $DAEMON
+    echo -n "Stopping HTTP server: Boa"
+    start-stop-daemon --stop --quiet --exec $DAEMON
+    sleep 1
+    start-stop-daemon --stop --quiet --signal INT --exec $DAEMON
+    echo "."
     ;;
   force-reload)
-    start-stop-daemon --stop --verbose --exec $DAEMON
-    $DAEMON
+    echo -n "Forcing reload of HTTP server: Boa"
+    start-stop-daemon --stop --quiet --signal HUP --exec $DAEMON
+    echo "."
     ;;
   restart)
-# 1 should be sighup
-    echo "Restarting $DAEMON..."
-    start-stop-daemon --stop --quiet --signal 1 --exec $DAEMON
+    echo -n "Restarting HTTP server: Boa"
+    if [ -n "$ALIVE" ];
+    then
+      start-stop-daemon --stop --quiet --exec $DAEMON
+      $DAEMON
+#      start-stop-daemon --start --quiet --exec $DAEMON
+      echo "."
+    else
+      echo ". Boa not running!  Not attempting restart."
+    fi
     ;;
   *)
-    echo "Usage: /etc/init.d/$0 {start|stop|restart|force-reload}"
+    echo "Usage: /etc/init.d/boa {start|stop|restart|force-reload}"
     exit 1
     ;;
 esac

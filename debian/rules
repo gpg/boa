@@ -17,7 +17,7 @@ build:	build-stamp
 
 build-stamp:
 	dh_testdir
-	cd src;./configure;make depend;make
+	cd src;./configure;make
 	cd docs;make boa.dvi;make boa.html;ln -s boa.html index.html
 	touch build-stamp
 
@@ -41,8 +41,8 @@ binary-arch:	build
 	dh_clean -k
 	dh_installdirs
 
-	dh_installdocs README Gnu_License docs
-	dh_installexamples examples
+	dh_installdocs README docs
+	dh_installexamples examples/*
 	dh_installmenu
 	dh_installinit
 	dh_installcron
@@ -50,8 +50,9 @@ binary-arch:	build
 	dh_installchangelogs src/Changelog
 
 	install src/boa debian/tmp/usr/sbin
-	install src/boa_indexer debian/tmp/usr/lib/cgi-bin
-	install boa.conf debian/tmp/etc/boa/boa.conf
+	install src/boa_indexer debian/tmp/usr/lib/boa
+	install --mode=0640 debian/boa.conf debian/tmp/etc/boa/boa.conf
+	install --mode=0640 debian/logrotate.d debian/tmp/etc/logrotate.d/boa
 
 	dh_strip
 	dh_compress
