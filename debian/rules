@@ -38,15 +38,15 @@ binary-arch:	build
 	dh_prep
 	dh_installdirs
 
-	dh_installdocs README docs/boa.html docs/boa_banner.png docs/boa.texi
-	dh_installinfo -n docs/boa.info
+	dh_installdocs
+	dh_installinfo
 	dh_installexamples
 	dh_installmenu
 	dh_installinit --error-handler=true
 	dh_installdebconf
 	dh_installcron
 	dh_installlogrotate
-	dh_installman docs/boa.8
+	dh_installman
 	dh_installchangelogs CHANGES
 
 	install src/boa debian/boa/usr/sbin

@@ -13,6 +13,8 @@ boa (0.94.14rc21-4) UNRELEASED; urgency=low
     + Use dh_auto_{configure,build}
     + Use dh_prep instead of dh_clean -k
     + No more manually clean stamp files, done by dh_clean now
+    + Use debian/{docs,manpages,info} instead of dh_install{docs,man,info}
+      parameters
   * Apply wrap-and-sort
 
  -- Axel Beckert <abe@debian.org>  Sun, 16 Jun 2013 02:21:37 +0200
