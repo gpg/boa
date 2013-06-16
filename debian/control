@@ -3,12 +3,22 @@ Section: web
 Priority: optional
 Maintainer: Debian QA Group <packages@qa.debian.org>
 Standards-Version: 3.7.3
-Build-Depends: debhelper (>= 5.0), texinfo, bison, flex, texi2html, texlive-base-bin, po-debconf
+Build-Depends: bison,
+               debhelper (>= 5.0),
+               flex,
+               po-debconf,
+               texi2html,
+               texinfo,
+               texlive-base-bin
 
 Package: boa
 Architecture: any
-Provides: httpd, httpd-cgi
-Depends: ${shlibs:Depends}, mime-support, logrotate, ${misc:Depends}
+Provides: httpd,
+          httpd-cgi
+Depends: logrotate,
+         mime-support,
+         ${misc:Depends},
+         ${shlibs:Depends}
 Description: Lightweight and high performance web server
  Boa is a single-tasking HTTP server. That means that unlike
  traditional web servers, it does not fork for each incoming
