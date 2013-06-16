@@ -1,0 +1,82 @@
+None of these changes are guaranteed to be incorporated into any
+version of Boa.  They are, at least, interesting ideas that deserve
+not to be forgotten.
+
+=================
+Internal changes:
+
+Convert to autoconf.
+
+More modular connection to the document output code, allow data
+to come from other than an mmap()'d file; this is a prerequisite
+for the items labeled [*] below.
+
+Request parsing speedup (maybe): on read_header and read_body, count
+the bytes read into the body.  stop at content_length.  if this is not
+supplied, after each read check buf[bytes-2] and buf[bytes-1] for
+\r and \n -- if true, it's done, read no more.
+
+Reduce malloc/free thrashing
+
+Move server_root processing out of boa.c main(), use GNU getcwd(3)
+memory allocation feature if it exists.
+
+collapse write of very small files with header write?
+
+Profile!
+
+alias.c: add_alias(), collapse most of if/else common code;
+alias.c: add_alias(), use FOUR_LETTER_SUM macro
+alias.c: translate_uri(), collapse alias code with standard
+
+Flexible support for CGI "gateway" programs, like Apache suEXEC
+or an XSSI interpreter.
+
+=================
+Features for Users:
+
+Access control (optional, it _will_ slow things down if used)
+
+[*] Server-side includes 
+
+[*] Something faster than server-side includes, but with similar
+functionality;  I imagine a bytestream execution engine that is
+specifically _not_ Turing complete, so that it is guaranteed to finish :-)
+
+[*] On-the-fly server status page
+
+[*] embedded imagemap handling
+
+Write (or find) a wrapper which looks up the "missing" CGI
+environment variables before exec'ing the real CGI program
+
+=================
+Features for Webmaster:
+
+Limit service to particular devices (via statbuf->st_dev), keeps
+Boa from stalling if a user links from his home to a lousy NFS server.
+
+chroot(2) support
+
+Virtualhost support
+
+Logging with syslog (Unix)
+
+Log files can be automatically cycled or archived
+
+Normal (hit) log entries can be customized
+
+Can write to multiple logs (such as for certain kinds of hits, or different
+logs with different record formats)
+
+Make smarter logfile resolver program, also can split output if used
+in a virtualhost context.  Should keep a timestamped log of name lookup
+results, which can also be read back as a cache.
+
+Fascist logging option
+
+Lighter weight logging?
+
+=================
+Obscure comment, what does it mean?  Is it important?
+* http://www.usenet.com/cgi-bin/asdf -> "Document contains no data"
