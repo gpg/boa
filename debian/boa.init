@@ -34,7 +34,7 @@ case "$1" in
 	start-stop-daemon --stop --quiet --oknodo --exec $DAEMON
 	echo "."
 	;;
-  restart)
+  restart|force-reload)
 	echo -n "Restarting $DESC: $NAME... "
 	start-stop-daemon --stop --signal HUP --quiet --oknodo --exec $DAEMON
 	echo "done."

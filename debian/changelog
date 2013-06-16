@@ -29,6 +29,7 @@ boa (0.94.14rc21-4) UNRELEASED; urgency=low
     + copyright-refers-to-versionless-license-file
     + debian-watch-file-is-missing
     + copyright-without-copyright-notice
+    + init.d-script-does-not-implement-required-option
   * Apply wrap-and-sort
 
  -- Axel Beckert <abe@debian.org>  Sun, 16 Jun 2013 02:21:37 +0200
