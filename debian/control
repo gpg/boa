@@ -8,9 +8,7 @@ Build-Depends: autotools-dev,
                debhelper (>= 9~),
                flex,
                po-debconf,
-               texi2html,
-               texinfo,
-               texlive-base-bin
+               texinfo
 Homepage: http://www.boa.org/
 Vcs-Git: git://anonscm.debian.org/collab-maint/boa.git
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/boa.git
