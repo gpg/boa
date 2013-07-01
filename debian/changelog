@@ -1,7 +1,7 @@
-boa (0.94.14rc21-5) UNRELEASED; urgency=low
+boa (0.94.14rc21-5) unstable; urgency=low
 
   * QA upload
-  * Revamp init.d script
+  * Revamp init.d script (Likely closes: #315443)
     + SIGHUP and signal 1 are actually same
     + Do stop and start on restart and force-reload (LP: #46908)
     + Fix help text
@@ -13,7 +13,7 @@ boa (0.94.14rc21-5) UNRELEASED; urgency=low
   * Remove build-dependencies on texi2html and texlive-base-bin (not
     necessary, fixes lintian warning build-depends-on-obsolete-package)
 
- -- Axel Beckert <abe@debian.org>  Sun, 16 Jun 2013 13:41:54 +0200
+ -- Axel Beckert <abe@debian.org>  Mon, 01 Jul 2013 21:16:36 +0200
 
 boa (0.94.14rc21-4) unstable; urgency=low
 
