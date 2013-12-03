@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 %:
-	dh $@ --with autotools-dev
+	dh $@ --with autotools_dev
 
 override_dh_auto_configure:
 	dh_auto_configure -- --enable-access-control

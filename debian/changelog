@@ -1,3 +1,9 @@
+boa (0.94.14rc21-6) UNRELEASED; urgency=low
+
+  * Fix --with autotools_dev usage (c.f. #731248)
+
+ -- Axel Beckert <abe@debian.org>  Tue, 03 Dec 2013 16:59:39 +0100
+
 boa (0.94.14rc21-5) unstable; urgency=low
 
   * QA upload
