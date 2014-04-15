@@ -77,15 +77,21 @@ int req_write_escape_http(request * req, const char *msg)
 {
     char c, *dest;
     const char *inp;
-
     int left;
+    int skip = 0;
+
     inp = msg;
     dest = req->buffer + req->buffer_end;
     /* 3 is a guard band, since we don't check the destination pointer
      * in the middle of a transfer of up to 3 bytes */
     left = BUFFER_SIZE - req->buffer_end;
     while ((c = *inp++) && left >= 3) {
-        if (needs_escape((unsigned int) c)) {
+        /* Lower the skip character count. */
+        if (skip) skip--;
+        /* If we have a '%', we skip the two follow characters. */
+        if (c == '%') skip = 2;
+
+        if (!skip && needs_escape((unsigned int) c)) {
             *dest++ = '%';
             *dest++ = INT_TO_HEX((c >> 4) & 0xf);
             *dest++ = INT_TO_HEX(c & 0xf);
