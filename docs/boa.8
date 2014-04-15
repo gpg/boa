@@ -142,6 +142,14 @@ unambiguously by the C function strtol. No base is specified,
 so one may use a hexadecimal, decimal, or octal number if
 it is prefixed accordingly.
 .TP
+LogXFF
+Log the content of the X-Forwarded-For header instead of the actual IP
+address.  This takes the last X-Forwarded-For header found and prints
+it verbatim.  Possible invalid characters are replaced by underscores.
+If the XFF header is missing the usual remote address is printed in
+parenthesis.  This option is in particular useful if Boa is used
+behind pound(8).
+.TP
 ServerName <server_name>
 The name of this server that should be sent back to
 clients if different than that returned by gethostname.

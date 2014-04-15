@@ -155,6 +155,7 @@ struct request {                /* pending requests */
     char *header_user_agent;
     char *header_referer;
     char *header_ifrange;
+    char *header_forwarded_for; /* X-Forwarded-For or NULL.  */
     char *host;                 /* what we end up using for 'host', no matter the contents of header_host */
 
     int post_data_fd;           /* fd for post data tmpfile */
@@ -228,6 +229,7 @@ extern char *error_log_name;
 extern char *cgi_log_name;
 extern int cgi_log_fd;
 extern int use_localtime;
+extern int log_forwarded_for;
 
 extern unsigned int server_port;
 extern uid_t server_uid;

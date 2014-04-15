@@ -104,6 +104,32 @@ void open_logs(void)
 #endif
 }
 
+
+/* Print the remote IP to the stream FP.  */
+static void
+print_remote_ip (request * req, FILE *fp)
+{
+    if (log_forwarded_for) {
+        const char *s = req->header_forwarded_for;
+        if (s && *s) {
+            for (; *s; s++) {
+              /* Take extra care not to write bogus characters.  In
+                 particular no spaces.  We know that only IP addresses
+                 and a comma are allowed in the XFF header.  */
+                if (strchr ("0123456789.abcdef:ABCDEF,", *s))
+                  putc (*s, fp);
+                else
+                  putc ('_', fp);
+            }
+        }
+        else /* Missing - print remote IP in parenthesis.  */
+          fprintf (fp, "(%s)", req->remote_ip_addr);
+      }
+    else
+      fputs (req->remote_ip_addr, fp);
+}
+
+
 /*
  * Name: log_access
  *
@@ -146,8 +172,8 @@ void log_access(request * req)
     } else if (vhost_root) {
         printf("%s ", (req->host ? req->host : "(null)"));
     }
-    printf("%s - - %s\"%s\" %d %zu \"%s\" \"%s\"\n",
-           req->remote_ip_addr,
+    print_remote_ip (req, stdout);
+    printf(" - - %s\"%s\" %d %zu \"%s\" \"%s\"\n",
            get_commonlog_time(),
            req->logline ? req->logline : "-",
            req->response_status,
@@ -206,16 +232,15 @@ void log_error_doc(request * req)
         fprintf(stderr, "%s ", (req->host ? req->host : "(null)"));
     }
     escaped_pathname = escape_pathname(req->pathname);
+    print_remote_ip (req, stderr);
     if (vhost_root) {
-        fprintf(stderr, "%s - - %srequest [%s] \"%s\" (\"%s\"): ",
-                req->remote_ip_addr,
+        fprintf(stderr, " - - %srequest [%s] \"%s\" (\"%s\"): ",
                 get_commonlog_time(),
                 (req->header_host ? req->header_host : "(null)"),
                 (req->logline ? req->logline : "(null)"),
                 (escaped_pathname ? escaped_pathname : "(null)"));
     } else {
-        fprintf(stderr, "%s - - %srequest \"%s\" (\"%s\"): ",
-                req->remote_ip_addr,
+        fprintf(stderr, " - - %srequest \"%s\" (\"%s\"): ",
                 get_commonlog_time(),
                 (req->logline ? req->logline : "(null)"),
                 (escaped_pathname ? escaped_pathname : "(null)"));

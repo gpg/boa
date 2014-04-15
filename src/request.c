@@ -1002,6 +1002,16 @@ int process_option_line(request * req)
             return 1;
         }
         break;
+    case 'X':
+        if (!memcmp(line, "X_FORWARDED_FOR", 16)) {
+            /* Note that pound(8) simply inserts a new header instead
+               of appending the source IP to an existing header.  Thus
+               taking the last header should give us the appropriate
+               address for logging.  */
+            req->header_forwarded_for = value;
+            return 1;
+        }
+        break;
     default:                   /* no default */
         break;
     }                           /* switch */

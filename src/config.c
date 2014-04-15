@@ -69,6 +69,7 @@ char *access_log_name;
 char *cgi_log_name;
 
 int use_localtime;
+int log_forwarded_for;
 
 #ifdef USE_SETRLIMIT
 extern int cgi_rlimit_cpu;      /* boa.c */
@@ -139,6 +140,7 @@ struct ccommand clist[] = {
     {"CgiLog", S1A, c_set_string, &cgi_log_name}, /* compatibility with CGILog */
     {"CGILog", S1A, c_set_string, &cgi_log_name},
     {"VerboseCGILogs", S0A, c_set_unity, &verbose_cgi_logs},
+    {"LogXFF", S0A, c_set_unity, &log_forwarded_for},
     {"ServerName", S1A, c_set_string, &server_name},
     {"VirtualHost", S0A, c_set_unity, &virtualhost},
     {"LangRewrite", S0A, c_set_unity, &use_lang_rewrite},
