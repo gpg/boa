@@ -156,6 +156,29 @@ void log_access(request * req)
            (req->header_user_agent ? req->header_user_agent : "-"));
 }
 
+static char *escape_pathname(const char *inp)
+{
+    char *escaped, *c;
+
+    if (!inp) {
+        return NULL;
+    }
+    escaped = (char *)malloc(1 + strlen(inp) * 4);
+    if (escaped == NULL) {
+    	perror("malloc");
+	return NULL;
+    }
+    for (c = escaped; *inp; inp++) {
+        if (needs_escape((unsigned int)*inp)) {
+            c += sprintf(c, "\\x%02x", (unsigned int)*inp);
+        } else {
+            *(c++) = *inp;
+        }
+    }
+    *(c++) = '\0';
+    return escaped;
+}
+
 /*
  * Name: log_error_doc
  *
@@ -173,26 +196,29 @@ void log_access(request * req)
 void log_error_doc(request * req)
 {
     int errno_save = errno;
+    char *escaped_pathname;
 
     if (virtualhost) {
         fprintf(stderr, "%s ", req->local_ip_addr);
     } else if (vhost_root) {
         fprintf(stderr, "%s ", (req->host ? req->host : "(null)"));
     }
+    escaped_pathname = escape_pathname(req->pathname);
     if (vhost_root) {
         fprintf(stderr, "%s - - %srequest [%s] \"%s\" (\"%s\"): ",
                 req->remote_ip_addr,
                 get_commonlog_time(),
                 (req->header_host ? req->header_host : "(null)"),
                 (req->logline ? req->logline : "(null)"),
-                (req->pathname ? req->pathname : "(null)"));
+                (escaped_pathname ? escaped_pathname : "(null)"));
     } else {
         fprintf(stderr, "%s - - %srequest \"%s\" (\"%s\"): ",
                 req->remote_ip_addr,
                 get_commonlog_time(),
                 (req->logline ? req->logline : "(null)"),
-                (req->pathname ? req->pathname : "(null)"));
+                (escaped_pathname ? escaped_pathname : "(null)"));
     }
+    free(escaped_pathname);
 
     errno = errno_save;
 }
