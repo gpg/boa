@@ -769,7 +769,8 @@ static int index_directory(request * req, char *dest_filename)
 
     fclose(fdstream);
 
-    chdir(server_root);
+    if (chdir(server_root) == -1)
+        perror("chdir to server root failed");
 
     req->filesize = bytes;      /* for logging transfer size */
     return 0;                   /* success */

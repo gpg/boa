@@ -431,7 +431,9 @@ static void free_request(request * req)
 
     if (req->method == M_POST) {
         char buf[32768];
-        read(req->fd, buf, sizeof(buf));
+        do
+          i = read(req->fd, buf, sizeof(buf));
+        while (i == -1 && errno == EINTR);
     }
     close(req->fd);
     BOA_FD_CLR(req, req->fd, BOA_READ);

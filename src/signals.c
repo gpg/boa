@@ -130,7 +130,8 @@ void sigsegv(int dummy)
     time(&current_time);
     log_error_time();
     fprintf(stderr, "caught SIGSEGV, dumping core in %s\n", tempdir);
-    chdir(tempdir);
+    if (chdir(tempdir) == -1)
+        perror ("chdir (tempdir) failed");
     abort();
 }
 
@@ -145,7 +146,8 @@ void sigbus(int dummy)
     time(&current_time);
     log_error_time();
     fprintf(stderr, "caught SIGBUS, dumping core in %s\n", tempdir);
-    chdir(tempdir);
+    if (chdir (tempdir) == -1)
+        perror ("chdir (tempdir) failed");
     abort();
 }
 
@@ -169,7 +171,8 @@ void sigterm_stage2_run(void)
     fprintf(stderr,
             "exiting Boa normally (uptime %d seconds)\n",
             (int) (current_time - start_time));
-    chdir(tempdir);
+    if (chdir(tempdir) == -1)
+      perror ("chdir (tempdir) failed");
     clear_common_env();
     dump_mime();
     dump_passwd();
@@ -224,7 +227,8 @@ void sigint(int dummy)
     time(&current_time);
     log_error_time();
     fputs("caught SIGINT: shutting down\n", stderr);
-    chdir(tempdir);
+    if (chdir(tempdir) == -1)
+        perror ("chdir (tempdir) failed");
     exit(EXIT_FAILURE);
 }
 
