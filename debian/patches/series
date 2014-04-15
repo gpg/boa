@@ -1,4 +1,3 @@
-sendfile_ENOSYS.diff
 Makefile.in.diff
 allow_8bit.diff
 lfs_support.diff
