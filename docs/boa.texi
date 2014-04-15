@@ -429,7 +429,7 @@ but not all, are required.
 
  @item EnableHSTS <value>
  Use this directive to always insert a Strict-Transport-Security header.
- The provided value is used verbatim; e.g. 'max-age=3153600'. See
+ The provided value is used verbatim; e.g. 'max-age=31536000'. See
  RFC-6797 for details.
 
  @item Redirect, Alias, and ScriptAlias
