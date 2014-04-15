@@ -158,24 +158,26 @@ void log_access(request * req)
 
 static char *escape_pathname(const char *inp)
 {
-    char *escaped, *c;
+    const unsigned char *s;
+    char *escaped, *d;
 
     if (!inp) {
         return NULL;
     }
-    escaped = (char *)malloc(1 + strlen(inp) * 4);
-    if (escaped == NULL) {
+    escaped = malloc (4 * strlen(inp) + 1);
+    if (!escaped) {
     	perror("malloc");
 	return NULL;
     }
-    for (c = escaped; *inp; inp++) {
-        if (needs_escape((unsigned int)*inp)) {
-            c += sprintf(c, "\\x%02x", (unsigned int)*inp);
+    for (d = escaped, s = (const unsigned char *)inp; *s; s++) {
+        if (needs_escape (*s)) {
+            snprintf (d, 5, "\\x%02x", *s);
+            d += strlen (d);
         } else {
-            *(c++) = *inp;
+            *d++ = *s;
         }
     }
-    *(c++) = '\0';
+    *d++ = '\0';
     return escaped;
 }
 
