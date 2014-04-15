@@ -36,6 +36,8 @@ int sigalrm_flag = 0;           /* 1 => signal has happened, needs attention */
 int sigterm_flag = 0;           /* lame duck mode */
 time_t current_time;
 int pending_requests = 0;
+int override_server_port;
+const char *override_server_ip;
 
 extern const char *config_file_name;
 
@@ -155,14 +157,14 @@ static void parse_commandline(int argc, char *argv[])
 {
     int c;                      /* command line arg */
 
-    while ((c = getopt(argc, argv, "c:dl:f:r:")) != -1) {
+    while ((c = getopt(argc, argv, "c:dl:f:r:p:L:")) != -1) {
         switch (c) {
         case 'c':
             if (server_root)
                 free(server_root);
             server_root = strdup(optarg);
             if (!server_root) {
-                perror("strdup (for server_root)");
+                perror("strdup in command line option parsing");
                 exit(EXIT_FAILURE);
             }
             break;
@@ -194,6 +196,12 @@ static void parse_commandline(int argc, char *argv[])
             parse_debug(optarg);
             break;
 #endif
+        case 'p':
+            override_server_port = strtol (optarg, NULL, 0);
+            break;
+        case 'L':
+            override_server_ip = optarg;
+            break;
         default:
             usage(argv[0]);
             exit(EXIT_FAILURE);

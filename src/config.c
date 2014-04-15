@@ -73,6 +73,9 @@ extern int cgi_rlimit_cpu;      /* boa.c */
 extern int cgi_rlimit_data;     /* boa.c */
 extern int cgi_nice;            /* boa.c */
 #endif
+extern int override_server_port;       /* boa.c */
+extern const char *override_server_ip; /* boa.c */
+
 
 /* These are new */
 static void c_add_cgi_env(char *v1, char *v2, void *table_ptr);
@@ -515,6 +518,17 @@ void read_config_files(void)
     }
     parse(config);
     fclose(config);
+
+    if (override_server_port)
+        server_port = override_server_port;
+    if (override_server_ip) {
+        free (server_ip);
+        server_ip = strdup (override_server_ip);
+        if (!server_ip) {
+            perror("strdup:");
+            exit(EXIT_FAILURE);
+        }
+    }
 
     if (!server_name) {
         struct hostent *he;

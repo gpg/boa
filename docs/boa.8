@@ -3,15 +3,19 @@
 .B boa \- a single\-tasking high performance http server
 .SH SYNOPSIS
 .B boa
+.RB [ -d ]
 .RB [ -c
 .IR server_root ]
 .RB [ -r
 .IR chroot ]
 .RB [ -f
 .IR conf_file ]
-.RB [ -d ]
 .RB [ -l
 .IR debug_level ]
+.RB [ -L
+.IR ip ]
+.RB [ -p
+.IR port ]
 .SH DESCRIPTION
 Boa is a single-tasking HTTP server. That means that unlike traditional web
 servers, it does not fork for each incoming connection, nor does it fork many
@@ -49,6 +53,14 @@ Use a config file overriding the default DEFAULT_CONFIG_FILE #define in
 Run Boa under a specific debug level.  Running Boa with the
 option '-h' shows available debug levels.  This option is only
 available if Boa has been compiled with debug support.
+
+.IP "\fB-L \fIIP\fR"
+Listen on the IP address overriding the default and the 'Listen'
+directive from the configuration file.
+
+.IP "\fB-p \fIport\fR"
+Listen on port overriding the default and the 'Port' directive from
+the configuration file.
 
 .SH FILES
 .TP
