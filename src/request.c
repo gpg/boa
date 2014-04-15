@@ -817,6 +817,24 @@ int process_header_end(request * req)
         return 0;
     }
 
+
+    if (use_caudium_hack) {
+        /* We check whether the path is of the form "/(ll)/foo/..."
+           which is used by the Caudium webserver for caching purposes
+           and people have bookmarked it.  To cope with this we simply
+           strip it of. */
+        if (req->request_uri[0] == '/'
+            && req->request_uri[1] == '('
+            && req->request_uri[2] >= 'a' && req->request_uri[2] <= 'z'
+            && req->request_uri[3] >= 'a' && req->request_uri[3] <= 'z'
+            && req->request_uri[4] == ')'
+            && req->request_uri[5] == '/'
+            && req->request_uri[6] ) {
+            unsigned int len = strlen(req->request_uri);
+            memmove (req->request_uri, req->request_uri+5, len - 5 + 1);
+        }
+    }
+
     if (vhost_root) {
         char *c;
         if (!req->header_host) {

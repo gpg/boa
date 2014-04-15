@@ -415,11 +415,17 @@ but not all, are required.
  with an extension or extensions.
 
  @item LangRewrite
- This is a logical switch and does not take any parameters.  Comment
- out to disable.  Enable a simple language rewrite feature.  If a
+ This is a logical switch and does not take any parameters.
+ Use it to enable a simple language rewrite feature.  If a
  requested file name of the form @file{foo.LL.html}, with @code{LL}
  being two lowercase letters, is not found, Boa tries to locate the
  file @file{foo.html} instead.
+
+ @item CaudiumHack
+ This is a logical switch and does not take any parameters.  The
+ Caudium web server uses paths of the form @file{/(ll)/foo/...}  for
+ internal caching purposes and those URLs are still found in documents
+ and as bookmarks.  Enabling this options makes them work again.
 
  @item Redirect, Alias, and ScriptAlias
  Redirect, Alias, and ScriptAlias all have the same semantics --

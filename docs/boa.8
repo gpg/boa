@@ -215,10 +215,15 @@ Associates a MIME type with an extension or extensions.
 .TP
 LangRewrite
 This is a logical switch and does not take any parameters.
-Comment out to disable.
 Enable a simple language rewrite feature.  If a file name of the form
 foo.LL.html, with LL being two lowercase letters, is not found, Boa
 tries to locate the file foo.html instead.
+.TP
+CaudiumHack
+This is a logical switch and does not take any parameters.  The
+Caudium web server uses paths of the form '/(ll)/foo/...'  for
+internal caching purposes and those URLs are still found in documents
+and as bookmarks.  Enabling this options makes them work again.
 .TP
 Redirect, Alias, and ScriptAlias <path1> <path2>
 Redirect, Alias, and ScriptAlias all have the same semantics \-\- they
