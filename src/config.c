@@ -40,6 +40,7 @@ const char *default_vhost;
 int use_lang_rewrite;
 int use_caudium_hack;
 unsigned max_connections;
+char *hsts_header;
 
 char *document_root;
 char *user_dir;
@@ -142,6 +143,7 @@ struct ccommand clist[] = {
     {"VirtualHost", S0A, c_set_unity, &virtualhost},
     {"LangRewrite", S0A, c_set_unity, &use_lang_rewrite},
     {"CaudiumHack", S0A, c_set_unity, &use_caudium_hack},
+    {"EnableHSTS", S1A, c_set_string, &hsts_header},
     {"VHostRoot", S1A, c_set_string, &vhost_root},
     {"DefaultVHost", S1A, c_set_string, &default_vhost},
     {"DocumentRoot", S1A, c_set_string, &document_root},

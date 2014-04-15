@@ -103,6 +103,11 @@ void print_http_headers(request * req)
     req_write(req, date_header);
     if (!conceal_server_identity)
         req_write(req, server_header);
+    if (hsts_header) {
+       req_write(req, "Strict-Transport-Security: ");
+       req_write(req, hsts_header);
+       req_write(req, CRLF);
+    }
     req_write(req, "Accept-Ranges: bytes" CRLF);
     print_ka_phrase(req);
 }

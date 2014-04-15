@@ -277,6 +277,7 @@ extern char *vhost_root;
 extern const char *default_vhost;
 extern int use_lang_rewrite;
 extern int use_caudium_hack;
+extern char *hsts_header;
 
 extern unsigned total_connections;
 extern unsigned int system_bufsize;      /* Default size of SNDBUF given by system */

@@ -427,6 +427,11 @@ but not all, are required.
  internal caching purposes and those URLs are still found in documents
  and as bookmarks.  Enabling this options makes them work again.
 
+ @item EnableHSTS <value>
+ Use this directive to always insert a Strict-Transport-Security header.
+ The provided value is used verbatim; e.g. 'max-age=3153600'. See
+ RFC-6797 for details.
+
  @item Redirect, Alias, and ScriptAlias
  Redirect, Alias, and ScriptAlias all have the same semantics --
  they match the beginning of a request and take appropriate action.

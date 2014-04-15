@@ -225,6 +225,11 @@ Caudium web server uses paths of the form '/(ll)/foo/...'  for
 internal caching purposes and those URLs are still found in documents
 and as bookmarks.  Enabling this options makes them work again.
 .TP
+EnableHSTS <value>
+Use this directive to always insert a Strict-Transport-Security header.
+The provided value is used verbatim; e.g. 'max-age=3153600'. See
+RFC-6797 for details.
+.TP
 Redirect, Alias, and ScriptAlias <path1> <path2>
 Redirect, Alias, and ScriptAlias all have the same semantics \-\- they
 match the beginning of a request and take appropriate action.  Use
