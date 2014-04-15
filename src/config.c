@@ -37,6 +37,7 @@ char *server_ip;
 int virtualhost;
 char *vhost_root;
 const char *default_vhost;
+int use_lang_rewrite;
 unsigned max_connections;
 
 char *document_root;
@@ -135,6 +136,7 @@ struct ccommand clist[] = {
     {"VerboseCGILogs", S0A, c_set_unity, &verbose_cgi_logs},
     {"ServerName", S1A, c_set_string, &server_name},
     {"VirtualHost", S0A, c_set_unity, &virtualhost},
+    {"LangRewrite", S0A, c_set_unity, &use_lang_rewrite},
     {"VHostRoot", S1A, c_set_string, &vhost_root},
     {"DefaultVHost", S1A, c_set_string, &default_vhost},
     {"DocumentRoot", S1A, c_set_string, &document_root},

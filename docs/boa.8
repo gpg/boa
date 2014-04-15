@@ -3,10 +3,10 @@
 .B boa \- a single\-tasking high performance http server
 .SH SYNOPSIS
 .B boa
-.RB [ -c 
-.IR server_root ] 
-.RB [ -r 
-.IR chroot ] 
+.RB [ -c
+.IR server_root ]
+.RB [ -r
+.IR chroot ]
 .RB [ -d ]
 .SH DESCRIPTION
 Boa is a single-tasking HTTP server. That means that unlike traditional web
@@ -22,13 +22,13 @@ and encrypted communications". Boa is not intended as a feature-packed server;
 if you want one of those, check out WN from John Franks. Modifications to Boa
 that improve its speed, security, robustness, and portability, are eagerly
 sought. Other features may be added if they can be achieved without hurting the
-primary goals. 
+primary goals.
 .SH OPTIONS
-.IP \fB-d\fR 
+.IP \fB-d\fR
 instruct Boa not to fork itself (non-daemonize).
 
 .IP "\fB-c \fIserver_root\fR"
-choose a server root overriding the default SERVER_ROOT #define in 
+choose a server root overriding the default SERVER_ROOT #define in
 .I defines.h
 
 The server root must hold your local copy of the configuration file
@@ -40,13 +40,13 @@ files are opened.
 
 .SH FILES
 .TP
-\fBboa.conf\fR \- the sole configuration file for Boa.  
-The directives in this file are defined in the 
+\fBboa.conf\fR \- the sole configuration file for Boa.
+The directives in this file are defined in the
 .B DIRECTIVES
 section.
 
 .TP
-\fBmime.types\fR \- the 
+\fBmime.types\fR \- the
 MimeTypes <filename>
 defines what Content-Type Boa will send in an HTTP/1.0
 or better transaction.
@@ -59,18 +59,18 @@ can occur in any order.  Where possible, these directives mimic those of NCSA
 httpd 1.3; We saw no reason to introduce gratuitous differences.
 .PP
 Note: the "ServerRoot" is not in this configuration file.  It can be compiled
-into the server (see 
+into the server (see
 .I defines.h
-) or specified on the command line with the 
-.B -c 
+) or specified on the command line with the
+.B -c
 option.
 
-The following directives are contained in the 
+The following directives are contained in the
 .I boa.conf
 file, and most, but not all, are required.
 .TP
 Port <integer>
-This is the port that Boa runs on.  The default port for http servers is 80. 
+This is the port that Boa runs on.  The default port for http servers is 80.
 If it is less than 1024, the server must be started as root.
 .TP
 User <user name or UID>
@@ -83,7 +83,7 @@ the server must be started as root.
 .TP
 ServerAdmin <email address>
 The email address where server problems should be sent.
-Note: this is not currently used. 
+Note: this is not currently used.
 .TP
 PidFile <filename>
 Where to put the pid of the process.
@@ -95,7 +95,7 @@ does not attempt removal of the pid file.
 ErrorLog <filename>
 The location of the error log file.  If this does not start with
 /, it is considered relative to the server root.
-Set to /dev/null if you don't want errors logged. 
+Set to /dev/null if you don't want errors logged.
 .TP
 AccessLog <filename>
 The location of the access log file.  If this does not start with /, it is
@@ -107,15 +107,15 @@ This is a logical switch and does not take any parameters.
 Comment out to disable.
 .TP
 CGILog <filename>
-The location of the CGI error log file.  If this does not start with /, it 
-is considered relative to the server root. If specified, this is the file 
+The location of the CGI error log file.  If this does not start with /, it
+is considered relative to the server root. If specified, this is the file
 that the stderr of CGIs is tied to, *instead* of to the ErrorLog.
 .TP
 CGIumask <umask>
 The CGIumask is set immediately before execution of the CGI.
 The default value is 027. The number must be interpretable
 unambiguously by the C function strtol. No base is specified,
-so one may use a hexadecimal, decimal, or octal number if 
+so one may use a hexadecimal, decimal, or octal number if
 it is prefixed accordingly.
 .TP
 ServerName <server_name>
@@ -127,7 +127,7 @@ This is a logical switch and does not take any parameters.
 Comment out to disable.
 Given DocumentRoot /var/www, requests on interface 'A' or IP 'IP-A'
 become /var/www/IP-A.
-Example: http://localhost/ becomes /var/www/127.0.0.1 
+Example: http://localhost/ becomes /var/www/127.0.0.1
 .TP
 VHostRoot <directory>
 The root location for all virtually hosted data
@@ -135,11 +135,11 @@ Comment out to disable.
 Incompatible with 'Virtualhost' and 'DocumentRoot'!!
 Given VHostRoot /var/www, requests to host foo.bar.com,
 where foo.bar.com is ip a.b.c.d,
-become /var/www/a.b.c.d/foo.bar.com 
+become /var/www/a.b.c.d/foo.bar.com
 Hostnames are "cleaned", and must conform to the rules
 specified in rfc1034, which are be summarized here:
 
-Hostnames must start with a letter, end with a letter or digit, 
+Hostnames must start with a letter, end with a letter or digit,
 and have as interior characters only letters, digits, and hyphen.
 Hostnames must not exceed 63 characters in length.
 .TP
@@ -171,16 +171,16 @@ If this does not start with
 .TP
 KeepAliveMax <integer>
 Number of KeepAlive requests to allow per connection.  Comment out, or set
-to 0 to disable keepalive processing. 
+to 0 to disable keepalive processing.
 .TP
 KeepAliveTimeout <integer>
 Number of seconds to wait before keepalive connections time out.
 .TP
 MimeTypes <file>
-The location of the 
+The location of the
 .I mime.types
-file.  If this does not start with /, it is considered relative to 
-the server root. Set to /dev/null if you do not want to load a mime types 
+file.  If this does not start with /, it is considered relative to
+the server root. Set to /dev/null if you do not want to load a mime types
 file. Do *not* comment out (better use AddType!)
 .TP
 DefaultType <mime type>
@@ -188,6 +188,13 @@ MIME type used if the file extension is unknown, or there is no file extension.
 .TP
 AddType <mime type> <extension> [extension...]
 Associates a MIME type with an extension or extensions.
+.TP
+LangRewrite
+This is a logical switch and does not take any parameters.
+Comment out to disable.
+Enable a simple language rewrite feature.  If a file name of the form
+foo.LL.html, with LL being two lowercase letters, is not found, Boa
+tries to locate the file foo.html instead.
 .TP
 Redirect, Alias, and ScriptAlias <path1> <path2>
 Redirect, Alias, and ScriptAlias all have the same semantics \-\- they
@@ -200,34 +207,34 @@ in your server's namespace, but do not anymore.  This allows you tell
 the clients where to look for the relocated document.
 
 Alias aliases one path to another.  Of course, symbolic links in the
-file system work fine too.          
+file system work fine too.
 
 ScriptAlias maps a virtual path to a directory for serving scripts.
 .PP
-Please see the included 
-.I boa.conf 
+Please see the included
+.I boa.conf
 for defaults and examples.
 .SH HISTORY
 Like the Linux kernel, even numbered versions are "stable", and odd numbered
 versions are "unstable", or rather, "development".
 Versions 0.91 and 0.91beta of Boa were released by Paul Phillips <paulp@go2net.com>
 .PP
-Version 0.92 was released by Larry Doolittle on 
+Version 0.92 was released by Larry Doolittle on
 December 12, 1996.
 .PP
-Version 0.93 was the development version of 0.94. 
+Version 0.93 was the development version of 0.94.
 .PP
 Version 0.94 was released 22 Jan 2000.
 .SH BUGS
 There are probably bugs, but we are not aware of any at this time.
 .SH AUTHOR
-Boa was created by Paul Phillips <paulp@go2net.com>. 
+Boa was created by Paul Phillips <paulp@go2net.com>.
 It is now being maintained and enhanced by Larry Doolittle
 <ldoolitt@boa.org> and Jon Nelson <jnelson@boa.org>.
 .PP
 Linux is the development platform at the moment, other
 OS's are known to work. If you'd like to
-contribute to this effort, contact Larry or Jon via e-mail. 
+contribute to this effort, contact Larry or Jon via e-mail.
 .SH LICENSE
 This program is distributed under the GNU General Public License, as noted in
 each source file.

@@ -275,6 +275,7 @@ extern time_t current_time;
 extern int virtualhost;
 extern char *vhost_root;
 extern const char *default_vhost;
+extern int use_lang_rewrite;
 
 extern unsigned total_connections;
 extern unsigned int system_bufsize;      /* Default size of SNDBUF given by system */

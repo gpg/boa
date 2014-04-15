@@ -57,6 +57,38 @@ int init_get(request * req)
     data_fd = open(req->pathname, O_RDONLY);
     saved_errno = errno;        /* might not get used */
 
+    while (use_lang_rewrite && data_fd == -1 && errno == ENOENT) {
+         /* We cannot open that file - Check whether we can rewrite it
+          * to a different language suffix.  We only support filenames
+          * of the format: "foo.ll.html" as an alias for "foo.html". */
+        unsigned int len;
+
+        len = strlen(req->pathname);
+        if (len < 6 || strcmp (req->pathname + len - 5, ".html"))
+            break;  /* does not end in ".html" */
+        if (len > 8 && req->pathname[len-8] == '.'
+            && req->pathname[len-7] >= 'a' && req->pathname[len-7] <= 'z'
+            && req->pathname[len-6] >= 'a' && req->pathname[len-6] <= 'z') {
+            /* The request was for a language dependent file.  Strip
+             * it and try the generic form. */
+            char save_name[8];
+
+            strcpy (save_name, req->pathname + len - 7);
+            strcpy (req->pathname + len - 7, "html");
+            data_fd = open(req->pathname, O_RDONLY);
+            if (data_fd == -1)
+                strcpy (req->pathname + len - 7, save_name);
+            break;
+        }
+        else if ( 0 ) {
+            /* Fixme: Other items to try from the list of accepted_languages */
+            data_fd = open(req->pathname, O_RDONLY);
+        }
+        else
+            break;
+    }
+
+
 #ifdef GUNZIP
     if (data_fd == -1 && errno == ENOENT) {
         /* cannot open */
