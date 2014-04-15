@@ -1,4 +1,4 @@
-.TH BOA 8 "Jan 22 2000" "Version 0.94"
+.TH BOA 8 "Apr 28 2014" "Version 0.94/Debian"
 .SH NAME
 .B boa \- a single\-tasking high performance http server
 .SH SYNOPSIS
@@ -7,7 +7,11 @@
 .IR server_root ]
 .RB [ -r
 .IR chroot ]
+.RB [ -f
+.IR conf_file ]
 .RB [ -d ]
+.RB [ -l
+.IR debug_level ]
 .SH DESCRIPTION
 Boa is a single-tasking HTTP server. That means that unlike traditional web
 servers, it does not fork for each incoming connection, nor does it fork many
@@ -29,14 +33,22 @@ instruct Boa not to fork itself (non-daemonize).
 
 .IP "\fB-c \fIserver_root\fR"
 choose a server root overriding the default SERVER_ROOT #define in
-.I defines.h
-
+\fIdefines.h\fR (which usually is \fI/etc/boa\fR).
 The server root must hold your local copy of the configuration file
 
 .IP "\fB-r \fIchroot\fR"
 instruct Boa where to chdir and chroot to.  The chdir/chroot
 is done before the configuration file is read, or any log
 files are opened.
+
+.IP "\fB-f \fIconfig_file\fR"
+Use a config file overriding the default DEFAULT_CONFIG_FILE #define in
+\fIdefines.h\fR (which usually is \fIboa.conf\fR).
+
+.IP "\fB-l \fIlevel\fR"
+Run Boa under a specific debug level.  Running Boa with the
+option '-h' shows available debug levels.  This option is only
+available if Boa has been compiled with debug support.
 
 .SH FILES
 .TP
