@@ -259,14 +259,14 @@ void get_request(int server_sock)
 
 static void sanitize_request(request * req, int new_req)
 {
-    static unsigned int bytes_to_zero = offsetof(request, fd);
+    static off_t bytes_to_zero = offsetof(request, fd);
 
     if (new_req) {
         req->kacount = ka_max;
         req->time_last = current_time;
         req->client_stream_pos = 0;
     } else {
-        unsigned int bytes_to_move =
+        off_t bytes_to_move =
             req->client_stream_pos - req->parse_pos;
 
         if (bytes_to_move) {
@@ -282,7 +282,7 @@ static void sanitize_request(request * req, int new_req)
 
     DEBUG(DEBUG_REQUEST) {
         log_error_time();
-        fprintf(stderr, "req: %p, offset: %u\n", (void *) req,
+        fprintf(stderr, "req: %p, offset: " PRINTF_OFF_T_ARG "\n", (void *) req,
                 bytes_to_zero);
     }
 

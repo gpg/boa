@@ -130,9 +130,9 @@ struct request {                /* pending requests */
     int numranges;
 
     int data_fd;                /* fd of data */
-    unsigned long filesize;     /* filesize */
-    unsigned long filepos;      /* position in file */
-    unsigned long bytes_written; /* total bytes written (sans header) */
+    off_t filesize;     /* filesize */
+    off_t filepos;      /* position in file */
+    size_t bytes_written; /* total bytes written (sans header) */
     char *data_mem;             /* mmapped/malloced char array */
 
     char *logline;              /* line to log file */

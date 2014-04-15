@@ -140,7 +140,7 @@ static struct mmap_entry *find_named_mmap(char *fname)
     int data_fd;
     struct stat statbuf;
     struct mmap_entry *e;
-    data_fd = open(fname, O_RDONLY);
+    data_fd = open(fname, O_RDONLY|O_LARGEFILE);
     if (data_fd == -1) {
         perror(fname);
         return NULL;

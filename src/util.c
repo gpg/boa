@@ -497,7 +497,7 @@ void rfc822_time_buf(char *buf, time_t s)
     memcpy(p, day_tab + t->tm_wday * 4, 4);
 }
 
-char *simple_itoa(unsigned int i)
+char *simple_itoa(uint64_t i)
 {
     /* 21 digits plus null terminator, good for 64-bit or smaller ints
      * for bigger ints, use a bigger buffer!

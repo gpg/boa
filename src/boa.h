@@ -25,7 +25,9 @@
 #ifndef _BOA_H
 #define _BOA_H
 
+/* Important, include before anything else */
 #include "config.h"
+
 #include <errno.h>
 #include <stdlib.h>             /* malloc, free, etc. */
 #include <stdio.h>              /* stdin, stdout, stderr */
@@ -165,7 +167,7 @@ void sigterm_stage2_run(void);
 void clean_pathname(char *pathname);
 char *get_commonlog_time(void);
 void rfc822_time_buf(char *buf, time_t s);
-char *simple_itoa(unsigned int i);
+char *simple_itoa(uint64_t i);
 int boa_atoi(const char *s);
 int month2int(const char *month);
 int modified_since(time_t * mtime, const char *if_modified_since);

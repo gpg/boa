@@ -147,7 +147,7 @@ int ranges_fixup(request * req)
          * 5) start > stop && start != -1 :: invalid
          */
         DEBUG(DEBUG_RANGE) {
-            fprintf(stderr, "range.c: ranges_fixup: %lu-%lu\n", r->start, r->stop);
+            fprintf(stderr, "range.c: ranges_fixup: %lu - %lu\n", r->start, r->stop);
         }
 
         /* no stop range specified or stop is too big.

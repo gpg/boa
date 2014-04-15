@@ -205,3 +205,16 @@
 
 /* Define to `int' if <sys/types.h> doesn't define. */
 #undef uid_t
+
+/* Those enable the LFS ready structures in the system headers */
+#define _FILE_OFFSET_BITS 64 /* glibc style */
+#define _LARGEFILE_SOURCE 1	/* To make ftello() visible (HP-UX 10.20). */
+#define _LARGE_FILES 1 	/* Large file defined on AIX-style hosts.  */
+
+#define _LARGEFILE64_SOURCE /* tell kernel headers to provide the O_LARGEFILE value */
+
+#if __WORDSIZE == 64
+#define PRINTF_OFF_T_ARG "%ld"
+#elif __WORDSIZE == 32
+#define PRINTF_OFF_T_ARG "%lld"
+#endif

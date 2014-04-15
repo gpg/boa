@@ -213,7 +213,7 @@ int req_flush(request * req)
         return -2;
 
     if (bytes_to_write) {
-        int bytes_written;
+        off_t bytes_written;
 
         bytes_written = write(req->fd, req->buffer + req->buffer_start,
                               bytes_to_write);

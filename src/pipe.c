@@ -37,8 +37,8 @@
 
 int read_from_pipe(request * req)
 {
-    int bytes_read; /* signed */
-    unsigned int bytes_to_read; /* unsigned */
+    off_t bytes_read; /* signed */
+    off_t bytes_to_read; /* unsigned */ /* XXX really? */
 
     bytes_to_read = BUFFER_SIZE - (req->header_end - req->buffer - 1);
 
@@ -128,8 +128,8 @@ int read_from_pipe(request * req)
 
 int write_from_pipe(request * req)
 {
-    int bytes_written;
-    size_t bytes_to_write = req->header_end - req->header_line;
+    off_t bytes_written;
+    off_t bytes_to_write = req->header_end - req->header_line;
 
     if (bytes_to_write == 0) {
         if (req->cgi_status == CGI_DONE)
@@ -170,9 +170,9 @@ int write_from_pipe(request * req)
 #ifdef HAVE_SENDFILE
 int io_shuffle_sendfile(request * req)
 {
-    int bytes_written;
-    size_t bytes_to_write;
     off_t sendfile_offset;
+    off_t bytes_written;
+    off_t bytes_to_write;
 
     if (req->method == M_HEAD) {
         return complete_response(req);
@@ -267,8 +267,8 @@ retrysendfile:
 
 int io_shuffle(request * req)
 {
-    int bytes_to_read;
-    int bytes_written, bytes_to_write;
+    off_t bytes_to_read;
+    off_t bytes_written, bytes_to_write;
 
     if (req->method == M_HEAD) {
         return complete_response(req);
@@ -288,7 +288,7 @@ int io_shuffle(request * req)
         bytes_to_read = bytes_to_write;
 
     if (bytes_to_read > 0 && req->data_fd) {
-        int bytes_read;
+        off_t bytes_read;
         off_t temp;
 
         temp = lseek(req->data_fd, req->ranges->start, SEEK_SET);

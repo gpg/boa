@@ -25,6 +25,10 @@
 #include "boa.h"
 #include "access.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #define STR(s) __STR(s)
 #define __STR(s) #s
 
@@ -52,9 +56,9 @@ int init_get(request * req)
 {
     int data_fd, saved_errno;
     struct stat statbuf;
-    volatile unsigned int bytes_free;
+    volatile off_t bytes_free;
 
-    data_fd = open(req->pathname, O_RDONLY);
+    data_fd = open(req->pathname, O_RDONLY|O_LARGEFILE);
     saved_errno = errno;        /* might not get used */
 
     while (use_lang_rewrite && data_fd == -1 && errno == ENOENT) {
@@ -108,7 +112,7 @@ int init_get(request * req)
         memcpy(gzip_pathname, req->pathname, len);
         memcpy(gzip_pathname + len, ".gz", 3);
         gzip_pathname[len + 3] = '\0';
-        data_fd = open(gzip_pathname, O_RDONLY);
+        data_fd = open(gzip_pathname, O_RDONLY|O_LARGEFILE);
         if (data_fd != -1) {
             close(data_fd);
 
@@ -462,8 +466,8 @@ int init_get(request * req)
 
 int process_get(request * req)
 {
-    int bytes_written;
-    volatile unsigned int bytes_to_write;
+    off_t bytes_written;
+    volatile off_t bytes_to_write;
 
     if (req->method == M_HEAD) {
         return complete_response(req);
@@ -563,7 +567,7 @@ int get_dir(request * req, struct stat *statbuf)
         memcpy(pathname_with_index, req->pathname, l1); /* doesn't copy NUL */
         memcpy(pathname_with_index + l1, directory_index, l2 + 1); /* does */
 
-        data_fd = open(pathname_with_index, O_RDONLY);
+        data_fd = open(pathname_with_index, O_RDONLY|O_LARGEFILE);
 
         if (data_fd != -1) {    /* user's index file */
             /* We have to assume that directory_index will fit, because
@@ -587,7 +591,7 @@ int get_dir(request * req, struct stat *statbuf)
          * try index.html.gz
          */
         strcat(pathname_with_index, ".gz");
-        data_fd = open(pathname_with_index, O_RDONLY);
+        data_fd = open(pathname_with_index, O_RDONLY|O_LARGEFILE);
         if (data_fd != -1) {    /* user's index file */
             close(data_fd);
 
@@ -656,9 +660,9 @@ static int get_cachedir_file(request * req, struct stat *statbuf)
      * include the NUL when calculating if the size is enough
      */
     snprintf(pathname_with_index, sizeof(pathname_with_index),
-             "%s/dir.%d.%ld", cachedir,
+             "%s/dir.%d." PRINTF_OFF_T_ARG, cachedir,
              (int) statbuf->st_dev, statbuf->st_ino);
-    data_fd = open(pathname_with_index, O_RDONLY);
+    data_fd = open(pathname_with_index, O_RDONLY|O_LARGEFILE);
 
     if (data_fd != -1) {        /* index cache */
 
@@ -674,7 +678,7 @@ static int get_cachedir_file(request * req, struct stat *statbuf)
     if (index_directory(req, pathname_with_index) == -1)
         return -1;
 
-    data_fd = open(pathname_with_index, O_RDONLY); /* Last chance */
+    data_fd = open(pathname_with_index, O_RDONLY|O_LARGEFILE); /* Last chance */
     if (data_fd != -1) {
         strcpy(req->request_uri, directory_index); /* for mimetype */
         fstat(data_fd, statbuf);
@@ -703,7 +707,7 @@ static int index_directory(request * req, char *dest_filename)
     DIR *request_dir;
     FILE *fdstream;
     struct dirent *dirbuf;
-    int bytes = 0;
+    off_t bytes = 0;
     char *escname = NULL;
 
     if (chdir(req->pathname) == -1) {

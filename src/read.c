@@ -38,7 +38,7 @@
 
 int read_header(request * req)
 {
-    int bytes;
+    off_t bytes;
     char *check, *buffer;
     unsigned char uc;
 
@@ -179,7 +179,7 @@ int read_header(request * req)
                  */
 
                 if (req->content_length) {
-                    int content_length;
+                    off_t content_length;
 
                     content_length = boa_atoi(req->content_length);
                     /* Is a content-length of 0 legal? */
@@ -195,7 +195,7 @@ int read_header(request * req)
                         && content_length > single_post_limit) {
                         log_error_doc(req);
                         fprintf(stderr,
-                                "Content-Length [%d] > SinglePostLimit [%d] on POST!\n",
+                                "Content-Length [" PRINTF_OFF_T_ARG "] > SinglePostLimit [%d] on POST!\n",
                                 content_length, single_post_limit);
                         send_r_bad_request(req);
                         return 0;
@@ -224,7 +224,7 @@ int read_header(request * req)
 
     if (req->status < BODY_READ) {
         /* only reached if request is split across more than one packet */
-        unsigned int buf_bytes_left;
+        off_t buf_bytes_left;
 
         buf_bytes_left = CLIENT_STREAM_SIZE - req->client_stream_pos;
         if (buf_bytes_left < 1 || buf_bytes_left > CLIENT_STREAM_SIZE) {
@@ -273,7 +273,7 @@ int read_header(request * req)
         DEBUG(DEBUG_HEADER_READ) {
             log_error_time();
             req->client_stream[req->client_stream_pos] = '\0';
-            fprintf(stderr, "%s:%d -- We read %d bytes: \"%s\"\n",
+            fprintf(stderr, "%s:%d -- We read " PRINTF_OFF_T_ARG " bytes: \"%s\"\n",
                     __FILE__, __LINE__, bytes,
 #ifdef VERY_FASCIST_LOGGING2
                     req->client_stream + req->client_stream_pos - bytes
@@ -309,8 +309,8 @@ int read_header(request * req)
 
 int read_body(request * req)
 {
-    int bytes_read;
-    unsigned int bytes_to_read, bytes_free;
+    off_t bytes_read;
+    off_t bytes_to_read, bytes_free;
 
     bytes_free = BUFFER_SIZE - (req->header_end - req->header_line);
     bytes_to_read = req->filesize - req->filepos;
@@ -367,8 +367,8 @@ int read_body(request * req)
 
 int write_body(request * req)
 {
-    int bytes_written;
-    unsigned int bytes_to_write = req->header_end - req->header_line;
+    off_t bytes_written;
+    off_t bytes_to_write = req->header_end - req->header_line;
 
     if (req->filepos + bytes_to_write > req->filesize)
         bytes_to_write = req->filesize - req->filepos;
@@ -402,7 +402,7 @@ int write_body(request * req)
     }
     DEBUG(DEBUG_HEADER_READ) {
         log_error_time();
-        fprintf(stderr, "%s:%d - wrote %d bytes of CGI body. %ld of %ld\n",
+        fprintf(stderr, "%s:%d - wrote " PRINTF_OFF_T_ARG " bytes of CGI body. " PRINTF_OFF_T_ARG " of " PRINTF_OFF_T_ARG "\n",
                 __FILE__, __LINE__,
                 bytes_written, req->filepos, req->filesize);
     }
@@ -417,7 +417,7 @@ int write_body(request * req)
 
             req->header_line[bytes_written] = '\0';
             fprintf(stderr,
-                    "%s:%d - wrote %d bytes (%s). %lu of %lu\n",
+                    "%s:%d - wrote " PRINTF_OFF_T_ARG " bytes (%s). " PRINTF_OFF_T_ARG " of " PRINTF_OFF_T_ARG "\n",
                     __FILE__, __LINE__, bytes_written,
                     req->header_line, req->filepos, req->filesize);
             req->header_line[bytes_written] = c;
