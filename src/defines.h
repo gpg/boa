@@ -78,7 +78,7 @@
 #endif
 
 #ifndef SERVER_VERSION
-#define SERVER_VERSION 				"Boa/0.94.14rc21"
+#define SERVER_VERSION 				"Boa/0.94.101wk"
 #endif
 
 #define CGI_VERSION				"CGI/1.1"

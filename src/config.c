@@ -41,6 +41,7 @@ int use_lang_rewrite;
 int use_caudium_hack;
 unsigned max_connections;
 char *hsts_header;
+int no_redirect_port;
 
 char *document_root;
 char *user_dir;
@@ -146,6 +147,7 @@ struct ccommand clist[] = {
     {"LangRewrite", S0A, c_set_unity, &use_lang_rewrite},
     {"CaudiumHack", S0A, c_set_unity, &use_caudium_hack},
     {"EnableHSTS", S1A, c_set_string, &hsts_header},
+    {"NoRedirectPort", S0A, c_set_unity, &no_redirect_port},
     {"VHostRoot", S1A, c_set_string, &vhost_root},
     {"DefaultVHost", S1A, c_set_string, &default_vhost},
     {"DocumentRoot", S1A, c_set_string, &document_root},

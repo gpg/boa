@@ -238,6 +238,12 @@ Use this directive to always insert a Strict-Transport-Security header.
 The provided value is used verbatim; e.g. 'max-age=31536000'. See
 RFC-6797 for details.
 .TP
+NoRedirectPort
+This is a logical switch and does not take any parameters.  If Boa
+needs to send a redirect (i.e. to add a slash for a directory)
+it does not include the port number in the new URL.  This option is in
+particular useful if Boa is used behind pound(8).
+.TP
 Redirect, Alias, and ScriptAlias <path1> <path2>
 Redirect, Alias, and ScriptAlias all have the same semantics \-\- they
 match the beginning of a request and take appropriate action.  Use
@@ -267,12 +273,16 @@ December 12, 1996.
 Version 0.93 was the development version of 0.94.
 .PP
 Version 0.94 was released 22 Jan 2000.
+.PP
+Version 0.94.101wk is an extended version with all Debian patches and
+some more; see http://git.gnupg.org/cgi-bin/gitweb.cgi?p=boa.git .
 .SH BUGS
 There are probably bugs, but we are not aware of any at this time.
 .SH AUTHOR
 Boa was created by Paul Phillips <paulp@go2net.com>.
 It is now being maintained and enhanced by Larry Doolittle
 <ldoolitt@boa.org> and Jon Nelson <jnelson@boa.org>.
+This extended vesion is maintained by Werner Koch <wk@gnupg.org>.
 .PP
 Linux is the development platform at the moment, other
 OS's are known to work. If you'd like to

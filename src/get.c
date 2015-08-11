@@ -184,7 +184,7 @@ int init_get(request * req)
             char *host = server_name;
             unsigned int l2;
             char *port = NULL;
-            const char *prefix = "http://";
+            const char *prefix = hsts_header? "https://" : "http://";
             static unsigned int l3 = 0;
             static unsigned int l4 = 0;
 
@@ -192,7 +192,7 @@ int init_get(request * req)
                 l4 = strlen(prefix);
             }
             len = strlen(req->request_uri);
-            if (!port && server_port != 80) {
+            if (!port && server_port != 80 && !no_redirect_port) {
                 port = strdup(simple_itoa(server_port));
                 if (port == NULL) {
                     errno = ENOMEM;
@@ -213,7 +213,7 @@ int init_get(request * req)
             }
             l2 = strlen(host);
 
-            if (server_port != 80) {
+            if (server_port != 80 && !no_redirect_port) {
                 if (l4 + l2 + 1 + l3 + len + 1 > sizeof(buffer)) {
                     errno = ENOMEM;
                     boa_perror(req, "buffer not large enough for directory redirect");
