@@ -647,7 +647,7 @@ int check_host(const char *r)
      *
      */
     const char *c;
-    short period_ok = 0;
+    short period_ok;
     short len = 0;
 
     c = r;
@@ -663,6 +663,7 @@ int check_host(const char *r)
         return -1;
 
     len = 1;
+    period_ok = 1;/* We know that we don't have a period (isalnum() above)  */
     while (*(++c) != '\0') {
         /* interior letters may be alphanumeric, '-', or '.' */
         /* '.' may not follow '.' */
