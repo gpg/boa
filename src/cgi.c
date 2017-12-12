@@ -418,9 +418,11 @@ int init_cgi(request * req)
     DEBUG(DEBUG_CGI_ENV) {
         int i;
         for (i = 0; i < req->cgi_env_index; ++i)
+          {
             log_error_time();
             fprintf(stderr, "%s - environment variable for cgi: \"%s\"\n",
                     __FILE__, req->cgi_env[i]);
+          }
     }
 
     /* we want to use pipes whenever it's a CGI or directory */
@@ -450,8 +452,8 @@ int init_cgi(request * req)
     case -1:
         /* fork unsuccessful */
         /* FIXME: There is a problem here. send_r_error (called by
-         * boa_perror) would work for NPH and CGI, but not for GUNZIP.  
-         * Fix that. 
+         * boa_perror) would work for NPH and CGI, but not for GUNZIP.
+         * Fix that.
          */
         boa_perror(req, "fork failed");
         if (use_pipes) {
