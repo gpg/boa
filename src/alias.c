@@ -660,37 +660,23 @@ static int init_script_alias(request * req, alias * current1, unsigned int uri_l
                 send_r_not_found(req);
                 return 0;
             }
-            {
-                unsigned int l1 = strlen(user_homedir);
-                unsigned int l2 = strlen(user_dir);
-                unsigned int l3 = 0;
-                if (p)
-                    l3 = strlen(p);
 
-                req->path_translated = malloc(l1 + 1 + l2 + l3 + 1);
-                if (req->path_translated == NULL) {
-                    boa_perror(req, "unable to malloc memory for req->path_translated");
-                    return 0;
-                }
-                memcpy(req->path_translated, user_homedir, l1);
-                req->path_translated[l1] = '/';
-                memcpy(req->path_translated + l1 + 1, user_dir, l2 + 1); /* copy the NUL just in case */
-                if (p)
-                    memcpy(req->path_translated + l1 + 1 + l2, p, l3 + 1);
+            req->path_translated = strconcat (user_homedir,
+                                              "/", user_dir, p, NULL);
+            if (!req->path_translated) {
+                 boa_perror(req, "unable to malloc memory for "
+                            "req->path_translated");
+                 return 0;
             }
         } else if (!req->path_translated && document_root) {
             /* no userdir, no aliasing... try document root */
-            unsigned int l1, l2;
-            l1 = strlen(document_root);
-            l2 = path_len;
-
-            req->path_translated = malloc(l1 + l2 + 1);
-            if (req->path_translated == NULL) {
-                boa_perror(req, "unable to malloc memory for req->path_translated");
+            req->path_translated = strconcat(document_root,
+                                             req->path_info, NULL);
+            if (!req->path_translated) {
+                boa_perror(req, "unable to malloc memory for "
+                           "req->path_translated");
                 return 0;
             }
-            memcpy(req->path_translated, document_root, l1);
-            memcpy(req->path_translated + l1, req->path_info, l2 + 1);
         }
     }
 
