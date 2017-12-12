@@ -157,4 +157,20 @@ char *strdup(char *s);
 typedef unsigned short int sa_family_t;
 #endif
 
+/* GCC feature tests.  */
+#if __GNUC__
+# define BOA_GCC_VERSION (__GNUC__ * 10000           \
+                          + __GNUC_MINOR__ * 100     \
+                          + __GNUC_PATCHLEVEL__)
+#else
+# define BOA_GCC_VERSION 0
+#endif
+
+#if BOA_GCC_VERSION >= 40000
+# define BOA_ATTR_SENTINEL(a)  __attribute__ ((sentinel(a)))
+#else
+# define BOA_ATTR_SENTINEL(a)
+#endif
+
+
 #endif

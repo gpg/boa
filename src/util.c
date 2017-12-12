@@ -1,29 +1,30 @@
-/*
- *  Boa, an http server
- *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
- *  Some changes Copyright (C) 1996 Charles F. Randall <crandall@goldsys.com>
- *  Copyright (C) 1996-1999 Larry Doolittle <ldoolitt@boa.org>
- *  Copyright (C) 1996-2005 Jon Nelson <jnelson@boa.org>
+/* util.c
+ * Boa, an http server
+ * Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
+ * Some changes Copyright (C) 1996 Charles F. Randall <crandall@goldsys.com>
+ * Copyright (C) 1996-1999 Larry Doolittle <ldoolitt@boa.org>
+ * Copyright (C) 1996-2005 Jon Nelson <jnelson@boa.org>
+ * Copyright (C) 2017 g10 Code GmbH
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 1, or (at your option)
- *  any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier: GPL-2.0+
  */
 
 /* $Id: util.c,v 1.61.2.22 2005/02/22 14:11:29 jnelson Exp $ */
 
 #include "boa.h"
+#include <stdarg.h>
 
 static int date_to_tm(struct tm *file_gmt, const char *cmtime);
 
@@ -690,6 +691,58 @@ void strlower(char *s)
         ++s;
     }
 }
+
+
+/* Helper for strconcat.  */
+static char *
+do_strconcat (const char *s1, va_list arg_ptr)
+{
+  const char *argv[48];
+  size_t argc;
+  size_t needed;
+  char *buffer, *p;
+
+  argc = 0;
+  argv[argc++] = s1;
+  needed = strlen (s1);
+  while (((argv[argc] = va_arg (arg_ptr, const char *))))
+    {
+      needed += strlen (argv[argc]);
+      if (argc >= DIM (argv)-1)
+        {
+          errno = EINVAL;
+          return NULL;
+        }
+      argc++;
+    }
+  needed++;
+  buffer = malloc (needed);
+  if (buffer)
+    {
+      for (p = buffer, argc=0; argv[argc]; argc++)
+        p = stpcpy (p, argv[argc]);
+    }
+  return buffer;
+}
+
+
+char *
+strconcat (const char *s1, ...)
+{
+  va_list arg_ptr;
+  char *result;
+
+  if (!s1)
+    result = strdup ("");
+  else
+    {
+      va_start (arg_ptr, s1);
+      result = do_strconcat (s1, arg_ptr);
+      va_end (arg_ptr);
+    }
+  return result;
+}
+
 
 #ifndef DISABLE_DEBUG
 struct dbg {

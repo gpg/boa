@@ -180,4 +180,8 @@ extern int debug_level;
 #define EXIT_FAILURE 1
 #endif
 
+#ifndef DIM
+# define DIM(array) (sizeof (array) / sizeof (*array))
+#endif
+
 #endif

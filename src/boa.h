@@ -177,6 +177,7 @@ int real_set_block_fd(int fd);
 int real_set_nonblock_fd(int fd);
 char *to_upper(char *str);
 void strlower(char *s);
+char *strconcat (const char *s1, ...) BOA_ATTR_SENTINEL(0);
 int check_host(const char *r);
 #ifndef DISABLE_DEBUG
 void parse_debug(char *foo);
@@ -227,5 +228,5 @@ void range_pool_empty(void);
 void range_pool_push(Range * r);
 int ranges_fixup(request * req);
 int range_parse(request * req, const char *str);
- 
+
 #endif
