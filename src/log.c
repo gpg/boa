@@ -192,8 +192,8 @@ static char *escape_pathname(const char *inp)
     }
     escaped = malloc (4 * strlen(inp) + 1);
     if (!escaped) {
-    	perror("malloc");
-	return NULL;
+		perror("malloc");
+		return NULL;
     }
     for (d = escaped, s = (const unsigned char *)inp; *s; s++) {
         if (needs_escape (*s)) {

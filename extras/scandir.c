@@ -56,18 +56,26 @@ scandir(const char *dir, struct dirent ***namelist,
 
     while (NULL != readdir(d))
         count++;
-
+	
+	closedir(d);
+	
     names = malloc(sizeof (struct dirent *) * count);
+	if (!names) 
+		return -1;
 
-    closedir(d);
     d = opendir(dir);
-    if (NULL == d)
+    if (NULL == d) {
+		free(names);
         return -1;
+    }
 
     while (NULL != (current = readdir(d))) {
         if (NULL == select || select(current)) {
             struct dirent *copyentry = malloc(current->d_reclen);
-
+			/* FIXME: OOM, silently skip it?*/
+			if (!copyentry)
+				continue;
+			
             memcpy(copyentry, current, current->d_reclen);
 
             names[pos] = copyentry;
