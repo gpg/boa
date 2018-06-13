@@ -142,6 +142,7 @@ int main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
     }
+	close(fd);
     return 0;
 }
 #endif
